@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Exercise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .exercise-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exercise-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .exercise-card:hover::before {
+            left: 100%;
+        }
+
+        .exercise-card.completed {
+            opacity: 0.5;
+            background: #f8f9fa;
+            transform: scale(0.98);
+        }
+
+        .exercise-card.active {
+            border-left-color: #28a745;
+            box-shadow: 0 15px 35px rgba(40, 167, 69, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .exercise-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            flex: 1;
+        }
+
+        .exercise-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            font-size: 0.9em;
+            white-space: pre-line;
+        }
+
+        .exercise-type {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 500;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .exercise-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .timer-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 80px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+
+        .phase-info {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #333;
+            background: rgba(255, 193, 7, 0.2);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .repetition-counter {
+            background: rgba(108, 117, 125, 0.1);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .active-timer {
+            animation: pulse 1s infinite;
+        }
+
+        .completed-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        .btn-skip {
+            background: linear-gradient(45deg, #6c757d, #adb5bd);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-skip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-skip:active {
+            transform: translateY(0);
+        }
+
+        .btn-skip:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 Daily Exercise</h1>
+        <div id="exercises-container"></div>
+    </div>
+
+    <script>
+        // Exercise data structure
+        const exercises = [
+            {
+                id: 1,
+                type: "timer",
+                title: "Marching in place, 1 min",
+                description: `- Start: stand straight, arms at sides.  
+   - Movement: march in place with small steps.  
+   - Breathing: natural.`,
+                duration: 60
+            },
+            {
+                id: 2,
+                type: "intervals",
+                title: "Shoulder circles",
+                description: `- Start: stand straight, arms at sides.  
+- 45 s: shoulders draw small circles forward.  
+- 45 s: shoulders draw small circles backward.  
+- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).`,
+                workTime: 45,
+                restTime: 45,
+                rounds: 1
+            },
+            {
+                id: 3,
+                type: "repetitions",
+                title: "Head circles",
+                description: `- Start: stand straight, arms at sides
+- Movement: tilt head forward, chin to chest → full circle in ≈ 10 s.
+- Repeat 5 circles clockwise, then 5 counterclockwise.`,
+                repetitions: "5+5"
+            },
+            {
+                id: 4,
+                type: "intervals",
+                title: "Chest stretch with resistance band behind back",
+                description: `- Start: stand straight, feet hip-width apart. Hold black resistance band behind back with straight arms at hip level, palms facing body.
+- 20-30 s: slowly raise straight arms back and up until slight chest stretch. Hold at end position.
+- 10-15 s: rest.
+- Repeat 2 more times.
+- Common mistakes: don't arch lower back, don't raise shoulders to ears.`,
+                workTime: 20,
+                restTime: 10,
+                rounds: 3
+            },
+            {
+                id: 5,
+                type: "repetitions",
+                title: "Prayer position - wrist stretch",
+                description: `- Start: palms together in front of chest, elbows out.
+- Movement: keeping palms together, lower hands down until stretch + return up.
+- Repeat 10 times.`,
+                repetitions: 10
+            },
+            {
+                id: 6,
+                type: "repetitions",
+                title: "Wrist circles",
+                description: `- Start: elbows at sides, bent 90°.
+- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.
+- Common mistakes: don't rotate entire forearm, keep fingers relaxed.`,
+                repetitions: "10+10"
+            },
+            {
+                id: 7,
+                type: "repetitions",
+                title: "Thumb circles",
+                description: `- Start: elbows at sides, bent 90°.
+- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.`,
+                repetitions: "10+10"
+            },
+            {
+                id: 8,
+                type: "repetitions",
+                title: "Standing cat-cow",
+                description: `- Start: knees slightly bent, hands on hips, body leaning forward ≈ 30°.
+- Exhale: round back in an arch.
+- Inhale: arch lower back, chest forward.`,
+                repetitions: 10
+            },
+            {
+                id: 9,
+                type: "repetitions",
+                title: "Torso twists, hands on shoulders",
+                description: `- Start: feet hip-width apart, hands on shoulders, elbows out.
+- Movement: chest to left → center → right.
+- Repeat 20 times`,
+                repetitions: 20
+            },	    
+            {
+                id: 10,
+                type: "repetitions",
+                title: "Hip circles standing",
+                description: `- Start position: stand straight, feet hip-width apart, hands lightly on hips.
+- Movement:
+    - Slowly shift hips forward and slightly right, then back and left — draw full circle with hips.
+    - Do 8 circles clockwise, then 8 counterclockwise.
+- Breathing: steady, no holds.
+- Common mistakes: don't bend knees; keep torso and shoulders still; rotation only from hip area.`,
+                repetitions: "8+8"
+            },	 	    
+            {
+                id: 11,
+                type: "repetitions",
+                title: "Hip circles",
+                description: `- Support with hand on wall, torso straight.
+- Draw circle with knee: up → side → down → other side - 5 times.
+- Clockwise and counterclockwise for each hip.
+- Common mistakes: don't lean torso, keep core engaged.`,
+                repetitions: "5+5 + 5+5"
+            },	    
+            {
+                id: 12,
+                type: "repetitions",
+                title: "Leg abduction with resistance band",
+                description: `- Start: resistance band above knees, stand slightly bent.
+- Movement: straight leg out to side until band tension, return slowly.
+- 10 reps for each leg.
+- Common mistakes: don't turn foot, movement strictly to side.`,
+                repetitions: "10+10"
+            },		    
+            {
+                id: 13,
+                type: "repetitions",
+                title: "Step up on 29cm box",
+                description: `- Start: facing box, feet parallel.
+- Movement: right foot on box → stand up/straighten → place left foot next to right → step down in reverse order.
+- 8 step-ups each leg
+- Common mistakes: heel of standing leg always on box.`,
+                repetitions: "8+8"
+            },	
+            {
+                id: 14,
+                type: "repetitions",
+                title: "Mini squat to box touch",
+                description: `- Start position: stand straight, feet hip-width apart, toes pointing forward
+- Box behind.
+- Bend knees and hips, buttocks slightly touch box → up.
+- Repeat 8 times.
+- Common mistakes: knees not past toes; weight on heels.`,
+                repetitions: 8
+            },	
+            {
+                id: 15,
+                type: "repetitions",
+                title: "Heel-toe roll + calf raise",
+                description: `- Rise on toes → lower through heel, slightly lifting toes.  
+- 15 times.
+- Can hold wall for support.`,
+                repetitions: 15
+            },
+            {
+                id: 16,
+                type: "repetitions",
+                title: "SITTING: Ankle circles",
+                description: `- Start: sit on edge of chair, back straight, hands on hips.
+- Legs extended forward, heels touching floor.
+- Movement: simultaneously rotate both feet at ankles 
+- 10 circles inward, 10 circles outward.`,
+                repetitions: "10+10"
+            },
+            {
+                id: 17,
+                type: "repetitions",
+                title: "SITTING: Knee extension",
+                description: `- Start: sit on edge of chair, back straight.
+- On inhale, straighten leg to hip level, hold 1 s.
+- On exhale, slowly lower to ~90° angle.
+- 10 times each leg.
+- Common mistakes: don't "drop" leg, no jerking.`,
+                repetitions: "10+10"
+            },
+            {
+                id: 18,
+                type: "timer",
+                title: "SITTING: Calf stretch",
+                description: `- Legs extended forward, heels on floor.
+- Pull toes toward you, hold 15 s.`,
+                duration: 15
+            },
+            {
+                id: 19,
+                type: "repetitions",
+                title: "SITTING: Breathing",
+                description: `- 3 deep breaths: arms out-up – inhale, down – exhale`,
+                repetitions: 3
+            }
+        ];
+
+        let currentActiveIndex = 0;
+        let completedExercises = new Set();
+
+        // Audio context for sound
+        let audioContext;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBeep(frequency = 800, duration = 100) {
+            initAudio();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function playStartBeep() {
+            playBeep(1000, 100);
+        }
+
+        function playEndBeeps() {
+            playBeep(1200, 80);
+            setTimeout(() => playBeep(1200, 80), 100);
+            setTimeout(() => playBeep(1200, 80), 200);
+        }
+
+        function playPhaseTransitionBeeps() {
+            playBeep(800, 150);
+            setTimeout(() => playBeep(800, 150), 300);
+            setTimeout(() => playBeep(1200, 150), 600);
+        }
+
+        function completeExercise(exerciseId) {
+            completedExercises.add(exerciseId);
+            updateActiveExercise();
+            renderExercises();
+        }
+
+        function updateActiveExercise() {
+            // Find the next uncompleted exercise
+            for (let i = 0; i < exercises.length; i++) {
+                if (!completedExercises.has(exercises[i].id)) {
+                    currentActiveIndex = i;
+                    return;
+                }
+            }
+            currentActiveIndex = -1; // All exercises completed
+        }
+        function renderRepetitionExercise(exercise, isActive, isCompleted) {
+            return `
+                <div class="exercise-controls">
+                    <button class="btn" onclick="completeExercise(${exercise.id})" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        Done (${exercise.repetitions} times)
+                    </button>
+                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                        Skip
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderTimerExercise(exercise, isActive, isCompleted) {
+            const timerId = `timer-${exercise.id}`;
+            return `
+                <div class="exercise-controls">
+                    <div class="timer-display" id="${timerId}">${exercise.duration}s</div>
+                    <button class="btn" onclick="startTimer(${exercise.id}, ${exercise.duration})" 
+                            id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        Start
+                    </button>
+                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                        Skip
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderIntervalExercise(exercise, isActive, isCompleted) {
+            const timerId = `timer-${exercise.id}`;
+            const phaseId = `phase-${exercise.id}`;
+            const roundId = `round-${exercise.id}`;
+            return `
+                <div class="exercise-controls">
+                    <div class="timer-display" id="${timerId}">--</div>
+                    <div class="phase-info" id="${phaseId}">Ready to start</div>
+                    <div class="repetition-counter" id="${roundId}">Round: 0/${exercise.rounds}</div>
+                    <button class="btn" onclick="startIntervals(${exercise.id})" 
+                            id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        Start workout
+                    </button>
+                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                        Skip
+                    </button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-${exercise.id}" style="width: 0%"></div>
+                </div>
+            `;
+        }
+
+        function renderExercises() {
+            const container = document.getElementById('exercises-container');
+            container.innerHTML = exercises.map((exercise, index) => {
+                const isActive = index === currentActiveIndex;
+                const isCompleted = completedExercises.has(exercise.id);
+                
+                let typeLabel = '';
+                let controls = '';
+                
+                switch(exercise.type) {
+                    case 'repetitions':
+                        typeLabel = 'Repetitions';
+                        controls = renderRepetitionExercise(exercise, isActive, isCompleted);
+                        break;
+                    case 'timer':
+                        typeLabel = 'Timed';
+                        controls = renderTimerExercise(exercise, isActive, isCompleted);
+                        break;
+                    case 'intervals':
+                        typeLabel = 'Intervals';
+                        controls = renderIntervalExercise(exercise, isActive, isCompleted);
+                        break;
+                }
+
+                return `
+                    <div class="exercise-card ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
+                        ${isCompleted ? '<div class="completed-badge">✓ Completed</div>' : ''}
+                        <div class="exercise-header">
+                            <div class="exercise-title">${exercise.title}</div>
+                            <div class="exercise-type">${typeLabel}</div>
+                        </div>
+                        <div class="exercise-description">${exercise.description}</div>
+                        ${controls}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startTimer(exerciseId, duration) {
+            const timerEl = document.getElementById(`timer-${exerciseId}`);
+            const btnEl = document.getElementById(`btn-${exerciseId}`);
+            
+            btnEl.disabled = true;
+            playStartBeep();
+            
+            let timeLeft = duration;
+            timerEl.classList.add('active-timer');
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    playEndBeeps();
+                    timerEl.classList.remove('active-timer');
+                    completeExercise(exerciseId);
+                }
+            }, 1000);
+        }
+
+	function startIntervals(exerciseId) {
+	    const exercise = exercises.find(ex => ex.id === exerciseId);
+	    const timerEl = document.getElementById(`timer-${exerciseId}`);
+	    const phaseEl = document.getElementById(`phase-${exerciseId}`);
+	    const roundEl = document.getElementById(`round-${exerciseId}`);
+	    const progressEl = document.getElementById(`progress-${exerciseId}`);
+	    const btnEl = document.getElementById(`btn-${exerciseId}`);
+
+	    btnEl.disabled = true;
+
+	    let currentRound = 1;
+	    let isWorkPhase = true;
+	    let timeLeft = exercise.workTime;
+
+	    timerEl.classList.add('active-timer');
+	    playStartBeep();
+
+	    function updateDisplay() {
+		timerEl.textContent = `${timeLeft}s`;
+		phaseEl.textContent = isWorkPhase ? 'Work!' : 'Rest';
+		roundEl.textContent = `Round: ${currentRound}/${exercise.rounds}`;
+
+		const totalTime = (exercise.workTime + exercise.restTime) * exercise.rounds;
+		const elapsed = (exercise.workTime + exercise.restTime) * (currentRound - 1) +
+			       (isWorkPhase ? exercise.workTime - timeLeft : exercise.workTime + exercise.restTime - timeLeft);
+		const progress = (elapsed / totalTime) * 100;
+		progressEl.style.width = `${progress}%`;
+	    }
+
+	    updateDisplay();
+
+	    const interval = setInterval(() => {
+		timeLeft--;
+		updateDisplay();
+
+		if (timeLeft <= 0) {
+		    if (isWorkPhase) {
+			playEndBeeps();
+			isWorkPhase = false;
+			timeLeft = exercise.restTime;
+		    } else {
+			playPhaseTransitionBeeps();
+			currentRound++;
+			if (currentRound > exercise.rounds) {
+			    clearInterval(interval);
+			    timerEl.classList.remove('active-timer');
+			    phaseEl.textContent = 'Completed!';
+			    completeExercise(exerciseId);
+			    return;
+			} else {
+			    isWorkPhase = true;
+			    timeLeft = exercise.workTime;
+			}
+		    }
+		}
+	    }, 1000);
+	}
+
+        // Initialize application
+        updateActiveExercise();
+        renderExercises();
+    </script>
+</body>
+</html>
+
+
