@@ -1,0 +1,139 @@
+[
+  {
+    "id": 1,
+    "type": "timer",
+    "title": "Marching in place, 1 min",
+    "description": "- Start: stand straight, arms at sides.  \n   - Movement: march in place with small steps.  \n   - Breathing: natural.",
+    "duration": 60
+  },
+  {
+    "id": 2,
+    "type": "intervals",
+    "title": "Shoulder circles",
+    "description": "- Start: stand straight, arms at sides.  \n- 45 s: shoulders draw small circles forward.  \n- 45 s: shoulders draw small circles backward.  \n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).",
+    "workTime": 45,
+    "restTime": 45,
+    "rounds": 1
+  },
+  {
+    "id": 3,
+    "type": "repetitions",
+    "title": "Head circles",
+    "description": "- Start: stand straight, arms at sides\n- Movement: tilt head forward, chin to chest → full circle in ≈ 10 s.\n- Repeat 5 circles clockwise, then 5 counterclockwise.",
+    "repetitions": "5+5"
+  },
+  {
+    "id": 4,
+    "type": "intervals",
+    "title": "Chest stretch with resistance band behind back",
+    "description": "- Start: stand straight, feet hip-width apart. Hold black resistance band behind back with straight arms at hip level, palms facing body.\n- 20-30 s: slowly raise straight arms back and up until slight chest stretch. Hold at end position.\n- 10-15 s: rest.\n- Repeat 2 more times.\n- Common mistakes: don't arch lower back, don't raise shoulders to ears.",
+    "workTime": 20,
+    "restTime": 10,
+    "rounds": 3
+  },
+  {
+    "id": 5,
+    "type": "repetitions",
+    "title": "Prayer position - wrist stretch",
+    "description": "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times.",
+    "repetitions": 10
+  },
+  {
+    "id": 6,
+    "type": "repetitions",
+    "title": "Wrist circles",
+    "description": "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 7,
+    "type": "repetitions",
+    "title": "Thumb circles",
+    "description": "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 8,
+    "type": "repetitions",
+    "title": "Standing cat-cow",
+    "description": "- Start: knees slightly bent, hands on hips, body leaning forward ≈ 30°.\n- Exhale: round back in an arch.\n- Inhale: arch lower back, chest forward.",
+    "repetitions": 10
+  },
+  {
+    "id": 9,
+    "type": "repetitions",
+    "title": "Torso twists, hands on shoulders",
+    "description": "- Start: feet hip-width apart, hands on shoulders, elbows out.\n- Movement: chest to left → center → right.\n- Repeat 20 times",
+    "repetitions": 20
+  },
+  {
+    "id": 10,
+    "type": "repetitions",
+    "title": "Hip circles standing",
+    "description": "- Start position: stand straight, feet hip-width apart, hands lightly on hips.\n- Movement:\n    - Slowly shift hips forward and slightly right, then back and left — draw full circle with hips.\n    - Do 8 circles clockwise, then 8 counterclockwise.\n- Breathing: steady, no holds.\n- Common mistakes: don't bend knees; keep torso and shoulders still; rotation only from hip area.",
+    "repetitions": "8+8"
+  },
+  {
+    "id": 11,
+    "type": "repetitions",
+    "title": "Hip circles",
+    "description": "- Support with hand on wall, torso straight.\n- Draw circle with knee: up → side → down → other side - 5 times.\n- Clockwise and counterclockwise for each hip.\n- Common mistakes: don't lean torso, keep core engaged.",
+    "repetitions": "5+5 + 5+5"
+  },
+  {
+    "id": 12,
+    "type": "repetitions",
+    "title": "Leg abduction with resistance band",
+    "description": "- Start: resistance band above knees, stand slightly bent.\n- Movement: straight leg out to side until band tension, return slowly.\n- 10 reps for each leg.\n- Common mistakes: don't turn foot, movement strictly to side.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 13,
+    "type": "repetitions",
+    "title": "Step up on 29cm box",
+    "description": "- Start: facing box, feet parallel.\n- Movement: right foot on box → stand up/straighten → place left foot next to right → step down in reverse order.\n- 8 step-ups each leg\n- Common mistakes: heel of standing leg always on box.",
+    "repetitions": "8+8"
+  },
+  {
+    "id": 14,
+    "type": "repetitions",
+    "title": "Mini squat to box touch",
+    "description": "- Start position: stand straight, feet hip-width apart, toes pointing forward\n- Box behind.\n- Bend knees and hips, buttocks slightly touch box → up.\n- Repeat 8 times.\n- Common mistakes: knees not past toes; weight on heels.",
+    "repetitions": 8
+  },
+  {
+    "id": 15,
+    "type": "repetitions",
+    "title": "Heel-toe roll + calf raise",
+    "description": "- Rise on toes → lower through heel, slightly lifting toes.  \n- 15 times.\n- Can hold wall for support.",
+    "repetitions": 15
+  },
+  {
+    "id": 16,
+    "type": "repetitions",
+    "title": "SITTING: Ankle circles",
+    "description": "- Start: sit on edge of chair, back straight, hands on hips.\n- Legs extended forward, heels touching floor.\n- Movement: simultaneously rotate both feet at ankles \n- 10 circles inward, 10 circles outward.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 17,
+    "type": "repetitions",
+    "title": "SITTING: Knee extension",
+    "description": "- Start: sit on edge of chair, back straight.\n- On inhale, straighten leg to hip level, hold 1 s.\n- On exhale, slowly lower to ~90° angle.\n- 10 times each leg.\n- Common mistakes: don't \"drop\" leg, no jerking.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 18,
+    "type": "timer",
+    "title": "SITTING: Calf muscle stretch",
+    "description": "- Legs extended forward, heels on floor.\n- Pull toes toward you, hold 15 s.",
+    "duration": 15
+  },
+  {
+    "id": 19,
+    "type": "repetitions",
+    "title": "SITTING: Breathing",
+    "description": "- 3 deep breaths: arms out-up – inhale, down – exhale",
+    "repetitions": 3
+  }
+]
