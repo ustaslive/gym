@@ -242,11 +242,45 @@
             transform: none;
             box-shadow: none;
         }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 20px;
+            z-index: 100;
+        }
+
+        .session-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .global-timer {
+            font-weight: bold;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+            min-width: 70px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💪 Daily Exercise</h1>
+        <div class="header">
+            <h1>💪 Daily Exercise</h1>
+            <div class="session-controls">
+                <div id="session-timer" class="global-timer">00:00</div>
+                <button id="session-start-stop" class="btn">Start</button>
+            </div>
+        </div>
         <div id="exercises-container"></div>
     </div>
 
@@ -256,6 +290,31 @@
 
         let currentActiveIndex = 0;
         let completedExercises = new Set();
+
+        // Session timer
+        let sessionTime = 0;
+        let sessionInterval = null;
+
+        function updateSessionDisplay() {
+            const m = String(Math.floor(sessionTime / 60)).padStart(2, '0');
+            const s = String(sessionTime % 60).padStart(2, '0');
+            document.getElementById('session-timer').textContent = `${m}:${s}`;
+        }
+
+        function toggleSessionTimer() {
+            const btn = document.getElementById('session-start-stop');
+            if (sessionInterval) {
+                clearInterval(sessionInterval);
+                sessionInterval = null;
+                btn.textContent = 'Start';
+            } else {
+                sessionInterval = setInterval(() => {
+                    sessionTime++;
+                    updateSessionDisplay();
+                }, 1000);
+                btn.textContent = 'Stop';
+            }
+        }
 
         // Audio context for sound
         let audioContext;
@@ -494,6 +553,8 @@
                 exercises = data;
                 updateActiveExercise();
                 renderExercises();
+                updateSessionDisplay();
+                document.getElementById('session-start-stop').addEventListener('click', toggleSessionTimer);
             })
             .catch(err => console.error("Failed to load exercises", err));
     </script>
