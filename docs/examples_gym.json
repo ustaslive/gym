@@ -1,0 +1,32 @@
+[
+  {
+    "id": 100,
+    "type": "timer",
+    "title": "Light jogging on the spot",
+    "description": "Run in place with relaxed arms.",
+    "duration": 30
+  },
+  {
+    "id": 101,
+    "type": "intervals",
+    "title": "Plank with rest",
+    "description": "Hold plank then rest briefly.",
+    "workTime": 20,
+    "restTime": 10,
+    "rounds": 3
+  },
+  {
+    "id": 102,
+    "type": "repetitions",
+    "title": "Push-ups",
+    "description": "Standard push-ups from floor.",
+    "repetitions": 10
+  },
+  {
+    "id": 103,
+    "type": "repetitions",
+    "title": "Lunges",
+    "description": "Alternate legs.",
+    "repetitions": "10+10"
+  }
+]
