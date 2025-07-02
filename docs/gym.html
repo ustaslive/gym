@@ -174,6 +174,16 @@
             border-left: 4px solid #ffc107;
         }
 
+        .step-info {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #333;
+            background: rgba(23, 162, 184, 0.2);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #17a2b8;
+        }
+
         .progress-bar {
             width: 100%;
             height: 6px;
@@ -430,6 +440,24 @@
             `;
         }
 
+        function renderSequenceExercise(exercise, isActive, isCompleted) {
+            const timerId = `timer-${exercise.id}`;
+            const stepId = `step-${exercise.id}`;
+            return `
+                <div class="exercise-controls">
+                    <div class="timer-display" id="${timerId}">--</div>
+                    <div class="step-info" id="${stepId}">Ready to start</div>
+                    <button class="btn" onclick="startSequence(${exercise.id})"
+                            id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        Start
+                    </button>
+                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                        Skip
+                    </button>
+                </div>
+            `;
+        }
+
         function renderExercises() {
             const container = document.getElementById('exercises-container');
             container.innerHTML = exercises.map((exercise, index) => {
@@ -451,6 +479,10 @@
                     case 'intervals':
                         typeLabel = 'Intervals';
                         controls = renderIntervalExercise(exercise, isActive, isCompleted);
+                        break;
+                    case 'sequence':
+                        typeLabel = 'Sequence';
+                        controls = renderSequenceExercise(exercise, isActive, isCompleted);
                         break;
                 }
 
@@ -491,8 +523,8 @@
             }, 1000);
         }
 
-	function startIntervals(exerciseId) {
-	    const exercise = exercises.find(ex => ex.id === exerciseId);
+        function startIntervals(exerciseId) {
+            const exercise = exercises.find(ex => ex.id === exerciseId);
 	    const timerEl = document.getElementById(`timer-${exerciseId}`);
 	    const phaseEl = document.getElementById(`phase-${exerciseId}`);
 	    const roundEl = document.getElementById(`round-${exerciseId}`);
@@ -546,8 +578,50 @@
 			}
 		    }
 		}
-	    }, 1000);
-	}
+            }, 1000);
+        }
+
+        function startSequence(exerciseId) {
+            const exercise = exercises.find(ex => ex.id === exerciseId);
+            const timerEl = document.getElementById(`timer-${exerciseId}`);
+            const stepEl = document.getElementById(`step-${exerciseId}`);
+            const btnEl = document.getElementById(`btn-${exerciseId}`);
+
+            btnEl.disabled = true;
+
+            let stepIndex = 0;
+            let timeLeft = exercise.steps[stepIndex].time;
+
+            timerEl.classList.add('active-timer');
+            stepEl.textContent = exercise.steps[stepIndex].label;
+            playStartBeep();
+
+            function updateDisplay() {
+                timerEl.textContent = `${timeLeft}s`;
+            }
+
+            updateDisplay();
+
+            const interval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+
+                if (timeLeft <= 0) {
+                    playEndBeeps();
+                    stepIndex++;
+                    if (stepIndex >= exercise.steps.length) {
+                        clearInterval(interval);
+                        timerEl.classList.remove('active-timer');
+                        stepEl.textContent = 'Completed!';
+                        completeExercise(exerciseId);
+                        return;
+                    } else {
+                        timeLeft = exercise.steps[stepIndex].time;
+                        stepEl.textContent = exercise.steps[stepIndex].label;
+                    }
+                }
+            }, 1000);
+        }
 
         // Initialize application
         fetch("gym.json")

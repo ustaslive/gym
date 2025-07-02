@@ -134,6 +134,16 @@
     "type": "repetitions",
     "title": "SITTING: Breathing",
     "description": "- 3 deep breaths: arms out-up – inhale, down – exhale",
-    "repetitions": 3
+  "repetitions": 3
+  },
+  {
+    "id": 20,
+    "type": "sequence",
+    "title": "Warmup sequence example",
+    "description": "Demonstration of sequence type with two steps",
+    "steps": [
+      { "label": "Arms up", "time": 5 },
+      { "label": "Arms down", "time": 5 }
+    ]
   }
 ]
