@@ -28,5 +28,15 @@
     "title": "Lunges",
     "description": "Alternate legs.",
     "repetitions": "10+10"
+  },
+  {
+    "id": 104,
+    "type": "sequence",
+    "title": "Warmup sequence example",
+    "description": "Demonstration of sequence type with two steps",
+    "steps": [
+      { "label": "Arms up", "time": 5 },
+      { "label": "Arms down", "time": 5 }
+    ]
   }
 ]
