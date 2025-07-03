@@ -8,12 +8,13 @@
   },
   {
     "id": 2,
-    "type": "intervals",
+    "type": "sequence",
     "title": "Shoulder circles",
-    "description": "- Start: stand straight, arms at sides.  \n- 45 s: shoulders draw small circles forward.  \n- 45 s: shoulders draw small circles backward.  \n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).",
-    "workTime": 45,
-    "restTime": 45,
-    "rounds": 1
+    "description": "- Start: stand straight, arms at sides.\n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).",
+    "steps": [
+      { "label": "Forward rotation", "time": 45 },
+      { "label": "Backward rotation", "time": 45 }
+    ]
   },
   {
     "id": 3,
