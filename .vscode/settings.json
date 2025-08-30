@@ -1,0 +1,5 @@
+{
+  "livePreview.serverRoot": "docs",
+  "livePreview.defaultPreviewPath": "/gym.html",
+  "livePreview.openPreviewTarget": "External Browser"
+}

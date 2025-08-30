@@ -336,6 +336,10 @@
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
+            // Ensure audio plays on first interaction (resume if suspended)
+            if (audioContext && audioContext.state === 'suspended') {
+                try { audioContext.resume(); } catch (_) {}
+            }
         }
 
         function playBeep(frequency = 800, duration = 100) {
@@ -357,7 +361,10 @@
         }
 
         function playStartBeep() {
-            playBeep(1000, 100);
+            // Start cue: two lower tones, then one higher (tu-tu-TU)
+            playBeep(800, 150);
+            setTimeout(() => playBeep(800, 150), 300);
+            setTimeout(() => playBeep(1200, 150), 600);
         }
 
         function playEndBeeps() {
@@ -367,10 +374,43 @@
         }
 
         function playPhaseTransitionBeeps() {
-            playBeep(800, 150);
-            setTimeout(() => playBeep(800, 150), 300);
-            setTimeout(() => playBeep(1200, 150), 600);
+            // Use the same start cue when transitioning into a new work phase
+            playStartBeep();
         }
+
+        // Warm-up: make a very short, very low-volume beep once on first interaction
+        function warmupAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const resume = (audioContext.state === 'suspended') ? audioContext.resume() : Promise.resolve();
+            resume.then(() => {
+                try {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    // Frequency and gain chosen to be effectively inaudible
+                    osc.frequency.value = 18000;
+                    gain.gain.value = 0.001;
+                    const endAt = audioContext.currentTime + 0.02; // ~20ms
+                    osc.start();
+                    osc.stop(endAt);
+                } catch (_) {}
+            }).catch(() => {});
+        }
+
+        (function attachAudioWarmupOnce() {
+            let used = false;
+            const handler = () => {
+                if (used) return; used = true;
+                warmupAudio();
+                window.removeEventListener('pointerdown', handler, true);
+                window.removeEventListener('keydown', handler, true);
+            };
+            window.addEventListener('pointerdown', handler, true);
+            window.addEventListener('keydown', handler, true);
+        })();
 
         function completeExercise(exerciseId) {
             completedExercises.add(exerciseId);
@@ -637,5 +677,3 @@
     </script>
 </body>
 </html>
-
-

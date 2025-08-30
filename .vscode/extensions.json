@@ -1,0 +1,8 @@
+{
+  // Workspace recommendations only; VS Code will prompt to install
+  "recommendations": [
+    "ms-vscode.live-server"
+  ],
+  "unwantedRecommendations": []
+}
+
