@@ -1,73 +1,66 @@
 [
   {
-    "id": 1,
-    "type": "repetitions",
-    "title": "Overview & Safety (read once)",
-    "description": "- Goal: reduce tightness, restore hip mobility, calm the sciatic nerve (especially right); be gentle on knees post-meniscus.\n- Pain signals: sharp pain or shooting/tingling/numbness down the back of the leg — reduce range or stop.\n- Knees: no pressure on the kneecap; knee and toes point roughly in the same direction; avoid twisting.\n- Breathing: long exhale = go slightly deeper; inhale = ease off 10–20%.\n- Tempo: slow, controlled, without jerks.\n\nTime plan (15–20 min):\n- 1) 2–3 min\n- 2) 3–4 min\n- 3) 2 min\n- 4) 2 min\n- 5) 1–2 min\n- 6) 2 min (skip if knees are sensitive)\n- 7) 1–2 min (mainly the affected/right side)\n- 8) 2 min\n- 9) 3–4 min\n\nKnees after meniscus: no sharp twists; knee and toes aligned; micro-bend is OK in stretches; apply pressure via thigh (not patella); any knee discomfort → reduce range or switch exercise.\n\nOn heavy sitting days: do a short version — 1) 2) 3) 4) 9) for ~12–15 min; finish with 1–2 minutes of easy walking and ankle/toe pumps.",
-    "repetitions": 1
-  },
-  {
     "id": 2,
     "type": "sequence",
     "title": "High support: set shin horizontal (outer hip/glute release)",
-    "description": "Purpose: release outer hip and glute; unload low back/sciatic nerve.\nHow: place RIGHT foot fully on a high table/window sill at waist height or higher; knee bent. With the free hand, press the right knee gently down and slightly inward so the shin lies on the surface. Foot stays planted; torso long.\nDosage: 2 sets × 20–30 s per side.\nCues: press palm into the thigh just above the knee (not the kneecap); if shin won’t lay, put a towel under the knee.\nWhere you feel it: outer thigh and glute of the raised leg; possibly side of the torso.",
+    "description": "Right foot on high support, knee bent. Gently press knee down/in so shin rests; foot stays planted, torso long. Hold 20-30 s, 2 sets/side. No pressure on patella (towel under knee if needed).",
     "steps": [
-      { "label": "Right leg — Set 1 (hold)", "time": 25 },
-      { "label": "Left leg — Set 1 (hold)", "time": 25 },
-      { "label": "Right leg — Set 2 (hold)", "time": 25 },
-      { "label": "Left leg — Set 2 (hold)", "time": 25 }
+      { "label": "Right leg - Set 1 (hold)", "time": 25 },
+      { "label": "Left leg - Set 1 (hold)", "time": 25 },
+      { "label": "Right leg - Set 2 (hold)", "time": 25 },
+      { "label": "Left leg - Set 2 (hold)", "time": 25 }
     ]
   },
   {
     "id": 3,
     "type": "repetitions",
     "title": "High support: gentle sinking + tiny knee swings",
-    "description": "Purpose: lightly load the hip joint; add freedom to hamstrings/back of thigh.\nHow (RIGHT on support): A) On exhale, hinge the torso into the right thigh, hold 1–2 s, return. B) Stay slightly loaded and make tiny knee swings right–left (~1–2 cm) over the foot. Then switch sides.\nReps: A) 2–4 slow sinks; B) 6–10 knee swings per side.\nCommon mistakes: rounded back, edge of the foot lifting, pressing on the kneecap.\nStop signals: pain in knee/low back, shooting down the leg.",
-    "repetitions": "2–4 + 6–10 each side"
+    "description": "A) Exhale: hinge into thigh 1-2 s → back. B) Tiny knee swings 1-2 cm over foot. 2-4 + 6-10 per side. Keep back neutral, foot rooted; never press kneecap; stop if pain/shooting.",
+    "repetitions": "2-4 + 6-10 each side"
   },
   {
     "id": 4,
     "type": "timer",
     "title": "Figure-4 stretch on the mat (lying)",
-    "description": "Purpose: relax glute and piriformis; reduce sciatic referral.\nHow: lying on the back, place RIGHT ankle on LEFT knee. Hold LEFT thigh with hands and draw toward you until a moderate stretch in the RIGHT glute. Keep the back neutral. Switch sides.\nDosage: 20–40 s hold or 6–10 gentle breath ‘pulses’.\nKnee-safe: grip the thigh (not the shin); do not press the right kneecap.",
+    "description": "Supine: right ankle on left knee. Hold left thigh and draw until a light right‑glute stretch. 20-40 s or 6-10 breath pulses; switch. Hold thigh (not shin); no kneecap pressure.",
     "duration": 30
   },
   {
     "id": 5,
     "type": "repetitions",
     "title": "Knee to chest with ankle on the other knee",
-    "description": "Purpose: ease the RIGHT glute/piriformis; reduce leg referral.\nStart: lying; LEFT leg bent, foot on floor; RIGHT ankle rests on LEFT knee, right foot dorsiflexed.\nMove: hold the RIGHT knee/upper shin (avoid patella) and gently draw toward chest to a comfortable stretch in the right glute; then switch sides.\nDosage: 6–10 smooth pulls or a 20–30 s hold per side.\nSafety: no pressure on the kneecap; no pain or shooting.",
-    "repetitions": "6–10 or 20–30s per side"
+    "description": "Supine: left foot on floor; right ankle on left knee, foot flexed. Hold right knee/upper shin and draw to chest to glute stretch. 6-10 or 20-30 s/side. No patella pressure; no shooting pain.",
+    "repetitions": "6-10 or 20-30s per side"
   },
   {
     "id": 6,
     "type": "timer",
     "title": "Press the knee away with a block (ankle on knee)",
-    "description": "Purpose: create space in the hip; calm the nerve.\nStart: lying; LEFT leg bent, foot on floor; RIGHT ankle on LEFT knee, right foot dorsiflexed. Place a yoga block (or your palm) between the RIGHT knee and your hands/torso.\nMove: gently press the RIGHT knee away by ~2–4 cm and hold a steady stretch; right ankle stays dorsiflexed; left leg stabilizes.\nDosage: 20–40 s hold; 1–2 sets per side (or 4–6 short ease-and-re-press cycles).\nSafety: never press on the patella; stop if knee pain or posterior ‘shooting’.",
+    "description": "Supine: right ankle on left knee; block/palm between right knee and torso. Gently press knee away 2-4 cm; hold 20-40 s, 1-2 sets/side (or 4-6 short cycles). Don’t press patella; stop if pain/shooting.",
     "duration": 30
   },
   {
     "id": 7,
     "type": "timer",
     "title": "Soft pigeon (knee-friendly)",
-    "description": "Purpose: further release the glute and outer hip.\nHow: from kneeling, lower hips toward RIGHT heel; bring RIGHT knee forward and slightly out; LEFT leg slides back. Place pelvis on a pillow. Keep RIGHT foot closer to pelvis to avoid twisting the knee. Lightly fold torso onto the thigh. Switch sides.\nDosage: 20–30 s per side. If the knee is sensitive — skip this exercise.\nStop signal: any knee discomfort — exit immediately.",
+    "description": "From kneeling: right knee forward/out, left leg back; pelvis on cushion. Right foot closer to pelvis; light fold onto thigh. 20-30 s/side. Skip if knee sensitive; exit with any knee discomfort.",
     "duration": 25
   },
   {
     "id": 8,
     "type": "timer",
     "title": "Ball under the glute: trigger point",
-    "description": "Purpose: relax ‘knots’ in the glute.\nHow: sitting on the floor with legs extended, place a firm ball under a tender spot in the RIGHT glute. Dose weight with hands. Make micro-movements: bend/extend the knee; move the thigh right–left; small circles of 1–2 cm.\nDosage: 30–60 s on 1–2 points on the right; optionally 1 point on the left.\nStop signals: numbness or shooting — shift the ball 1–2 cm or stop.\nAlternative: can be done on a firm chair.",
+    "description": "Sit, firm ball under tender right‑glute spot. Dose weight with hands. Micro‑moves: knee bend/extend, thigh shift, 1-2 cm circles. 30-60 s/point. Stop for numbness/shooting. Chair alternative is OK.",
     "duration": 45
   },
   {
     "id": 9,
     "type": "sequence",
     "title": "Balance on a block/cube",
-    "description": "Purpose: activate deep muscles of feet, calves, hips, and core.\nHow: stand on a stable cube/block; feet hip-width.\nDosage: 30 s eyes open → 30 s open–close → 30 s eyes closed. Optional: +30 s arms to sides, then forward–back.\nCommon mistakes: knee collapsing inward; hanging on the hip. Simplify if painful.",
+    "description": "Stand on stable block, feet hip‑width. 30 s eyes open → 30 s open/close → 30 s closed. Avoid knee collapse; simplify if painful.",
     "steps": [
       { "label": "Eyes open", "time": 30 },
-      { "label": "Open–close eyes", "time": 30 },
+      { "label": "Open-close eyes", "time": 30 },
       { "label": "Eyes closed", "time": 30 }
     ]
   },
@@ -75,10 +68,10 @@
     "id": 10,
     "type": "sequence",
     "title": "Supine: soft hip mobilization",
-    "description": "Do all movements in a comfortable range.\n(a) Diagonal reach: slide the RIGHT heel along the floor and reach the RIGHT arm overhead → return. 5–8 each side.\n(b) Toes in–out: feet hip-width; slowly turn toes inward, then outward. 10–15 reps.\n(c) Two-knee ‘pendulum’: drop both knees right–left. 8–12 reps.\n(d) One knee inward: drop RIGHT inward → return; then LEFT. 6–10 each.\n(e) Small hip circles: draw small circles with each knee. 30–45 s each leg.",
+    "description": "Comfort range only: a) Diagonal reach 5-8/side. b) Toes in-out 10-15. c) Two‑knee rocks 8-12. d) Single‑knee inward 6-10/side. e) Small hip circles 30-45 s/side.",
     "steps": [
       { "label": "Diagonal reach (both sides)", "time": 45 },
-      { "label": "Toes in–out", "time": 45 },
+      { "label": "Toes in-out", "time": 45 },
       { "label": "Both-knees rocks", "time": 45 },
       { "label": "Single-knee inward (each side)", "time": 45 },
       { "label": "Small hip circles (each side)", "time": 45 }
@@ -88,7 +81,7 @@
     "id": 11,
     "type": "timer",
     "title": "Finish: easy walk and ankle/toe pumps",
-    "description": "After the session, walk calmly for 1–2 minutes and gently pump ankles and toes to reduce calf cramping and swelling.",
+    "description": "Finish: walk calmly 1-2 min; gentle ankle/toe pumps.",
     "duration": 90
   }
 ]

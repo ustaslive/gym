@@ -267,6 +267,35 @@
             z-index: 100;
         }
 
+        .title-group {
+            display: flex;
+            align-items: flex-end; /* align bottoms */
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .title-group h1 { margin: 0; }
+
+        .plan-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            padding: 10px 34px 10px 16px;
+            border-radius: 14px;
+            font-size: 1.3em;
+            font-weight: 700;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        .plan-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,0.25); }
+        /* Ensure options are readable in the dropdown list */
+        .plan-select option {
+            color: #333;
+            background: #fff;
+        }
+
         .session-controls {
             display: flex;
             align-items: center;
@@ -288,7 +317,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>💪 Daily Exercise</h1>
+            <div class="title-group">
+                <h1>💪 Daily Exercises</h1>
+                <select id="plan-select" class="plan-select" aria-label="Select exercise plan">
+                    <!-- options populated by JS -->
+                </select>
+            </div>
             <div class="session-controls">
                 <div id="session-timer" class="global-timer">00:00</div>
                 <button id="session-start-stop" class="btn">Start</button>
@@ -683,7 +717,32 @@
             return 'gym.json';
         }
 
+        // Plan mapping for selector and titles
+        const planNames = {
+            gym: 'General',
+            palm: 'Palms',
+            nerv: 'Sciatic Nerve'
+        };
+
+        function populatePlanSelector(currentKey) {
+            const select = document.getElementById('plan-select');
+            const keys = ['gym', 'palm', 'nerv'];
+            select.innerHTML = keys.map(k => `<option value="${k}">${planNames[k]}</option>`).join('');
+            if (!keys.includes(currentKey)) currentKey = 'gym';
+            select.value = currentKey;
+            select.addEventListener('change', () => {
+                const key = select.value;
+                const url = new URL(window.location.href);
+                url.searchParams.delete('file');
+                url.searchParams.set('type', key);
+                window.location.href = url.toString();
+            });
+        }
+
         const dataFile = selectDataFile();
+        const currentPlanKey = (dataFile || 'gym.json').replace(/\.json$/, '');
+        populatePlanSelector(currentPlanKey);
+
         fetch(dataFile)
             .then(r => r.json())
             .then(data => {
@@ -694,8 +753,9 @@
                 document.getElementById('session-start-stop').addEventListener('click', toggleSessionTimer);
                 // Optional: reflect chosen plan in document title
                 try {
-                    const label = dataFile.replace(/\.json$/, '');
-                    document.title = `Daily Exercise – ${label}`;
+                    const key = dataFile.replace(/\.json$/, '');
+                    const label = planNames[key] || 'General';
+                    document.title = `Daily Exercises — ${label}`;
                 } catch (_) {}
             })
             .catch(err => console.error("Failed to load exercises", err));
