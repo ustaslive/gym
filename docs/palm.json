@@ -1,24 +1,133 @@
 [
   {
     "id": 1,
-    "type": "repetitions",
-    "title": "Prayer position - wrist stretch",
-    "description": "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times.",
-    "repetitions": 10
+    "type": "timer",
+    "title": "Wrist shaking (warm-up)",
+    "description": "- Sit or stand tall, shoulders relaxed.\n- Gently shake wrists as if flicking water off fingers.\n- Movement only at wrists; keep arms relaxed.",
+    "duration": 15
   },
   {
     "id": 2,
     "type": "repetitions",
     "title": "Wrist circles",
-    "description": "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed.",
+    "description": "- Elbows at sides, bent 90°. Hands in front at lower rib level.\n- Slowly draw large circles at the wrists.\n- Keep fingers relaxed; do not rotate the forearms.",
     "repetitions": "10+10"
   },
   {
     "id": 3,
     "type": "repetitions",
+    "title": "Prayer position - wrist stretch",
+    "description": "- Palms together in front of chest, elbows out.\n- Without separating palms, lower hands toward abdomen until a light stretch.\n- Briefly hold in the bottom position (≈3–5 s), then rise back up.",
+    "repetitions": "8–10"
+  },
+  {
+    "id": 4,
+    "type": "intervals",
+    "title": "Wrist extensor stretch (arm straight)",
+    "description": "- Arm straight at shoulder height, elbow extended, palm down.\n- With the other hand, gently pull fingers up toward you to flex the wrist.\n- Feel stretch along the back of forearm/wrist. Alternate hands each round.",
+    "workTime": 15,
+    "restTime": 10,
+    "rounds": 6
+  },
+  {
+    "id": 5,
+    "type": "repetitions",
+    "title": "Fist flexion/extension (thumb out/in)",
+    "description": "- Arm forward or forearm on table.\n- Close a fist with thumb outside → open → close with thumb inside → open.\n- Moderate effort, smooth control; reduce range if painful.",
+    "repetitions": "5–10"
+  },
+  {
+    "id": 6,
+    "type": "repetitions",
+    "title": "Finger spread (interdigital stretch)",
+    "description": "- Hand straight (in air or on table).\n- Actively spread fingers as wide as possible → bring back together.\n- Move only the fingers; keep the rest of the arm relaxed.",
+    "repetitions": "10–15"
+  },
+  {
+    "id": 7,
+    "type": "repetitions",
+    "title": "Finger lifts on table",
+    "description": "- Palm flat on table, fingers straight; wrist stays down.\n- Lift one finger at a time as high as possible, then lower.\n- After singles, try lifting all fingers together briefly.",
+    "repetitions": "≈5 each finger"
+  },
+  {
+    "id": 8,
+    "type": "repetitions",
+    "title": "Side-to-side with raised finger",
+    "description": "- From the table position, slightly raise one finger.\n- Move it gently left–right like a small pendulum, then switch finger.\n- Can be done without table support if easier.",
+    "repetitions": "5–8 each finger"
+  },
+  {
+    "id": 9,
+    "type": "repetitions",
+    "title": "Finger-to-thumb ‘O’ taps",
+    "description": "- Hand in front of you, wrist neutral.\n- Touch thumb to index → middle → ring → little finger, forming an ‘O’ each time.\n- Keep other fingers relaxed/extended as possible.",
+    "repetitions": "2–3 rounds each hand"
+  },
+  {
+    "id": 10,
+    "type": "repetitions",
+    "title": "Thumb flexion to palm",
+    "description": "- Palm up. Abduct thumb away from palm.\n- Flex thumb across palm toward base of little finger → return and abduct.\n- Pause 1–2 s in the end range if comfortable.",
+    "repetitions": "5–8 each hand"
+  },
+  {
+    "id": 11,
+    "type": "repetitions",
+    "title": "Thumb abduction with elastic band",
+    "description": "- Place an elastic band around all fingers including thumb near nail folds.\n- Abduct (move away) the thumb against resistance, then return with control.\n- Keep wrist/hand quiet; move only the thumb.",
+    "repetitions": "10–15 each hand"
+  },
+  {
+    "id": 12,
+    "type": "sequence",
+    "title": "Thumb stretch (passive)",
+    "description": "- With other hand, gently stretch thumb: abduction/outward → across-palm.\n- Smooth pressure, no pain; feel stretch near thumb base and palm.",
+    "steps": [
+      { "label": "Abduction/outward stretch", "time": 15 },
+      { "label": "Across-palm stretch", "time": 15 }
+    ]
+  },
+  {
+    "id": 13,
+    "type": "repetitions",
+    "title": "Hook fist (distal/middle phalanges)",
+    "description": "- Hand facing you.\n- Flex only middle and end joints, keeping the big knuckles straight → return.\n- Move slowly with control; no joint pain.",
+    "repetitions": "10–15"
+  },
+  {
+    "id": 14,
+    "type": "repetitions",
+    "title": "Soft ball squeeze",
+    "description": "- Hold a soft stress/therapy ball.\n- Squeeze firmly with all fingers and thumb for 1–2 s → release.\n- Do 2–3 sets per day if comfortable.",
+    "repetitions": "10–15"
+  },
+  {
+    "id": 15,
+    "type": "repetitions",
+    "title": "Finger extension with rubber band",
+    "description": "- Place a sturdy rubber band around the fingertips of all five fingers.\n- Spread fingers against the band → return slowly.\n- Add a second band if resistance is too light.",
+    "repetitions": "10–12"
+  },
+  {
+    "id": 16,
+    "type": "repetitions",
+    "title": "Towel wringing (alternating twists)",
+    "description": "- Hold a rolled towel with both hands.\n- Twist hands in opposite directions as if wringing water, then reverse.\n- Moderate effort; relax briefly between full twist cycles.",
+    "repetitions": 10
+  },
+  {
+    "id": 17,
+    "type": "repetitions",
+    "title": "Crumple cloth or paper",
+    "description": "- Place a piece of cloth or paper on a table.\n- Scrunch it into a tight ball using one hand → spread it out and repeat.\n- Focus on full grasp and maximal crumple each time.",
+    "repetitions": "5–6 each hand"
+  },
+  {
+    "id": 18,
+    "type": "repetitions",
     "title": "Thumb circles",
-    "description": "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.",
+    "description": "- Elbows at sides, bent 90°.\n- Draw circles with the thumb: clockwise → counterclockwise.",
     "repetitions": "10+10"
   }
 ]
-
