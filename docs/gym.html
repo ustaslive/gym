@@ -664,7 +664,27 @@
         }
 
         // Initialize application
-        fetch("gym.json")
+        // Allow selecting data file via query params: ?file=palm.json or ?type=palm
+        function selectDataFile() {
+            const params = new URLSearchParams(window.location.search);
+            const fileParam = params.get('file');
+            const typeParam = params.get('type');
+
+            // Simple sanitization to avoid path traversal and invalid names
+            const isSafeFile = (name) => /^[a-zA-Z0-9_-]+\.json$/.test(name);
+            const isSafeType = (name) => /^[a-zA-Z0-9_-]+$/.test(name);
+
+            if (fileParam && isSafeFile(fileParam)) {
+                return fileParam;
+            }
+            if (typeParam && isSafeType(typeParam)) {
+                return `${typeParam}.json`;
+            }
+            return 'gym.json';
+        }
+
+        const dataFile = selectDataFile();
+        fetch(dataFile)
             .then(r => r.json())
             .then(data => {
                 exercises = data;
@@ -672,6 +692,11 @@
                 renderExercises();
                 updateSessionDisplay();
                 document.getElementById('session-start-stop').addEventListener('click', toggleSessionTimer);
+                // Optional: reflect chosen plan in document title
+                try {
+                    const label = dataFile.replace(/\.json$/, '');
+                    document.title = `Daily Exercise – ${label}`;
+                } catch (_) {}
             })
             .catch(err => console.error("Failed to load exercises", err));
     </script>

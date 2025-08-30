@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "type": "repetitions",
+    "title": "Prayer position - wrist stretch",
+    "description": "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times.",
+    "repetitions": 10
+  },
+  {
+    "id": 2,
+    "type": "repetitions",
+    "title": "Wrist circles",
+    "description": "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed.",
+    "repetitions": "10+10"
+  },
+  {
+    "id": 3,
+    "type": "repetitions",
+    "title": "Thumb circles",
+    "description": "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.",
+    "repetitions": "10+10"
+  }
+]
+
