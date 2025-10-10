@@ -28,7 +28,8 @@
       "extensions": [
         "ms-androidtools.vscode-android",
         "ms-vscode.vscode-typescript-next",
-        "ms-python.python"
+        "ms-python.python",
+        "openai.chatgpt"
       ]
     }
   },
