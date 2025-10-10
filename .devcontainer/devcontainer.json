@@ -1,0 +1,38 @@
+{
+  "name": "Gym Android Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "android",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "mounts": [
+    "source=android-gradle-cache,target=/home/android/.gradle,type=volume"
+  ],
+  "runArgs": [
+    "--network=host"
+  ],
+  "containerEnv": {
+    "ANDROID_HOME": "/opt/android-sdk",
+    "ANDROID_SDK_ROOT": "/opt/android-sdk",
+    "ANDROID_NDK_ROOT": "/opt/android-sdk/ndk/26.1.10909125"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.insertFinalNewline": true,
+        "editor.formatOnSave": true,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-androidtools.vscode-android",
+        "ms-vscode.vscode-typescript-next",
+        "ms-python.python"
+      ]
+    }
+  },
+  "postAttachCommand": {
+    "shellCommand": "echo 'Container ready. Use \\`adb connect <device-ip>:5555\\` to pair your device.'"
+  }
+}
