@@ -1,0 +1,59 @@
+[
+  {
+    "id": "leg_press",
+    "label": "Leg Press",
+    "type": "weights",
+    "weightOptions": [20, 22, 24, 26, 28, 30, 32, 34, 36, 38],
+    "defaultWeight": 22,
+    "sets": 3,
+    "hasSettings": true,
+    "settings": {
+      "seatPosition": [1, 2, 3, 4, 5],
+      "backrestAngle": ["0°", "5°", "10°"]
+    }
+  },
+  {
+    "id": "leg_extension",
+    "label": "Leg Extension",
+    "type": "weights",
+    "weightOptions": [30, 32, 34, 36, 38, 40, 42, 44, 46, 48],
+    "defaultWeight": 42,
+    "sets": 3,
+    "hasSettings": true,
+    "settings": {
+      "seatHeight": ["Low", "Medium", "High"],
+      "anklePad": [1, 2, 3]
+    }
+  },
+  {
+    "id": "shoulder_press",
+    "label": "Shoulder Press",
+    "type": "weights",
+    "weightOptions": [8, 10, 12, 14, 16, 18, 20, 22, 24, 26],
+    "defaultWeight": 12,
+    "sets": 3,
+    "hasSettings": false
+  },
+  {
+    "id": "seated_row",
+    "label": "Seated Row",
+    "type": "weights",
+    "weightOptions": [25, 27, 29, 31, 33, 35, 37, 39, 41, 43],
+    "defaultWeight": 31,
+    "sets": 3,
+    "hasSettings": true,
+    "settings": {
+      "chestPad": ["1", "2", "3"],
+      "gripWidth": ["narrow", "medium", "wide"]
+    }
+  },
+  {
+    "id": "lat_pulldown",
+    "label": "Lat Pulldown",
+    "type": "weights",
+    "weightOptions": [20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+    "defaultWeight": 40,
+    "sets": 3,
+    "hasSettings": false
+  }
+]

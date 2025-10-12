@@ -32,3 +32,9 @@ All Visual Studio Code configuration for this project must reside in `.devcontai
 
 For the additional information about the project, check [CUSTOM.md](CUSTOM.md) file.
 This contains instructions related to particular dev environments, and not saved in git repo.
+
+- The `andriod/` directory contains a standalone Android application that is maintained separately from the main project.
+
+# Dockerfile changes
+
+- When modifying the `Dockerfile`, keep layer caching and rebuild speed in mind—place new commands as close to the bottom as practical so container rebuilds stay fast.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lemon</string>
+    <string name="weight_picker_title">Выбор веса</string>
+    <string name="weight_picker_cancel">Отмена</string>
+    <string name="new_day">Новый день</string>
+    <string name="completed_badge">Выполнено</string>
+    <string name="weight_label_template">%1$d кг</string>
+</resources>

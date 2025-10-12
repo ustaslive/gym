@@ -31,26 +31,25 @@
           "openai.chatgpt": "ui"
         },
         "remote.downloadExtensionsLocally": true,
-        "chat.tools.terminal.autoApprove": {
-          "python3": true,
-          "/^git (status|show\\b.*|diff)\\b/": true,
-          "adb": true,
-          "rm": false,
-          "rmdir": false,
-          "del": false,
-          "chmod": false,
-          "chown": false,
-          "/dangerous/": false
+        "chat.tools.global.autoApprove": true,
+        "chat.editing.autoAccept": true,
+        "chat.tools.edits.autoApprove": {
+          "**/*": true
         },
-        "extensions": [
-          "ms-androidtools.vscode-android",
-          "ms-vscode.vscode-typescript-next",
-          "ms-python.python",
-          "fwcd.kotlin"
-        ]
-      }
+        "extensions.support.untrustedWorkspaces": {
+          "openai.chatgpt": true
+        }
+      },
+      "extensions": [
+        "ms-androidtools.vscode-android",
+        "ms-vscode.vscode-typescript-next",
+        "ms-python.python",
+        "fwcd.kotlin",
+        "gsejas.markdown-checkbox-preview"
+      ]
     },
     "postAttachCommand": {
       "shellCommand": "echo 'Container ready. Use adb connect <device-ip>:5555 to pair your device.'"
     }
   }
+}
