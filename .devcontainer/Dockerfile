@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
     ANDROID_NDK_ROOT=/opt/android-sdk/ndk/26.1.10909125 \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
@@ -27,6 +28,17 @@ RUN apt-get update \
         build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Gradle for project builds.
+ARG GRADLE_VERSION=8.7
+RUN set -euxo pipefail \
+    && curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
+        -o /tmp/gradle.zip \
+    && mkdir -p /opt/gradle \
+    && unzip -q /tmp/gradle.zip -d /opt/gradle \
+    && rm -f /opt/gradle/latest \
+    && ln -s "/opt/gradle/gradle-${GRADLE_VERSION}" /opt/gradle/latest \
+    && rm -f /tmp/gradle.zip
+
 # Download and install the Android command-line tools.
 ARG CMDLINE_TOOLS_VERSION=11076708
 RUN set -euxo pipefail \
@@ -37,8 +49,9 @@ RUN set -euxo pipefail \
     && mv /tmp/cmdline-tools "${ANDROID_HOME}/cmdline-tools/latest" \
     && rm -f /tmp/cmdline-tools.zip
 
-# Ensure command-line tools are reachable from PATH.
-ENV PATH="${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
+# Ensure build toolchains are reachable from PATH.
+ENV GRADLE_HOME=/opt/gradle/latest
+ENV PATH="${GRADLE_HOME}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
 
 # Install the Android SDK components, build tools, platform tools, and a recent NDK.
 RUN set -eux \

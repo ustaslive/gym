@@ -1,5 +1,5 @@
 {
-  "name": "Gym Android Dev",
+  "name": "Gym Android",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -9,8 +9,7 @@
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "mounts": [
     "source=android-gradle-cache,target=/home/android/.gradle,type=volume",
-    "source=${localEnv:HOME}/.ssh,target=/home/android/.ssh,type=bind,consistency=cached",
-    "source=vscode-server,target=/home/android/.vscode-server,type=volume"
+    "source=${localEnv:HOME}/.ssh,target=/home/android/.ssh,type=bind,consistency=cached"
   ],
   "runArgs": [
     "--network=host"
@@ -18,7 +17,9 @@
   "containerEnv": {
     "ANDROID_HOME": "/opt/android-sdk",
     "ANDROID_SDK_ROOT": "/opt/android-sdk",
-    "ANDROID_NDK_ROOT": "/opt/android-sdk/ndk/26.1.10909125"
+    "ANDROID_NDK_ROOT": "/opt/android-sdk/ndk/26.1.10909125",
+    "JAVA_HOME": "/usr/lib/jvm/java-17-openjdk-amd64",
+    "GRADLE_HOME": "/opt/gradle/latest"
   },
   "customizations": {
     "vscode": {
@@ -35,7 +36,7 @@
         "ms-androidtools.vscode-android",
         "ms-vscode.vscode-typescript-next",
         "ms-python.python",
-        "openai.chatgpt"
+        "fwcd.kotlin"
       ]
     }
   },

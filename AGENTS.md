@@ -21,6 +21,13 @@ While it will be OK to add new tasks to this file for you, you must never mark t
 All Visual Studio Code configuration for this project must reside in `.devcontainer/devcontainer.json`.
 
 
+# Polygon experiments
+
+- The `polygon/` directory keeps lightweight experimental code that is not part of the main product.
+- Each experiment lives in its own subfolder named with a three-digit prefix followed by a short label (for example, `999.simple`).
+- When creating a new experiment, choose the next prefix by taking the smallest existing experiment prefix and subtracting one (e.g., if `999.*` is present, the next becomes `998.new-idea`).
+- Keep experiments self-contained inside their folders so they can be removed without affecting the core project.
+
 # Additional custom information
 
 For the additional information about the project, check [CUSTOM.md](CUSTOM.md) file.
