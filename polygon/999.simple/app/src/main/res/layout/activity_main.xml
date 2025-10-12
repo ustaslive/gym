@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/message_initial"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.HeadlineSmall"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:layout_marginBottom="24dp" />
 
     <Button

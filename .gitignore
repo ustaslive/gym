@@ -1,1 +1,18 @@
 CUSTOM.md
+
+# Gradle cache and build outputs
+.gradle/
+**/build/
+
+# Android/IntelliJ project files
+.idea/
+*.iml
+*.ipr
+*.iws
+local.properties
+captures/
+.cxx/
+.externalNativeBuild/
+
+# OS-generated files
+.DS_Store

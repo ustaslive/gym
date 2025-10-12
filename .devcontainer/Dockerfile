@@ -69,7 +69,10 @@ ARG USER_GID=1000
 RUN groupadd --gid "${USER_GID}" "${USER_NAME}" \
     && useradd --uid "${USER_UID}" --gid "${USER_GID}" --create-home --shell /bin/bash "${USER_NAME}" \
     && mkdir -p /workspace \
-    && chown -R "${USER_NAME}:${USER_NAME}" /workspace "${ANDROID_HOME}"
+    && chown -R "${USER_NAME}:${USER_NAME}" /workspace "${ANDROID_HOME}" \
+    && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.gradle" \
+    && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.android" \
+    && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.cache"
 
 USER ${USER_NAME}
 WORKDIR /workspace

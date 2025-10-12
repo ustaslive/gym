@@ -30,17 +30,27 @@
         "remote.extensionKind": {
           "openai.chatgpt": "ui"
         },
-        "remote.downloadExtensionsLocally": true
-      },
-      "extensions": [
-        "ms-androidtools.vscode-android",
-        "ms-vscode.vscode-typescript-next",
-        "ms-python.python",
-        "fwcd.kotlin"
-      ]
+        "remote.downloadExtensionsLocally": true,
+        "chat.tools.terminal.autoApprove": {
+          "python3": true,
+          "/^git (status|show\\b.*|diff)\\b/": true,
+          "adb": true,
+          "rm": false,
+          "rmdir": false,
+          "del": false,
+          "chmod": false,
+          "chown": false,
+          "/dangerous/": false
+        },
+        "extensions": [
+          "ms-androidtools.vscode-android",
+          "ms-vscode.vscode-typescript-next",
+          "ms-python.python",
+          "fwcd.kotlin"
+        ]
+      }
+    },
+    "postAttachCommand": {
+      "shellCommand": "echo 'Container ready. Use adb connect <device-ip>:5555 to pair your device.'"
     }
-  },
-  "postAttachCommand": {
-    "shellCommand": "echo 'Container ready. Use adb connect <device-ip>:5555 to pair your device.'"
   }
-}

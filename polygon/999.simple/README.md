@@ -22,7 +22,7 @@ This is a minimal Android application used for quick experiments. The activity s
 1. Open the folder `polygon/999.simple` in VS Code.
 2. Run `gradle wrapper --gradle-version 8.7` once to generate the local Gradle wrapper scripts.
 3. From the VS Code terminal run `./gradlew assembleDebug` to build the APK.
-4. Deploy to a connected device with `./gradlew installDebug` (requires `adb` from the Android Platform Tools).
+4. Deploy to a connected device with `./gradlew installDebug` (requires `adb` from the Android Platform Tools, see [`howto/connect-android-device.md`](../../howto/connect-android-device.md)).
 5. Launch the app manually on the device/emulator; it appears as "Polygon Simple".
 6. During development use VS Code’s Java/Kotlin language features and `logcat` integration (via extensions) to inspect runtime output.
 
