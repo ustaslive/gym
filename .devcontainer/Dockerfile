@@ -19,6 +19,7 @@ RUN apt-get update \
         ca-certificates \
         curl \
         git \
+        less \
         openssh-client \
         openjdk-17-jdk \
         python3 \

@@ -27,22 +27,16 @@
         "files.insertFinalNewline": true,
         "editor.formatOnSave": true,
         "terminal.integrated.defaultProfile.linux": "bash",
-        "remote.extensionKind": {
-          "openai.chatgpt": "ui"
-        },
-        "remote.downloadExtensionsLocally": true,
         "chat.tools.global.autoApprove": true,
         "chat.editing.autoAccept": true,
         "chat.tools.edits.autoApprove": {
           "**/*": true
-        },
-        "extensions.support.untrustedWorkspaces": {
-          "openai.chatgpt": true
         }
       },
       "extensions": [
         "ms-androidtools.vscode-android",
         "ms-vscode.vscode-typescript-next",
+        "openai.chatgpt",
         "ms-python.python",
         "fwcd.kotlin",
         "gsejas.markdown-checkbox-preview"
