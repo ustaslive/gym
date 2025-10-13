@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,9 +53,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.luminance
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gymprogress.ui.theme.ExerciseCompleted
+import com.example.gymprogress.ui.theme.ExerciseCompletedDark
+import com.example.gymprogress.ui.theme.ExerciseCompletedLight
 import com.example.gymprogress.ui.theme.GymProgressTheme
 import org.json.JSONArray
 
@@ -78,7 +81,8 @@ data class ExerciseUiState(
     val weightOptions: List<Int>,
     val selectedWeight: Int,
     val sets: List<Boolean>,
-    val hasSettings: Boolean
+    val hasSettings: Boolean,
+    val settingsNote: String? = null
 )
 
 class GymViewModel(application: Application) : AndroidViewModel(application) {
@@ -137,13 +141,16 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             if (options.isEmpty()) continue
             val setsCount = obj.optInt("sets", 3).coerceAtLeast(1)
             val defaultWeight = obj.optInt("defaultWeight", options.first())
+            val settingsNote = obj.optString("settingsNote")
+                .takeIf { it.isNotBlank() }
             items += ExerciseUiState(
                 id = obj.getString("id"),
                 name = obj.optString("label", obj.getString("id")),
                 weightOptions = options,
                 selectedWeight = if (defaultWeight in options) defaultWeight else options.first(),
                 sets = List(setsCount) { false },
-                hasSettings = obj.optBoolean("hasSettings", false)
+                hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
+                settingsNote = settingsNote
             )
         }
         return items
@@ -156,26 +163,74 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             ExerciseUiState(
                 id = "leg_press",
                 name = "Leg Press",
-                weightOptions = listOf(20, 22, 24, 26, 28, 30, 32, 34, 36, 38),
-                selectedWeight = 22,
+                weightOptions = listOf(23, 30, 37, 44, 51, 58, 65, 72, 79),
+                selectedWeight = 37,
                 sets = List(3) { false },
-                hasSettings = true
+                hasSettings = true,
+                settingsNote = "Set the sled length to position 8 before starting."
             ),
             ExerciseUiState(
                 id = "leg_extension",
                 name = "Leg Extension",
-                weightOptions = listOf(30, 32, 34, 36, 38, 40, 42, 44, 46, 48),
-                selectedWeight = 42,
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+                selectedWeight = 14,
                 sets = List(3) { false },
-                hasSettings = true
+                hasSettings = true,
+                settingsNote = "Backrest length on slot 4 and leg pad at XL position."
+            ),
+            ExerciseUiState(
+                id = "leg_curl",
+                name = "Leg Curl",
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+                selectedWeight = 14,
+                sets = List(3) { false },
+                hasSettings = true,
+                settingsNote = "Set the leg pad to the XL notch before curling."
             ),
             ExerciseUiState(
                 id = "shoulder_press",
                 name = "Shoulder Press",
-                weightOptions = listOf(8, 10, 12, 14, 16, 18, 20, 22, 24, 26),
-                selectedWeight = 12,
+                weightOptions = listOf(7, 14, 21, 28, 35, 42),
+                selectedWeight = 7,
                 sets = List(3) { false },
-                hasSettings = false
+                hasSettings = true,
+                settingsNote = "Adjust the seat height to level 8."
+            ),
+            ExerciseUiState(
+                id = "leg_abductor",
+                name = "Leg Abductor",
+                weightOptions = listOf(14, 21, 28, 35, 42, 49),
+                selectedWeight = 28,
+                sets = List(3) { false },
+                hasSettings = true,
+                settingsNote = "Use settings position 1 for the starting width."
+            ),
+            ExerciseUiState(
+                id = "lat_pulldown",
+                name = "Lat Pulldown",
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+                selectedWeight = 28,
+                sets = List(3) { false },
+                hasSettings = true,
+                settingsNote = "Seat height on level 3 before pulling."
+            ),
+            ExerciseUiState(
+                id = "chest_press",
+                name = "Chest Press",
+                weightOptions = listOf(7, 14, 21, 28, 35, 42),
+                selectedWeight = 14,
+                sets = List(3) { false },
+                hasSettings = true,
+                settingsNote = "Set the seat height to level 5 and verify arm alignment."
+            ),
+            ExerciseUiState(
+                id = "seated_row",
+                name = "Seated Row",
+                weightOptions = listOf(14, 21, 28, 35, 42, 49),
+                selectedWeight = 28,
+                sets = List(3) { false },
+                hasSettings = true,
+                settingsNote = "Sit tall with the chest pad just touching your torso."
             )
         )
     }
@@ -200,7 +255,11 @@ fun GymScreen(
     onResetDay: () -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
+    var settingsDialogFor by remember { mutableStateOf<String?>(null) }
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor }
+    val settingsDialogExercise = exercises.firstOrNull {
+        it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
+    }
 
     if (dialogExercise != null) {
         WeightPickerDialog(
@@ -213,9 +272,18 @@ fun GymScreen(
         )
     }
 
+    if (settingsDialogExercise != null) {
+        SettingsNoteDialog(
+            exerciseName = settingsDialogExercise.name,
+            note = settingsDialogExercise.settingsNote.orEmpty(),
+            onDismiss = { settingsDialogFor = null }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
@@ -230,7 +298,11 @@ fun GymScreen(
                     exercise = exercise,
                     onToggleSet = { setIndex -> onToggleSet(exercise.id, setIndex) },
                     onWeightClick = { weightDialogFor = exercise.id },
-                    onSettingsClick = { /* TODO: open settings detail screen */ }
+                    onSettingsClick = {
+                        if (!exercise.settingsNote.isNullOrBlank()) {
+                            settingsDialogFor = exercise.id
+                        }
+                    }
                 )
             }
         }
@@ -255,7 +327,13 @@ private fun ExerciseCard(
     onSettingsClick: () -> Unit
 ) {
     val isCompleted = exercise.sets.all { it }
-    val containerColor = if (isCompleted) ExerciseCompleted else MaterialTheme.colorScheme.surface
+    val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val containerColor = when {
+        isCompleted && isDarkTheme -> ExerciseCompletedDark
+        isCompleted -> ExerciseCompletedLight
+        else -> MaterialTheme.colorScheme.surface
+    }
+    val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
     val weightText = stringResource(R.string.weight_label_template, exercise.selectedWeight)
 
     Card(
@@ -273,17 +351,11 @@ private fun ExerciseCard(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = weightText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
                 WeightChip(value = weightText, onClick = onWeightClick)
                 Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = onSettingsClick, enabled = exercise.hasSettings) {
-                    val iconAlpha = if (exercise.hasSettings) 1f else 0.4f
+                IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
+                    val iconAlpha = if (hasSettingsNote) 1f else 0.4f
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = null,
@@ -292,7 +364,7 @@ private fun ExerciseCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -382,6 +454,32 @@ private fun WeightPickerDialog(
                     }
                 }
             }
+        }
+    )
+}
+
+@Composable
+private fun SettingsNoteDialog(
+    exerciseName: String,
+    note: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.settings_dialog_close))
+            }
+        },
+        title = {
+            Text(text = stringResource(R.string.settings_dialog_title, exerciseName))
+        },
+        text = {
+            Text(
+                text = note,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     )
 }

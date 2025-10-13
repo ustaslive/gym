@@ -3,57 +3,80 @@
     "id": "leg_press",
     "label": "Leg Press",
     "type": "weights",
-    "weightOptions": [20, 22, 24, 26, 28, 30, 32, 34, 36, 38],
-    "defaultWeight": 22,
+    "weightOptions": [23, 30, 37, 44, 51, 58, 65, 72, 79],
+    "defaultWeight": 37,
     "sets": 3,
     "hasSettings": true,
-    "settings": {
-      "seatPosition": [1, 2, 3, 4, 5],
-      "backrestAngle": ["0°", "5°", "10°"]
-    }
+    "settingsNote": "Set the sled length to position 8 before starting."
   },
   {
     "id": "leg_extension",
     "label": "Leg Extension",
     "type": "weights",
-    "weightOptions": [30, 32, 34, 36, 38, 40, 42, 44, 46, 48],
-    "defaultWeight": 42,
+    "weightOptions": [7, 14, 21, 28, 35, 42, 49],
+    "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settings": {
-      "seatHeight": ["Low", "Medium", "High"],
-      "anklePad": [1, 2, 3]
-    }
+    "settingsNote": "Backrest length on slot 4 and leg pad at XL position."
+  },
+  {
+    "id": "leg_curl",
+    "label": "Leg Curl",
+    "type": "weights",
+    "weightOptions": [7, 14, 21, 28, 35, 42, 49],
+    "defaultWeight": 14,
+    "sets": 3,
+    "hasSettings": true,
+    "settingsNote": "Set the leg pad to the XL notch before curling."
   },
   {
     "id": "shoulder_press",
     "label": "Shoulder Press",
     "type": "weights",
-    "weightOptions": [8, 10, 12, 14, 16, 18, 20, 22, 24, 26],
-    "defaultWeight": 12,
-    "sets": 3,
-    "hasSettings": false
-  },
-  {
-    "id": "seated_row",
-    "label": "Seated Row",
-    "type": "weights",
-    "weightOptions": [25, 27, 29, 31, 33, 35, 37, 39, 41, 43],
-    "defaultWeight": 31,
+    "weightOptions": [7, 14, 21, 28, 35, 42],
+    "defaultWeight": 7,
     "sets": 3,
     "hasSettings": true,
-    "settings": {
-      "chestPad": ["1", "2", "3"],
-      "gripWidth": ["narrow", "medium", "wide"]
-    }
+    "settingsNote": "Adjust the seat height to level 8."
+  },
+  {
+    "id": "leg_abductor",
+    "label": "Leg Abductor",
+    "type": "weights",
+    "weightOptions": [14, 21, 28, 35, 42, 49],
+    "defaultWeight": 28,
+    "sets": 3,
+    "hasSettings": true,
+    "settingsNote": "Use settings position 1 for the starting width."
   },
   {
     "id": "lat_pulldown",
     "label": "Lat Pulldown",
     "type": "weights",
-    "weightOptions": [20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
-    "defaultWeight": 40,
+    "weightOptions": [7, 14, 21, 28, 35, 42, 49],
+    "defaultWeight": 28,
     "sets": 3,
-    "hasSettings": false
+    "hasSettings": true,
+    "settingsNote": "Seat height on level 3 before pulling."
+  },
+  {
+    "id": "chest_press",
+    "label": "Chest Press",
+    "type": "weights",
+    "weightOptions": [7, 14, 21, 28, 35, 42],
+    "defaultWeight": 14,
+    "sets": 3,
+    "hasSettings": true,
+    "settingsNote": "Set the seat height to level 5 and verify arm alignment."
+  },
+  {
+    "id": "seated_row",
+    "label": "Seated Row",
+    "type": "weights",
+    "weightOptions": [14, 21, 28, 35, 42, 49],
+    "defaultWeight": 28,
+    "sets": 3,
+    "hasSettings": true,
+    "settingsNote": "Sit tall with the chest pad just touching your torso."
   }
 ]

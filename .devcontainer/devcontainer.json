@@ -39,6 +39,7 @@
         "openai.chatgpt",
         "ms-python.python",
         "fwcd.kotlin",
+        "vscjava.vscode-gradle",
         "gsejas.markdown-checkbox-preview"
       ]
     },
