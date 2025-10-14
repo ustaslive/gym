@@ -2,6 +2,7 @@ package com.example.gymprogress
 
 import android.app.Application
 import android.os.Bundle
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,8 +28,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -36,9 +39,11 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -82,16 +87,22 @@ data class ExerciseUiState(
     val selectedWeight: Int,
     val sets: List<Boolean>,
     val hasSettings: Boolean,
-    val settingsNote: String? = null
+    val settingsNote: String? = null,
+    val personalNote: String? = null
 )
 
 class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val _exercises = mutableStateListOf<ExerciseUiState>()
     val exercises: List<ExerciseUiState> get() = _exercises
+    private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
 
     init {
+        val savedNotes = loadSavedNotes()
         val defaults = loadExercisesFromAssets() ?: fallbackExercises()
-        _exercises.addAll(defaults)
+        _exercises.addAll(defaults.map { exercise ->
+            val note = savedNotes[exercise.id]
+            if (note.isNullOrBlank()) exercise else exercise.copy(personalNote = note)
+        })
     }
 
     fun toggleSet(exerciseId: String, setIndex: Int) {
@@ -120,6 +131,26 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             exercise.copy(sets = List(exercise.sets.size) { false })
         }
     }
+
+    fun updatePersonalNote(exerciseId: String, newNote: String) {
+        val index = _exercises.indexOfFirst { it.id == exerciseId }
+        if (index >= 0) {
+            val trimmed = newNote.trim()
+            val exercise = _exercises[index]
+            val updated = exercise.copy(personalNote = trimmed.takeIf { it.isNotEmpty() })
+            _exercises[index] = updated
+            if (trimmed.isEmpty()) {
+                notesPrefs.edit().remove(exerciseId).apply()
+            } else {
+                notesPrefs.edit().putString(exerciseId, trimmed).apply()
+            }
+        }
+    }
+
+    private fun loadSavedNotes(): Map<String, String> =
+        notesPrefs.all.mapNotNull { (key, value) ->
+            (value as? String)?.takeIf { it.isNotBlank() }?.let { key to it }
+        }.toMap()
 
     private fun loadExercisesFromAssets(): List<ExerciseUiState>? {
         val context = getApplication<Application>()
@@ -158,6 +189,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val DEFAULT_ASSET = "exercises.json"
+        private const val NOTES_PREFS = "exercise_notes"
 
         internal fun fallbackExercises(): List<ExerciseUiState> = listOf(
             ExerciseUiState(
@@ -243,7 +275,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         exercises = exercises,
         onToggleSet = viewModel::toggleSet,
         onWeightSelected = viewModel::updateWeight,
-        onResetDay = viewModel::resetAllSets
+        onResetDay = viewModel::resetAllSets,
+        onPersonalNoteSaved = viewModel::updatePersonalNote
     )
 }
 
@@ -252,14 +285,17 @@ fun GymScreen(
     exercises: List<ExerciseUiState>,
     onToggleSet: (String, Int) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
-    onResetDay: () -> Unit
+    onResetDay: () -> Unit,
+    onPersonalNoteSaved: (String, String) -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
+    var noteDialogFor by remember { mutableStateOf<String?>(null) }
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor }
     val settingsDialogExercise = exercises.firstOrNull {
         it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
     }
+    val noteDialogExercise = exercises.firstOrNull { it.id == noteDialogFor }
 
     if (dialogExercise != null) {
         WeightPickerDialog(
@@ -277,6 +313,17 @@ fun GymScreen(
             exerciseName = settingsDialogExercise.name,
             note = settingsDialogExercise.settingsNote.orEmpty(),
             onDismiss = { settingsDialogFor = null }
+        )
+    }
+
+    if (noteDialogExercise != null) {
+        NoteEditorDialog(
+            exercise = noteDialogExercise,
+            onDismiss = { noteDialogFor = null },
+            onSave = { text ->
+                onPersonalNoteSaved(noteDialogExercise.id, text)
+                noteDialogFor = null
+            }
         )
     }
 
@@ -302,19 +349,38 @@ fun GymScreen(
                         if (!exercise.settingsNote.isNullOrBlank()) {
                             settingsDialogFor = exercise.id
                         }
-                    }
+                    },
+                    onNoteClick = { noteDialogFor = exercise.id }
                 )
             }
         }
 
         Divider()
-        Button(
-            onClick = onResetDay,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(R.string.new_day))
+            Button(
+                onClick = onResetDay,
+                modifier = Modifier
+                    .weight(2f)
+            ) {
+                Text(text = stringResource(R.string.new_day))
+            }
+            OutlinedButton(
+                onClick = { /* TODO: hook up future reset */ },
+                modifier = Modifier
+                    .weight(1f),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Text(text = stringResource(R.string.secondary_reset_hint))
+            }
         }
     }
 }
@@ -324,7 +390,8 @@ private fun ExerciseCard(
     exercise: ExerciseUiState,
     onToggleSet: (Int) -> Unit,
     onWeightClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onNoteClick: () -> Unit
 ) {
     val isCompleted = exercise.sets.all { it }
     val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -334,6 +401,7 @@ private fun ExerciseCard(
         else -> MaterialTheme.colorScheme.surface
     }
     val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
+    val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
     val weightText = stringResource(R.string.weight_label_template, exercise.selectedWeight)
 
     Card(
@@ -360,6 +428,19 @@ private fun ExerciseCard(
                         imageVector = Icons.Default.Settings,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = iconAlpha)
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(onClick = onNoteClick) {
+                    val noteTint = if (hasPersonalNote) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = noteTint
                     )
                 }
             }
@@ -484,6 +565,53 @@ private fun SettingsNoteDialog(
     )
 }
 
+@Composable
+private fun NoteEditorDialog(
+    exercise: ExerciseUiState,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var draftNote by remember(exercise.id, exercise.personalNote) {
+        mutableStateOf(exercise.personalNote.orEmpty())
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onSave(draftNote) }) {
+                Text(text = stringResource(R.string.note_dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.note_dialog_cancel))
+            }
+        },
+        title = {
+            Text(text = exercise.name)
+        },
+        text = {
+            Column {
+                TextField(
+                    value = draftNote,
+                    onValueChange = { draftNote = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.note_dialog_placeholder),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    maxLines = 4
+                )
+            }
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun GymScreenPreview() {
@@ -492,7 +620,8 @@ private fun GymScreenPreview() {
             exercises = GymViewModel.fallbackExercises(),
             onToggleSet = { _, _ -> },
             onWeightSelected = { _, _ -> },
-            onResetDay = {}
+            onResetDay = {},
+            onPersonalNoteSaved = { _, _ -> }
         )
     }
 }

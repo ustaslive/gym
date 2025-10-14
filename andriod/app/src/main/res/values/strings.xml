@@ -8,4 +8,8 @@
     <string name="weight_label_template">%1$d кг</string>
     <string name="settings_dialog_title">Setup for %1$s</string>
     <string name="settings_dialog_close">Close</string>
+    <string name="note_dialog_placeholder">Add your own setup or technique cues</string>
+    <string name="note_dialog_cancel">Cancel</string>
+    <string name="note_dialog_save">Save</string>
+    <string name="secondary_reset_hint">Сброс</string>
 </resources>
