@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -86,6 +87,7 @@ data class ExerciseUiState(
     val name: String,
     val weightOptions: List<Int>,
     val selectedWeight: Int,
+    val defaultWeight: Int,
     val sets: List<Boolean>,
     val hasSettings: Boolean,
     val settingsNote: String? = null,
@@ -197,6 +199,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = obj.optString("label", obj.getString("id")),
                 weightOptions = options,
                 selectedWeight = if (defaultWeight in options) defaultWeight else options.first(),
+                defaultWeight = if (defaultWeight in options) defaultWeight else options.first(),
                 sets = List(setsCount) { false },
                 hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
                 settingsNote = settingsNote
@@ -216,6 +219,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Leg Press",
                 weightOptions = listOf(23, 30, 37, 44, 51, 58, 65, 72, 79),
                 selectedWeight = 37,
+                defaultWeight = 37,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Set the sled length to position 8 before starting."
@@ -225,6 +229,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Leg Extension",
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
                 selectedWeight = 14,
+                defaultWeight = 14,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Backrest length on slot 4 and leg pad at XL position."
@@ -234,6 +239,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Leg Curl",
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
                 selectedWeight = 14,
+                defaultWeight = 14,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Set the leg pad to the XL notch before curling."
@@ -243,6 +249,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Shoulder Press",
                 weightOptions = listOf(7, 14, 21, 28, 35, 42),
                 selectedWeight = 7,
+                defaultWeight = 7,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Adjust the seat height to level 8."
@@ -252,6 +259,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Leg Abductor",
                 weightOptions = listOf(14, 21, 28, 35, 42, 49),
                 selectedWeight = 28,
+                defaultWeight = 28,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Use settings position 1 for the starting width."
@@ -261,6 +269,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Lat Pulldown",
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
                 selectedWeight = 28,
+                defaultWeight = 28,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Seat height on level 3 before pulling."
@@ -270,6 +279,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Chest Press",
                 weightOptions = listOf(7, 14, 21, 28, 35, 42),
                 selectedWeight = 14,
+                defaultWeight = 14,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Set the seat height to level 5 and verify arm alignment."
@@ -279,6 +289,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 name = "Seated Row",
                 weightOptions = listOf(14, 21, 28, 35, 42, 49),
                 selectedWeight = 28,
+                defaultWeight = 28,
                 sets = List(3) { false },
                 hasSettings = true,
                 settingsNote = "Sit tall with the chest pad just touching your torso."
@@ -543,6 +554,19 @@ private fun WeightPickerDialog(
             ) {
                 items(exercise.weightOptions) { weight ->
                     val isSelected = weight == exercise.selectedWeight
+                    val isDefault = weight == exercise.defaultWeight
+                    val defaultHighlight = Color(0xFFFACC15)
+                    val textStyle = if (isDefault) {
+                        MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    } else {
+                        MaterialTheme.typography.bodyLarge
+                    }
+                    val textColor = when {
+                        isSelected && isDefault -> defaultHighlight
+                        isSelected -> MaterialTheme.colorScheme.primary
+                        isDefault -> defaultHighlight
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -555,8 +579,8 @@ private fun WeightPickerDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.weight_label_template, weight),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            style = textStyle,
+                            color = textColor
                         )
                     }
                 }
