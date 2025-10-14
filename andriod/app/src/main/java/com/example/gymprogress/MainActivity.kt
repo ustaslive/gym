@@ -187,6 +187,25 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun performFullReset() {
+        restTimers.values.forEach { it.cancel() }
+        restTimers.clear()
+        activeStatusExerciseId = null
+        statusText = null
+        stopTone()
+        notesPrefs.edit().clear().apply()
+        weightsPrefs.edit().clear().apply()
+        _exercises.replaceAll { exercise ->
+            exercise.copy(
+                sets = List(exercise.sets.size) { false },
+                personalNote = null,
+                selectedWeight = exercise.defaultWeight,
+                persistedWeight = null,
+                restSecondsRemaining = null
+            )
+        }
+    }
+
     fun updatePersonalNote(exerciseId: String, newNote: String) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
@@ -459,7 +478,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onResetDay = viewModel::resetAllSets,
         onPersonalNoteSaved = viewModel::updatePersonalNote,
         statusText = statusText,
-        onStatusTapped = viewModel::stopActiveRestTimer
+        onStatusTapped = viewModel::stopActiveRestTimer,
+        onFullReset = viewModel::performFullReset
     )
 }
 
@@ -471,7 +491,8 @@ fun GymScreen(
     onResetDay: () -> Unit,
     onPersonalNoteSaved: (String, String) -> Unit,
     statusText: String?,
-    onStatusTapped: () -> Unit
+    onStatusTapped: () -> Unit,
+    onFullReset: () -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
@@ -604,7 +625,10 @@ fun GymScreen(
                 ) {
                     DropdownMenuItem(
                         text = { Text(text = stringResource(R.string.secondary_reset_hint)) },
-                        onClick = { overflowExpanded = false }
+                        onClick = {
+                            overflowExpanded = false
+                            onFullReset()
+                        }
                     )
                 }
             }
@@ -863,7 +887,8 @@ private fun GymScreenPreview() {
             onResetDay = {},
             onPersonalNoteSaved = { _, _ -> },
             statusText = null,
-            onStatusTapped = {}
+            onStatusTapped = {},
+            onFullReset = {}
         )
     }
 }
