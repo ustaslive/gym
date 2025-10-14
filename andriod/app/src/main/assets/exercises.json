@@ -7,7 +7,9 @@
     "defaultWeight": 37,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the sled length to position 8 before starting."
+    "settingsNote": "Set the sled length to position 8 before starting.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "leg_extension",
@@ -17,7 +19,9 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Backrest length on slot 4 and leg pad at XL position."
+    "settingsNote": "Backrest length on slot 4 and leg pad at XL position.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "leg_curl",
@@ -27,7 +31,9 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the leg pad to the XL notch before curling."
+    "settingsNote": "Set the leg pad to the XL notch before curling.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "shoulder_press",
@@ -37,7 +43,9 @@
     "defaultWeight": 7,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Adjust the seat height to level 8."
+    "settingsNote": "Adjust the seat height to level 8.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "leg_abductor",
@@ -47,7 +55,9 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Use settings position 1 for the starting width."
+    "settingsNote": "Use settings position 1 for the starting width.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "lat_pulldown",
@@ -57,7 +67,9 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Seat height on level 3 before pulling."
+    "settingsNote": "Seat height on level 3 before pulling.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "chest_press",
@@ -67,7 +79,9 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the seat height to level 5 and verify arm alignment."
+    "settingsNote": "Set the seat height to level 5 and verify arm alignment.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   },
   {
     "id": "seated_row",
@@ -77,6 +91,8 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Sit tall with the chest pad just touching your torso."
+    "settingsNote": "Sit tall with the chest pad just touching your torso.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
   }
 ]
