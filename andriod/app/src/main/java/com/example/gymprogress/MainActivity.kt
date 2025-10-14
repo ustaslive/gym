@@ -3,6 +3,8 @@ package com.example.gymprogress
 import android.app.Application
 import android.os.Bundle
 import android.content.Context
+import android.media.AudioManager
+import android.media.ToneGenerator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -110,6 +112,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
     private val restTimers = mutableMapOf<String, Job>()
     private var activeStatusExerciseId: String? = null
+    private val toneGenerator: ToneGenerator? = runCatching {
+        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
+    }.getOrNull()
 
     var statusText by mutableStateOf<String?>(null)
         private set
@@ -173,6 +178,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.clear()
         activeStatusExerciseId = null
         statusText = null
+        stopTone()
         _exercises.replaceAll { exercise ->
             exercise.copy(
                 sets = List(exercise.sets.size) { false },
@@ -224,8 +230,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     delay(1_000L)
                     remaining -= 1
                     updateExerciseRest(exercise.id, remaining)
+                    if (remaining in 0..6) {
+                        playRestTick(remaining)
+                    }
                 }
-                delay(1_000L)
             } finally {
                 if (restTimers[exercise.id] == currentJob) {
                     restTimers.remove(exercise.id)
@@ -239,6 +247,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private fun cancelRestTimer(exerciseId: String) {
         restTimers.remove(exerciseId)?.cancel()
         updateExerciseRest(exerciseId, null)
+        stopTone()
     }
 
     private fun updateExerciseRest(exerciseId: String, secondsRemaining: Int?) {
@@ -253,6 +262,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             statusText = secondsRemaining?.let { formatRestTime(it) }
             if (secondsRemaining == null) {
                 activeStatusExerciseId = null
+                stopTone()
             }
         }
     }
@@ -268,6 +278,25 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         super.onCleared()
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
+        stopTone()
+        toneGenerator?.release()
+    }
+
+    private fun playRestTick(remainingSeconds: Int) {
+        val tone = if (remainingSeconds <= 1) {
+            ToneGenerator.TONE_PROP_ACK
+        } else {
+            ToneGenerator.TONE_PROP_BEEP
+        }
+        val duration = if (remainingSeconds <= 1) 300 else 100
+        toneGenerator?.apply {
+            stopTone()
+            startTone(tone, duration)
+        }
+    }
+
+    private fun stopTone() {
+        toneGenerator?.stopTone()
     }
 
     private fun loadExercisesFromAssets(): List<ExerciseUiState>? {
