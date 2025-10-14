@@ -27,11 +27,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -39,7 +39,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -88,20 +89,28 @@ data class ExerciseUiState(
     val sets: List<Boolean>,
     val hasSettings: Boolean,
     val settingsNote: String? = null,
-    val personalNote: String? = null
+    val personalNote: String? = null,
+    val persistedWeight: Int? = null
 )
 
 class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val _exercises = mutableStateListOf<ExerciseUiState>()
     val exercises: List<ExerciseUiState> get() = _exercises
     private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
+    private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
 
     init {
         val savedNotes = loadSavedNotes()
+        val savedWeights = loadSavedWeights()
         val defaults = loadExercisesFromAssets() ?: fallbackExercises()
         _exercises.addAll(defaults.map { exercise ->
             val note = savedNotes[exercise.id]
-            if (note.isNullOrBlank()) exercise else exercise.copy(personalNote = note)
+            val persistedWeight = savedWeights[exercise.id]
+            exercise.copy(
+                personalNote = note?.takeIf { it.isNotBlank() },
+                selectedWeight = persistedWeight ?: exercise.selectedWeight,
+                persistedWeight = persistedWeight
+            )
         })
     }
 
@@ -121,7 +130,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         if (index >= 0) {
             val exercise = _exercises[index]
             if (newWeight in exercise.weightOptions) {
-                _exercises[index] = exercise.copy(selectedWeight = newWeight)
+                _exercises[index] = exercise.copy(
+                    selectedWeight = newWeight,
+                    persistedWeight = newWeight
+                )
+                weightsPrefs.edit().putInt(exerciseId, newWeight).apply()
             }
         }
     }
@@ -150,6 +163,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadSavedNotes(): Map<String, String> =
         notesPrefs.all.mapNotNull { (key, value) ->
             (value as? String)?.takeIf { it.isNotBlank() }?.let { key to it }
+        }.toMap()
+
+    private fun loadSavedWeights(): Map<String, Int> =
+        weightsPrefs.all.mapNotNull { (key, value) ->
+            (value as? Int)?.let { key to it }
         }.toMap()
 
     private fun loadExercisesFromAssets(): List<ExerciseUiState>? {
@@ -190,6 +208,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private const val DEFAULT_ASSET = "exercises.json"
         private const val NOTES_PREFS = "exercise_notes"
+        private const val WEIGHTS_PREFS = "exercise_weights"
 
         internal fun fallbackExercises(): List<ExerciseUiState> = listOf(
             ExerciseUiState(
@@ -356,6 +375,7 @@ fun GymScreen(
         }
 
         Divider()
+        var overflowExpanded by remember { mutableStateOf(false) }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -366,20 +386,26 @@ fun GymScreen(
             Button(
                 onClick = onResetDay,
                 modifier = Modifier
-                    .weight(2f)
+                    .weight(1f)
             ) {
                 Text(text = stringResource(R.string.new_day))
             }
-            OutlinedButton(
-                onClick = { /* TODO: hook up future reset */ },
-                modifier = Modifier
-                    .weight(1f),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(text = stringResource(R.string.secondary_reset_hint))
+            Box {
+                IconButton(onClick = { overflowExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(R.string.more_actions)
+                    )
+                }
+                DropdownMenu(
+                    expanded = overflowExpanded,
+                    onDismissRequest = { overflowExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.secondary_reset_hint)) },
+                        onClick = { overflowExpanded = false }
+                    )
+                }
             }
         }
     }
