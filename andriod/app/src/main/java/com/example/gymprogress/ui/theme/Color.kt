@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val PrimaryGreen = Color(0xFF5E8E3E)
 val SecondaryGreen = Color(0xFF8BC34A)
 val DarkGreen = Color(0xFF33691E)
+val HighlightGreen = Color(0xFFAED581)
 val SurfaceSoft = Color(0xFFF6F8F4)
 val TextPrimary = Color(0xFF1F2937)
 val TextSecondary = Color(0xFF4B5563)

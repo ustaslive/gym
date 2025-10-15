@@ -35,14 +35,15 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
@@ -72,6 +74,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gymprogress.ui.theme.GymProgressTheme
+import com.example.gymprogress.ui.theme.HighlightGreen
+import com.example.gymprogress.ui.theme.PrimaryGreen
+import com.example.gymprogress.ui.theme.SecondaryGreen
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -682,6 +687,30 @@ fun GymScreen(
 
         HorizontalDivider()
         var overflowExpanded by remember { mutableStateOf(false) }
+        val newDayGradient = Brush.verticalGradient(
+            colors = listOf(
+                HighlightGreen,
+                SecondaryGreen,
+                PrimaryGreen
+            )
+        )
+        val isStatusEnabled = !statusText.isNullOrBlank()
+        val statusShape = RoundedCornerShape(24.dp)
+        val innerStatusShape = RoundedCornerShape(20.dp)
+        val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+        val statusFrameBrush = Brush.verticalGradient(
+            colors = listOf(
+                surfaceVariant.blendWith(Color.White, 0.55f),
+                surfaceVariant,
+                surfaceVariant.blendWith(Color.Black, 0.32f)
+            )
+        )
+        val statusInnerBrush = Brush.verticalGradient(
+            colors = listOf(
+                surfaceVariant.blendWith(Color.Black, 0.22f),
+                surfaceVariant.blendWith(Color.Black, 0.28f)
+            )
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -693,38 +722,106 @@ fun GymScreen(
                 onClick = onResetDay,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp)
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(newDayGradient),
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                ),
+                border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.35f)),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 2.dp,
+                    focusedElevation = 6.dp,
+                    hoveredElevation = 5.dp,
+                    disabledElevation = 0.dp
+                )
             ) {
-                Text(text = stringResource(R.string.new_day))
+                Text(
+                    text = stringResource(R.string.new_day),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
             Surface(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = statusShape,
+                color = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                shadowElevation = 3.dp,
+                tonalElevation = 1.dp,
                 onClick = { onStatusTapped() },
-                enabled = !statusText.isNullOrBlank()
+                enabled = isStatusEnabled
             ) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .clip(statusShape)
+                        .background(statusFrameBrush)
+                        .padding(horizontal = 2.dp, vertical = 3.dp)
                 ) {
-                    val statusColor = if (statusText.isNullOrBlank()) {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(innerStatusShape)
+                            .background(statusInnerBrush)
+                            .drawWithContent {
+                                val highlightHeight = 6.dp.toPx()
+                                val shadowHeight = 10.dp.toPx()
+                                val highlightAlpha = if (isStatusEnabled) 0.18f else 0.08f
+                                val shadowAlpha = if (isStatusEnabled) 0.22f else 0.12f
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.White.copy(alpha = highlightAlpha),
+                                            Color.Transparent
+                                        ),
+                                        startY = 0f,
+                                        endY = highlightHeight
+                                    ),
+                                    size = Size(size.width, highlightHeight)
+                                )
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            Color.Black.copy(alpha = shadowAlpha)
+                                        ),
+                                        startY = size.height - shadowHeight,
+                                        endY = size.height
+                                    ),
+                                    topLeft = Offset(x = 0f, y = size.height - shadowHeight),
+                                    size = Size(size.width, shadowHeight)
+                                )
+                                drawContent()
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val statusColor = if (isStatusEnabled) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            }
+                            Text(
+                                text = statusText ?: "",
+                                color = statusColor,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
-                    Text(
-                        text = statusText ?: "",
-                        color = statusColor,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
             Box {
@@ -782,8 +879,6 @@ private fun ExerciseCard(
     }
     val completedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
     val contentColor = if (isCompleted) completedContentColor else MaterialTheme.colorScheme.onSurface
-    val secondaryContentColor = if (isCompleted) completedContentColor.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant
-
     val iconTintBase = contentColor
     val noteIconTint = when {
         hasPersonalNote && !isCompleted -> MaterialTheme.colorScheme.primary
