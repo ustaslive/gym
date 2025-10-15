@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,10 +35,9 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +56,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -63,12 +67,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gymprogress.ui.theme.ExerciseCompletedDark
-import com.example.gymprogress.ui.theme.ExerciseCompletedLight
 import com.example.gymprogress.ui.theme.GymProgressTheme
 import java.util.Locale
 import kotlinx.coroutines.Job
@@ -678,7 +680,7 @@ fun GymScreen(
             }
         }
 
-        Divider()
+        HorizontalDivider()
         var overflowExpanded by remember { mutableStateOf(false) }
         Row(
             modifier = Modifier
@@ -763,12 +765,6 @@ private fun ExerciseCard(
 ) {
     val isCompleted = exercise.totalSets > 0 && exercise.completedSets >= exercise.totalSets
     val isActivity = exercise.type == ExerciseType.ACTIVITY
-    val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val containerColor = when {
-        isCompleted && isDarkTheme -> ExerciseCompletedDark
-        isCompleted -> ExerciseCompletedLight
-        else -> MaterialTheme.colorScheme.surface
-    }
     val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
     val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
     val weightText = if (isActivity) {
@@ -779,21 +775,79 @@ private fun ExerciseCard(
     val durationText = exercise.durationMinutes
         ?.takeIf { isActivity }
         ?.let { duration -> stringResource(R.string.activity_duration_minutes, duration) }
+    val titleStyle = if (isCompleted) {
+        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
+    } else {
+        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+    }
+    val completedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+    val contentColor = if (isCompleted) completedContentColor else MaterialTheme.colorScheme.onSurface
+    val secondaryContentColor = if (isCompleted) completedContentColor.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
-    ) {
+    val iconTintBase = contentColor
+    val noteIconTint = when {
+        hasPersonalNote && !isCompleted -> MaterialTheme.colorScheme.primary
+        hasPersonalNote && isCompleted -> contentColor.copy(alpha = 0.85f)
+        else -> contentColor.copy(alpha = if (hasPersonalNote || isCompleted) 0.85f else 0.75f)
+    }
+    val outlineColor = if (isCompleted) {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.32f)
+    } else {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
+    }
+    val shape = RoundedCornerShape(16.dp)
+    val surfaceBase = MaterialTheme.colorScheme.surface
+    val raisedTop = surfaceBase.blendWith(Color.White, 0.06f)
+    val raisedBottom = surfaceBase.blendWith(Color.Black, 0.12f)
+    val raisedBrush = Brush.verticalGradient(listOf(raisedTop, raisedBottom))
+
+    val pressedBackground = surfaceBase.blendWith(Color.Black, 0.4f)
+    val highlightRaised = Color.White.copy(alpha = 0.1f)
+    val shadowRaised = Color.Black.copy(alpha = 0.22f)
+
+    val cardModifier = if (isCompleted) {
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(pressedBackground)
+            .border(1.dp, outlineColor, shape)
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, shape = shape, clip = false)
+            .clip(shape)
+            .background(raisedBrush)
+            .border(1.dp, outlineColor, shape)
+            .insetEdges(
+                lightColor = highlightRaised,
+                darkColor = shadowRaised,
+                strokeWidth = 1.dp,
+                inverted = false
+            )
+    }
+    val activeChipBackground = surfaceBase.blendWith(Color.White, 0.12f)
+    val chipBackgroundColor = if (isCompleted) {
+        pressedBackground
+    } else {
+        activeChipBackground
+    }
+    val chipTextColor = if (isCompleted) contentColor else MaterialTheme.colorScheme.onSurface
+    val chipBorderColor = outlineColor
+    val counterBackgroundColor = if (isCompleted) {
+        pressedBackground
+    } else {
+        activeChipBackground
+    }
+    val counterTextColor = if (isCompleted) contentColor else MaterialTheme.colorScheme.onSurface
+
+    Box(modifier = cardModifier) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = exercise.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = titleStyle,
+                        color = contentColor
                     )
                 }
                 if (isActivity) {
@@ -801,16 +855,28 @@ private fun ExerciseCard(
                     ActivityCompletionRow(
                         checked = isCompleted,
                         durationText = durationText.orEmpty(),
-                        onToggle = onProgressClick
+                        onToggle = onProgressClick,
+                        textColor = chipTextColor,
+                        backgroundColor = chipBackgroundColor,
+                        borderColor = chipBorderColor
                     )
                 } else {
                     Spacer(modifier = Modifier.width(12.dp))
                     ProgressCounter(
                         value = exercise.completedSets,
-                        onClick = onProgressClick
+                        onClick = onProgressClick,
+                        textColor = counterTextColor,
+                        backgroundColor = counterBackgroundColor,
+                        borderColor = chipBorderColor
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    WeightChip(value = weightText.orEmpty(), onClick = onWeightClick)
+                    WeightChip(
+                        value = weightText.orEmpty(),
+                        onClick = onWeightClick,
+                        textColor = chipTextColor,
+                        backgroundColor = chipBackgroundColor,
+                        borderColor = chipBorderColor
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                 }
                 IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
@@ -818,20 +884,15 @@ private fun ExerciseCard(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = iconAlpha)
+                        tint = iconTintBase.copy(alpha = iconAlpha)
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = onNoteClick) {
-                    val noteTint = if (hasPersonalNote) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                    }
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = null,
-                        tint = noteTint
+                        tint = noteIconTint
                     )
                 }
             }
@@ -843,7 +904,10 @@ private fun ExerciseCard(
 private fun ActivityCompletionRow(
     checked: Boolean,
     durationText: String,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    textColor: Color,
+    backgroundColor: Color,
+    borderColor: Color
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -851,23 +915,38 @@ private fun ActivityCompletionRow(
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = { onToggle() }
+            onCheckedChange = { onToggle() },
+            colors = CheckboxDefaults.colors(
+                checkedColor = textColor.copy(alpha = 0.32f),
+                uncheckedColor = textColor.copy(alpha = 0.32f),
+                checkmarkColor = textColor.copy(alpha = 0.9f),
+                disabledCheckedColor = textColor.copy(alpha = 0.2f),
+                disabledUncheckedColor = textColor.copy(alpha = 0.2f)
+            )
         )
-        WeightChip(value = durationText, onClick = {})
+        WeightChip(
+            value = durationText,
+            onClick = null,
+            textColor = textColor,
+            backgroundColor = backgroundColor,
+            borderColor = borderColor
+        )
     }
 }
 
 @Composable
 private fun ProgressCounter(
     value: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    textColor: Color,
+    backgroundColor: Color,
+    borderColor: Color
 ) {
     val shape = RoundedCornerShape(12.dp)
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
     Surface(
         shape = shape,
         color = backgroundColor,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+        border = BorderStroke(1.dp, borderColor),
         modifier = Modifier
             .clip(shape)
             .clickable(onClick = onClick)
@@ -876,31 +955,90 @@ private fun ProgressCounter(
             text = value.toString(),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = textColor,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         )
     }
 }
 
 @Composable
-private fun WeightChip(value: String, onClick: (() -> Unit)? = null) {
+private fun WeightChip(
+    value: String,
+    onClick: (() -> Unit)? = null,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    borderColor: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+) {
     val shape = RoundedCornerShape(20.dp)
     val baseModifier = Modifier.clip(shape)
     val clickableModifier = onClick?.let { baseModifier.clickable(onClick = it) } ?: baseModifier
     Surface(
         shape = shape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+        color = backgroundColor,
+        border = BorderStroke(1.dp, borderColor),
         modifier = clickableModifier
     ) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = textColor,
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
+}
+
+private fun Modifier.insetEdges(
+    lightColor: Color,
+    darkColor: Color,
+    strokeWidth: Dp = 1.dp,
+    inverted: Boolean = false
+): Modifier = drawWithContent {
+    drawContent()
+    val strokePx = strokeWidth.toPx()
+    if (strokePx <= 0f) return@drawWithContent
+    val inset = strokePx / 2f
+    val width = size.width
+    val height = size.height
+    val topColor = if (!inverted) lightColor else darkColor
+    val leftColor = if (!inverted) lightColor else darkColor
+    val bottomColor = if (!inverted) darkColor else lightColor
+    val rightColor = if (!inverted) darkColor else lightColor
+    drawLine(
+        color = topColor,
+        start = Offset(inset, inset),
+        end = Offset(width - inset, inset),
+        strokeWidth = strokePx
+    )
+    drawLine(
+        color = leftColor,
+        start = Offset(inset, inset),
+        end = Offset(inset, height - inset),
+        strokeWidth = strokePx
+    )
+    drawLine(
+        color = rightColor,
+            start = Offset(width - inset, inset),
+            end = Offset(width - inset, height - inset),
+            strokeWidth = strokePx
+        )
+    drawLine(
+        color = bottomColor,
+        start = Offset(inset, height - inset),
+        end = Offset(width - inset, height - inset),
+        strokeWidth = strokePx
+    )
+}
+
+private fun Color.blendWith(other: Color, ratio: Float): Color {
+    val clamped = ratio.coerceIn(0f, 1f)
+    val inverse = 1f - clamped
+    return Color(
+        red = red * inverse + other.red * clamped,
+        green = green * inverse + other.green * clamped,
+        blue = blue * inverse + other.blue * clamped,
+        alpha = alpha * inverse + other.alpha * clamped
+    )
 }
 
 @Composable
