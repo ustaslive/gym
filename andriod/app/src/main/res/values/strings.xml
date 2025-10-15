@@ -6,11 +6,12 @@
     <string name="new_day">Новый день</string>
     <string name="completed_badge">Выполнено</string>
     <string name="weight_label_template">%1$d кг</string>
-    <string name="settings_dialog_title">Setup for %1$s</string>
-    <string name="settings_dialog_close">Close</string>
-    <string name="note_dialog_placeholder">Add your own setup or technique cues</string>
-    <string name="note_dialog_cancel">Cancel</string>
-    <string name="note_dialog_save">Save</string>
+    <string name="settings_dialog_title">Настройки для %1$s</string>
+    <string name="settings_dialog_close">Закрыть</string>
+    <string name="note_dialog_placeholder">Добавьте свои заметки или подсказки</string>
+    <string name="note_dialog_cancel">Отмена</string>
+    <string name="note_dialog_save">Сохранить</string>
     <string name="secondary_reset_hint">Сброс</string>
-    <string name="more_actions">More actions</string>
+    <string name="more_actions">Дополнительно</string>
+    <string name="activity_duration_minutes">%1$d мин</string>
 </resources>

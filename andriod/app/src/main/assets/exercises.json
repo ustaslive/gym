@@ -7,7 +7,7 @@
     "defaultWeight": 37,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the sled length to position 8 before starting.",
+    "settingsNote": "Перед началом установите длину салазок на позицию 8.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -19,7 +19,7 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Backrest length on slot 4 and leg pad at XL position.",
+    "settingsNote": "Спинку зафиксируйте в пазе 4, валик для ног поставьте в положение XL.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -31,7 +31,7 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the leg pad to the XL notch before curling.",
+    "settingsNote": "Перед упражнением установите валик для ног в положение XL.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -43,7 +43,7 @@
     "defaultWeight": 7,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Adjust the seat height to level 8.",
+    "settingsNote": "Отрегулируйте высоту сиденья на уровень 8.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -55,7 +55,7 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Use settings position 1 for the starting width.",
+    "settingsNote": "Установите начальную ширину в положение 1.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -67,7 +67,7 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Seat height on level 3 before pulling.",
+    "settingsNote": "Перед тягой установите высоту сиденья на уровень 3.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -79,7 +79,7 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the seat height to level 7 and verify arm alignment.",
+    "settingsNote": "Отрегулируйте высоту сиденья на уровень 7 и убедитесь, что руки выстроены ровно.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -91,8 +91,30 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Sit tall with the chest pad just touching your torso. If the weight indicator is missing, select level 9 by pressing nine weight buttons in and leaving the rest out.",
+    "settingsNote": "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми.",
     "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
+  },
+  {
+    "id": "elliptical",
+    "label": "Elliptical",
+    "type": "activity",
+    "mode": "elliptical",
+    "durationMinutes": 5,
+    "level": 7,
+    "hasSettings": true,
+    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 7.",
+    "restFinalSeconds": 120
+  },
+  {
+    "id": "bike",
+    "label": "Exercise Bike",
+    "type": "activity",
+    "mode": "bike",
+    "durationMinutes": 15,
+    "level": 14,
+    "hasSettings": true,
+    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 14.",
     "restFinalSeconds": 120
   }
 ]
