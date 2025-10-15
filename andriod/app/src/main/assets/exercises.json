@@ -79,7 +79,7 @@
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Set the seat height to level 5 and verify arm alignment.",
+    "settingsNote": "Set the seat height to level 7 and verify arm alignment.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -91,7 +91,7 @@
     "defaultWeight": 28,
     "sets": 3,
     "hasSettings": true,
-    "settingsNote": "Sit tall with the chest pad just touching your torso.",
+    "settingsNote": "Sit tall with the chest pad just touching your torso. If the weight indicator is missing, select level 9 by pressing nine weight buttons in and leaving the rest out.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   }

@@ -36,7 +36,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,7 +96,8 @@ data class ExerciseUiState(
     val defaultWeight: Int,
     val restBetweenSeconds: Int,
     val restFinalSeconds: Int,
-    val sets: List<Boolean>,
+    val totalSets: Int,
+    val completedSets: Int,
     val hasSettings: Boolean,
     val settingsNote: String? = null,
     val personalNote: String? = null,
@@ -135,27 +135,31 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun toggleSet(exerciseId: String, setIndex: Int) {
+    fun advanceProgress(exerciseId: String) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
             val exercise = _exercises[index]
-            if (setIndex in exercise.sets.indices) {
-                val toggledOn = !exercise.sets[setIndex]
-                val updatedSets = exercise.sets.mapIndexed { i, value -> if (i == setIndex) !value else value }
-                val updatedExercise = exercise.copy(sets = updatedSets)
-                _exercises[index] = updatedExercise
-                if (toggledOn) {
-                    val completedSets = updatedSets.count { it }
-                    val duration = if (completedSets >= updatedSets.size) {
-                        updatedExercise.restFinalSeconds
-                    } else {
-                        updatedExercise.restBetweenSeconds
-                    }
-                    startRestTimer(updatedExercise, duration)
-                } else {
-                    cancelRestTimer(exercise.id)
-                }
+            val total = exercise.totalSets.coerceAtLeast(1)
+            val nextValue = if (exercise.completedSets >= total) 0 else exercise.completedSets + 1
+            val activeId = activeStatusExerciseId
+            if (activeId != null && activeId != exercise.id) {
+                cancelRestTimer(activeId)
             }
+            cancelRestTimer(exercise.id)
+            val updatedExercise = exercise.copy(
+                completedSets = nextValue,
+                restSecondsRemaining = null
+            )
+            _exercises[index] = updatedExercise
+            if (nextValue == 0) {
+                return
+            }
+            val duration = if (nextValue >= total) {
+                updatedExercise.restFinalSeconds
+            } else {
+                updatedExercise.restBetweenSeconds
+            }
+            startRestTimer(updatedExercise, duration)
         }
     }
 
@@ -181,7 +185,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         stopTone()
         _exercises.replaceAll { exercise ->
             exercise.copy(
-                sets = List(exercise.sets.size) { false },
+                completedSets = 0,
                 restSecondsRemaining = null
             )
         }
@@ -197,7 +201,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         weightsPrefs.edit().clear().apply()
         _exercises.replaceAll { exercise ->
             exercise.copy(
-                sets = List(exercise.sets.size) { false },
+                completedSets = 0,
                 personalNote = null,
                 selectedWeight = exercise.defaultWeight,
                 persistedWeight = null,
@@ -351,7 +355,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = normalizedDefault,
                 restBetweenSeconds = restBetween,
                 restFinalSeconds = restFinal,
-                sets = List(setsCount) { false },
+                totalSets = setsCount,
+                completedSets = 0,
                 hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
                 settingsNote = settingsNote
             )
@@ -375,7 +380,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 37,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Set the sled length to position 8 before starting."
             ),
@@ -387,7 +393,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Backrest length on slot 4 and leg pad at XL position."
             ),
@@ -399,7 +406,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Set the leg pad to the XL notch before curling."
             ),
@@ -411,7 +419,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 7,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Adjust the seat height to level 8."
             ),
@@ -423,7 +432,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 28,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Use settings position 1 for the starting width."
             ),
@@ -435,7 +445,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 28,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Seat height on level 3 before pulling."
             ),
@@ -447,9 +458,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Set the seat height to level 5 and verify arm alignment."
+                settingsNote = "Set the seat height to level 7 and verify arm alignment."
             ),
             ExerciseUiState(
                 id = "seated_row",
@@ -459,9 +471,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 defaultWeight = 28,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                sets = List(3) { false },
+                totalSets = 3,
+                completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Sit tall with the chest pad just touching your torso."
+                settingsNote = "Sit tall with the chest pad just touching your torso. If the weight indicator is missing, select level 9 by pressing nine weight buttons in and leaving the rest out."
             )
         )
     }
@@ -473,7 +486,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val statusText = viewModel.statusText
     GymScreen(
         exercises = exercises,
-        onToggleSet = viewModel::toggleSet,
+        onProgressTapped = viewModel::advanceProgress,
         onWeightSelected = viewModel::updateWeight,
         onResetDay = viewModel::resetAllSets,
         onPersonalNoteSaved = viewModel::updatePersonalNote,
@@ -486,7 +499,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
 @Composable
 fun GymScreen(
     exercises: List<ExerciseUiState>,
-    onToggleSet: (String, Int) -> Unit,
+    onProgressTapped: (String) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
     onResetDay: () -> Unit,
     onPersonalNoteSaved: (String, String) -> Unit,
@@ -549,7 +562,7 @@ fun GymScreen(
             items(exercises, key = { it.id }) { exercise ->
                 ExerciseCard(
                     exercise = exercise,
-                    onToggleSet = { setIndex -> onToggleSet(exercise.id, setIndex) },
+                    onProgressClick = { onProgressTapped(exercise.id) },
                     onWeightClick = { weightDialogFor = exercise.id },
                     onSettingsClick = {
                         if (!exercise.settingsNote.isNullOrBlank()) {
@@ -639,12 +652,12 @@ fun GymScreen(
 @Composable
 private fun ExerciseCard(
     exercise: ExerciseUiState,
-    onToggleSet: (Int) -> Unit,
+    onProgressClick: () -> Unit,
     onWeightClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onNoteClick: () -> Unit
 ) {
-    val isCompleted = exercise.sets.all { it }
+    val isCompleted = exercise.totalSets > 0 && exercise.completedSets >= exercise.totalSets
     val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val containerColor = when {
         isCompleted && isDarkTheme -> ExerciseCompletedDark
@@ -671,6 +684,12 @@ private fun ExerciseCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                ProgressCounter(
+                    value = exercise.completedSets,
+                    onClick = onProgressClick
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 WeightChip(value = weightText, onClick = onWeightClick)
                 Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
@@ -695,22 +714,32 @@ private fun ExerciseCard(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                exercise.sets.forEachIndexed { index, isChecked ->
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = { onToggleSet(index) },
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-
-            }
         }
+    }
+}
+
+@Composable
+private fun ProgressCounter(
+    value: Int,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(12.dp)
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    Surface(
+        shape = shape,
+        color = backgroundColor,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+        modifier = Modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+    ) {
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        )
     }
 }
 
@@ -872,7 +901,7 @@ private fun GymScreenPreview() {
     GymProgressTheme {
         GymScreen(
             exercises = GymViewModel.fallbackExercises(),
-            onToggleSet = { _, _ -> },
+            onProgressTapped = { _ -> },
             onWeightSelected = { _, _ -> },
             onResetDay = {},
             onPersonalNoteSaved = { _, _ -> },
