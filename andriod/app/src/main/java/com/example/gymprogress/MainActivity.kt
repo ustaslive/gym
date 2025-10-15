@@ -709,16 +709,6 @@ private fun ExerciseCard(
                     )
                 }
 
-                if (isCompleted) {
-                    Spacer(modifier = Modifier.weight(1f, fill = true))
-                    Text(
-                        text = stringResource(R.string.completed_badge),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
             }
         }
     }
