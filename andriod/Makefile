@@ -11,5 +11,8 @@ check:
 build:
 	$(GRADLE) assembleDebug
 
-install: check build
+install: check
+	@if [ ! -f $(DEBUG_APK) ]; then \
+		$(MAKE) build; \
+	fi
 	$(ADB) install -r $(DEBUG_APK)

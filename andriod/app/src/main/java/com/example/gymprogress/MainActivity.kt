@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -889,10 +890,15 @@ private fun ExerciseCard(
     val completedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
     val contentColor = if (isCompleted) completedContentColor else MaterialTheme.colorScheme.onSurface
     val iconTintBase = contentColor
-    val noteIconTint = when {
-        hasPersonalNote && !isCompleted -> MaterialTheme.colorScheme.primary
-        hasPersonalNote && isCompleted -> contentColor.copy(alpha = 0.85f)
-        else -> contentColor.copy(alpha = if (hasPersonalNote || isCompleted) 0.85f else 0.75f)
+    val noteIconTint = if (isCompleted) {
+        contentColor.copy(alpha = 0.85f)
+    } else {
+        iconTintBase
+    }
+    val noteIcon = if (hasPersonalNote) {
+        Icons.Default.EditNote
+    } else {
+        Icons.Default.Edit
     }
     val outlineColor = if (isCompleted) {
         MaterialTheme.colorScheme.outline.copy(alpha = 0.32f)
@@ -994,7 +1000,7 @@ private fun ExerciseCard(
                 Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = onNoteClick) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        imageVector = noteIcon,
                         contentDescription = null,
                         tint = noteIconTint
                     )
