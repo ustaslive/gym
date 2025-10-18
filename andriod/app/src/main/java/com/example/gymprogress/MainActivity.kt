@@ -124,6 +124,9 @@ data class ExerciseUiState(
     val restSecondsRemaining: Int? = null
 )
 
+private fun ExerciseUiState.isCompleted(): Boolean =
+    totalSets > 0 && completedSets >= totalSets
+
 class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val _exercises = mutableStateListOf<ExerciseUiState>()
     val exercises: List<ExerciseUiState> get() = _exercises
@@ -159,7 +162,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         if (index >= 0) {
             val exercise = _exercises[index]
             val total = exercise.totalSets.coerceAtLeast(1)
+            val wasCompleted = exercise.isCompleted()
             val nextValue = if (exercise.completedSets >= total) 0 else exercise.completedSets + 1
+            val isCompleted = nextValue >= total
             val activeId = activeStatusExerciseId
             if (activeId != null && activeId != exercise.id) {
                 cancelRestTimer(activeId)
@@ -170,6 +175,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 restSecondsRemaining = null
             )
             _exercises[index] = updatedExercise
+            if (wasCompleted != isCompleted) {
+                repositionExercise(index, updatedExercise)
+            }
             if (nextValue == 0) {
                 return
             }
@@ -293,6 +301,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.remove(exerciseId)?.cancel()
         updateExerciseRest(exerciseId, null)
         stopTone()
+    }
+
+    private fun repositionExercise(currentIndex: Int, exercise: ExerciseUiState) {
+        if (currentIndex !in _exercises.indices) return
+        val removed = _exercises.removeAt(currentIndex)
+        val itemToInsert = if (removed.id == exercise.id) exercise else removed
+        val insertionIndex = _exercises.indexOfFirst { it.isCompleted() }
+            .let { if (it == -1) _exercises.size else it }
+        _exercises.add(insertionIndex, itemToInsert)
     }
 
     private fun updateExerciseRest(exerciseId: String, secondsRemaining: Int?) {
