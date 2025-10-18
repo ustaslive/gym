@@ -8,10 +8,11 @@ DEBUG_APK := app/build/outputs/apk/debug/app-debug.apk
 check:
 	@$(ADB) devices | awk 'NR==1{next} /device$$/{found=1} END{if(found) print "ADB device connected."; else {print "No ADB device detected."; exit 1}}'
 
-build: $(DEBUG_APK)
-
-$(DEBUG_APK):
+build:
 	$(GRADLE) assembleDebug
 
-install: check $(DEBUG_APK)
+install: check
+	@if [ ! -f $(DEBUG_APK) ]; then \
+		$(MAKE) build; \
+	fi
 	$(ADB) install -r $(DEBUG_APK)
