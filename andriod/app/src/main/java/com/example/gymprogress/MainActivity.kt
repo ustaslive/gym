@@ -327,15 +327,24 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun playRestTick(remainingSeconds: Int) {
-        val tone = if (remainingSeconds <= 1) {
-            ToneGenerator.TONE_PROP_ACK
-        } else {
-            ToneGenerator.TONE_PROP_BEEP
-        }
-        val duration = if (remainingSeconds <= 1) 300 else 100
-        toneGenerator?.apply {
-            stopTone()
-            startTone(tone, duration)
+        val isFinalTick = remainingSeconds <= 0
+        toneGenerator?.let { generator ->
+            generator.stopTone()
+            if (isFinalTick) {
+                val pulseDurationMs = 40
+                val gapDurationMs = 20
+                generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
+                viewModelScope.launch {
+                    delay(pulseDurationMs.toLong())
+                    generator.stopTone()
+                    delay(gapDurationMs.toLong())
+                    generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
+                    delay(pulseDurationMs.toLong())
+                    generator.stopTone()
+                }
+            } else {
+                generator.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
+            }
         }
     }
 
