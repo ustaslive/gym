@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gymprogress.ui.theme.ActiveGlowBlue
 import com.example.gymprogress.ui.theme.GymProgressTheme
 import com.example.gymprogress.ui.theme.HighlightGreen
 import com.example.gymprogress.ui.theme.PrimaryGreen
@@ -121,7 +122,8 @@ data class ExerciseUiState(
     val settingsNote: String? = null,
     val personalNote: String? = null,
     val persistedWeight: Int? = null,
-    val restSecondsRemaining: Int? = null
+    val restSecondsRemaining: Int? = null,
+    val isActive: Boolean = false
 )
 
 private fun ExerciseUiState.isCompleted(): Boolean =
@@ -134,6 +136,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
     private val restTimers = mutableMapOf<String, Job>()
     private var activeStatusExerciseId: String? = null
+    private var activeExerciseId: String? = null
     private val toneGenerator: ToneGenerator? = runCatching {
         ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
     }.getOrNull()
@@ -178,6 +181,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             if (wasCompleted != isCompleted) {
                 repositionExercise(index, updatedExercise)
             }
+            if (isCompleted) {
+                clearActiveSelectionIfMatches(exercise.id)
+            } else {
+                updateActiveSelection(updatedExercise.id)
+            }
             if (nextValue == 0) {
                 return
             }
@@ -203,6 +211,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     persistedWeight = newWeight
                 )
                 weightsPrefs.edit().putInt(exerciseId, newWeight).apply()
+                markExerciseActive(exerciseId)
             }
         }
     }
@@ -211,6 +220,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
         activeStatusExerciseId = null
+        updateActiveSelection(null)
         statusText = null
         stopTone()
         _exercises.replaceAll { exercise ->
@@ -225,6 +235,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
         activeStatusExerciseId = null
+        updateActiveSelection(null)
         statusText = null
         stopTone()
         notesPrefs.edit().clear().apply()
@@ -258,6 +269,18 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     fun stopActiveRestTimer() {
         val activeId = activeStatusExerciseId ?: return
         cancelRestTimer(activeId)
+    }
+
+    fun markExerciseActive(exerciseId: String) {
+        val target = _exercises.firstOrNull { it.id == exerciseId } ?: return
+        if (target.isCompleted()) {
+            clearActiveSelectionIfMatches(exerciseId)
+            return
+        }
+        if (activeExerciseId == exerciseId && target.isActive) {
+            return
+        }
+        updateActiveSelection(exerciseId)
     }
 
     private fun loadSavedNotes(): Map<String, String> =
@@ -368,6 +391,36 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun stopTone() {
         toneGenerator?.stopTone()
+    }
+
+    private fun clearActiveSelectionIfMatches(exerciseId: String) {
+        if (activeExerciseId == exerciseId) {
+            updateActiveSelection(null)
+        }
+    }
+
+    private fun updateActiveSelection(newActiveId: String?) {
+        val sanitizedId = newActiveId?.takeIf { id ->
+            _exercises.any { it.id == id && !it.isCompleted() }
+        }
+        if (activeExerciseId == sanitizedId) {
+            val mismatchExists = _exercises.any { exercise ->
+                val shouldBeActive = sanitizedId != null && exercise.id == sanitizedId
+                exercise.isActive != shouldBeActive
+            }
+            if (!mismatchExists) {
+                return
+            }
+        }
+        activeExerciseId = sanitizedId
+        _exercises.replaceAll { exercise ->
+            val shouldBeActive = sanitizedId != null && exercise.id == sanitizedId
+            if (exercise.isActive == shouldBeActive) {
+                exercise
+            } else {
+                exercise.copy(isActive = shouldBeActive)
+            }
+        }
     }
 
     private fun loadExercisesFromAssets(): List<ExerciseUiState>? {
@@ -620,6 +673,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val statusText = viewModel.statusText
     GymScreen(
         exercises = exercises,
+        onExerciseSelected = viewModel::markExerciseActive,
         onProgressTapped = viewModel::advanceProgress,
         onWeightSelected = viewModel::updateWeight,
         onResetDay = viewModel::resetAllSets,
@@ -633,6 +687,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
 @Composable
 fun GymScreen(
     exercises: List<ExerciseUiState>,
+    onExerciseSelected: (String) -> Unit,
     onProgressTapped: (String) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
     onResetDay: () -> Unit,
@@ -696,6 +751,7 @@ fun GymScreen(
             items(exercises, key = { it.id }) { exercise ->
                 ExerciseCard(
                     exercise = exercise,
+                    onSelect = { onExerciseSelected(exercise.id) },
                     onProgressClick = { onProgressTapped(exercise.id) },
                     onWeightClick = {
                         if (exercise.type == ExerciseType.WEIGHTS) {
@@ -882,6 +938,7 @@ fun GymScreen(
 @Composable
 private fun ExerciseCard(
     exercise: ExerciseUiState,
+    onSelect: () -> Unit,
     onProgressClick: () -> Unit,
     onWeightClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -891,6 +948,8 @@ private fun ExerciseCard(
     val isActivity = exercise.type == ExerciseType.ACTIVITY
     val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
     val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
+    val isActive = exercise.isActive && !isCompleted
+    val activeGlowColor = ActiveGlowBlue
     val weightText = if (isActivity) {
         null
     } else {
@@ -899,28 +958,33 @@ private fun ExerciseCard(
     val durationText = exercise.durationMinutes
         ?.takeIf { isActivity }
         ?.let { duration -> stringResource(R.string.activity_duration_minutes, duration) }
-    val titleStyle = if (isCompleted) {
-        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
-    } else {
-        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+    val titleStyle = when {
+        isCompleted -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
+        isActive -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        else -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
     }
-    val completedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-    val contentColor = if (isCompleted) completedContentColor else MaterialTheme.colorScheme.onSurface
+    val baseContentColor = MaterialTheme.colorScheme.onSurface
+    val completedContentColor = baseContentColor.copy(alpha = 0.5f)
+    val contentColor = when {
+        isActive -> activeGlowColor
+        isCompleted -> completedContentColor
+        else -> baseContentColor
+    }
     val iconTintBase = contentColor
-    val noteIconTint = if (isCompleted) {
-        contentColor.copy(alpha = 0.85f)
-    } else {
-        iconTintBase
+    val noteIconTint = when {
+        isActive -> activeGlowColor
+        isCompleted -> contentColor.copy(alpha = 0.85f)
+        else -> iconTintBase
     }
     val noteIcon = if (hasPersonalNote) {
         Icons.Default.EditNote
     } else {
         Icons.Default.Edit
     }
-    val outlineColor = if (isCompleted) {
-        MaterialTheme.colorScheme.outline.copy(alpha = 0.32f)
-    } else {
-        MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
+    val outlineColor = when {
+        isActive -> activeGlowColor.copy(alpha = 0.75f)
+        isCompleted -> MaterialTheme.colorScheme.outline.copy(alpha = 0.32f)
+        else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
     }
     val shape = RoundedCornerShape(16.dp)
     val surfaceBase = MaterialTheme.colorScheme.surface
@@ -931,15 +995,41 @@ private fun ExerciseCard(
     val pressedBackground = surfaceBase.blendWith(Color.Black, 0.4f)
     val highlightRaised = Color.White.copy(alpha = 0.1f)
     val shadowRaised = Color.Black.copy(alpha = 0.22f)
+    val glowHighlight = activeGlowColor.copy(alpha = 0.55f)
+    val glowShadow = Color.Black.copy(alpha = 0.45f)
+    val glowBackground = Brush.verticalGradient(
+        colors = listOf(
+            surfaceBase.blendWith(activeGlowColor, 0.45f),
+            surfaceBase.blendWith(activeGlowColor, 0.32f),
+            surfaceBase.blendWith(Color.Black, 0.78f)
+        )
+    )
 
-    val cardModifier = if (isCompleted) {
-        Modifier
+    val cardModifier = when {
+        isCompleted -> Modifier
             .fillMaxWidth()
             .clip(shape)
             .background(pressedBackground)
             .border(1.dp, outlineColor, shape)
-    } else {
-        Modifier
+        isActive -> Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 18.dp,
+                shape = shape,
+                clip = false,
+                ambientColor = activeGlowColor.copy(alpha = 0.42f),
+                spotColor = activeGlowColor.copy(alpha = 0.78f)
+            )
+            .clip(shape)
+            .background(glowBackground)
+            .border(1.5.dp, outlineColor, shape)
+            .insetEdges(
+                lightColor = glowHighlight,
+                darkColor = glowShadow,
+                strokeWidth = 1.5.dp,
+                inverted = false
+            )
+        else -> Modifier
             .fillMaxWidth()
             .shadow(8.dp, shape = shape, clip = false)
             .clip(shape)
@@ -952,25 +1042,43 @@ private fun ExerciseCard(
                 inverted = false
             )
     }
-    val activeChipBackground = surfaceBase.blendWith(Color.White, 0.12f)
-    val chipBackgroundColor = if (isCompleted) {
-        pressedBackground
-    } else {
-        activeChipBackground
+    val neutralChipBackground = surfaceBase.blendWith(Color.White, 0.12f)
+    val chipBackgroundColor = when {
+        isCompleted -> pressedBackground
+        isActive -> activeGlowColor.copy(alpha = 0.18f)
+        else -> neutralChipBackground
     }
-    val chipTextColor = if (isCompleted) contentColor else MaterialTheme.colorScheme.onSurface
-    val chipBorderColor = outlineColor
-    val counterBackgroundColor = if (isCompleted) {
-        pressedBackground
-    } else {
-        activeChipBackground
+    val chipTextColor = when {
+        isActive -> activeGlowColor
+        isCompleted -> contentColor
+        else -> MaterialTheme.colorScheme.onSurface
     }
-    val counterTextColor = if (isCompleted) contentColor else MaterialTheme.colorScheme.onSurface
+    val chipBorderColor = when {
+        isActive -> activeGlowColor.copy(alpha = 0.65f)
+        else -> outlineColor
+    }
+    val counterBackgroundColor = when {
+        isCompleted -> pressedBackground
+        isActive -> activeGlowColor.copy(alpha = 0.16f)
+        else -> neutralChipBackground
+    }
+    val counterTextColor = when {
+        isActive -> activeGlowColor
+        isCompleted -> contentColor
+        else -> MaterialTheme.colorScheme.onSurface
+    }
 
     Box(modifier = cardModifier) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
+                val titleModifier = if (isCompleted) {
+                    Modifier.weight(1f)
+                } else {
+                    Modifier
+                        .weight(1f)
+                        .clickable(onClick = onSelect)
+                }
+                Column(modifier = titleModifier) {
                     Text(
                         text = exercise.name,
                         style = titleStyle,
@@ -1306,6 +1414,7 @@ private fun GymScreenPreview() {
     GymProgressTheme {
         GymScreen(
             exercises = GymViewModel.fallbackExercises(),
+            onExerciseSelected = {},
             onProgressTapped = { _ -> },
             onWeightSelected = { _, _ -> },
             onResetDay = {},
