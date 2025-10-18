@@ -447,6 +447,23 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
         internal fun fallbackExercises(): List<ExerciseUiState> = listOf(
             ExerciseUiState(
+                id = "elliptical",
+                name = "Elliptical",
+                type = ExerciseType.ACTIVITY,
+                mode = "elliptical",
+                durationMinutes = 5,
+                level = 7,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = DEFAULT_ACTIVITY_REST_SECONDS,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = true,
+                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 7."
+            ),
+            ExerciseUiState(
                 id = "leg_press",
                 name = "Leg Press",
                 type = ExerciseType.WEIGHTS,
@@ -489,20 +506,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 settingsNote = "Перед упражнением установите валик для ног в положение XL."
             ),
             ExerciseUiState(
-                id = "shoulder_press",
-                name = "Shoulder Press",
-                type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(7, 14, 21, 28, 35, 42),
-                selectedWeight = 7,
-                defaultWeight = 7,
-                restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
-                restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
-                totalSets = 3,
-                completedSets = 0,
-                hasSettings = true,
-                settingsNote = "Отрегулируйте высоту сиденья на уровень 8."
-            ),
-            ExerciseUiState(
                 id = "leg_abductor",
                 name = "Leg Abductor",
                 type = ExerciseType.WEIGHTS,
@@ -515,6 +518,20 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Установите начальную ширину в положение 1."
+            ),
+            ExerciseUiState(
+                id = "shoulder_press",
+                name = "Shoulder Press",
+                type = ExerciseType.WEIGHTS,
+                weightOptions = listOf(7, 14, 21, 28, 35, 42),
+                selectedWeight = 7,
+                defaultWeight = 7,
+                restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
+                restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
+                totalSets = 3,
+                completedSets = 0,
+                hasSettings = true,
+                settingsNote = "Отрегулируйте высоту сиденья на уровень 8."
             ),
             ExerciseUiState(
                 id = "lat_pulldown",
@@ -557,23 +574,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми."
-            ),
-            ExerciseUiState(
-                id = "elliptical",
-                name = "Elliptical",
-                type = ExerciseType.ACTIVITY,
-                mode = "elliptical",
-                durationMinutes = 5,
-                level = 7,
-                weightOptions = emptyList(),
-                selectedWeight = 0,
-                defaultWeight = 0,
-                restBetweenSeconds = 0,
-                restFinalSeconds = DEFAULT_ACTIVITY_REST_SECONDS,
-                totalSets = 1,
-                completedSets = 0,
-                hasSettings = true,
-                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 7."
             ),
             ExerciseUiState(
                 id = "bike",

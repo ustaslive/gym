@@ -1,5 +1,16 @@
 [
   {
+    "id": "elliptical",
+    "label": "Elliptical",
+    "type": "activity",
+    "mode": "elliptical",
+    "durationMinutes": 5,
+    "level": 7,
+    "hasSettings": true,
+    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 7.",
+    "restFinalSeconds": 120
+  },
+  {
     "id": "leg_press",
     "label": "Leg Press",
     "type": "weights",
@@ -36,18 +47,6 @@
     "restFinalSeconds": 120
   },
   {
-    "id": "shoulder_press",
-    "label": "Shoulder Press",
-    "type": "weights",
-    "weightOptions": [7, 14, 21, 28, 35, 42],
-    "defaultWeight": 7,
-    "sets": 3,
-    "hasSettings": true,
-    "settingsNote": "Отрегулируйте высоту сиденья на уровень 8.",
-    "restBetweenSeconds": 45,
-    "restFinalSeconds": 120
-  },
-  {
     "id": "leg_abductor",
     "label": "Leg Abductor",
     "type": "weights",
@@ -56,6 +55,18 @@
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Установите начальную ширину в положение 1.",
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
+  },
+  {
+    "id": "shoulder_press",
+    "label": "Shoulder Press",
+    "type": "weights",
+    "weightOptions": [7, 14, 21, 28, 35, 42],
+    "defaultWeight": 7,
+    "sets": 3,
+    "hasSettings": true,
+    "settingsNote": "Отрегулируйте высоту сиденья на уровень 8.",
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
   },
@@ -93,17 +104,6 @@
     "hasSettings": true,
     "settingsNote": "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми.",
     "restBetweenSeconds": 45,
-    "restFinalSeconds": 120
-  },
-  {
-    "id": "elliptical",
-    "label": "Elliptical",
-    "type": "activity",
-    "mode": "elliptical",
-    "durationMinutes": 5,
-    "level": 7,
-    "hasSettings": true,
-    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 7.",
     "restFinalSeconds": 120
   },
   {
