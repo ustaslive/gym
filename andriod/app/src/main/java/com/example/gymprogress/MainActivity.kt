@@ -134,6 +134,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     val exercises: List<ExerciseUiState> get() = _exercises
     private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
+    private val defaultOrder = mutableListOf<String>()
     private val restTimers = mutableMapOf<String, Job>()
     private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
@@ -158,6 +159,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 restSecondsRemaining = null
             )
         })
+        defaultOrder.clear()
+        defaultOrder.addAll(_exercises.map { it.id })
     }
 
     fun advanceProgress(exerciseId: String) {
@@ -223,12 +226,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         updateActiveSelection(null)
         statusText = null
         stopTone()
-        _exercises.replaceAll { exercise ->
+        val resetExercises = _exercises.map { exercise ->
             exercise.copy(
                 completedSets = 0,
                 restSecondsRemaining = null
             )
         }
+        val ordered = reorderToDefaultOrder(resetExercises)
+        _exercises.clear()
+        _exercises.addAll(ordered)
     }
 
     fun performFullReset() {
@@ -240,7 +246,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         stopTone()
         notesPrefs.edit().clear().apply()
         weightsPrefs.edit().clear().apply()
-        _exercises.replaceAll { exercise ->
+        val resetExercises = _exercises.map { exercise ->
             exercise.copy(
                 completedSets = 0,
                 personalNote = null,
@@ -249,6 +255,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 restSecondsRemaining = null
             )
         }
+        val ordered = reorderToDefaultOrder(resetExercises)
+        _exercises.clear()
+        _exercises.addAll(ordered)
     }
 
     fun updatePersonalNote(exerciseId: String, newNote: String) {
@@ -333,6 +342,12 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val insertionIndex = _exercises.indexOfFirst { it.isCompleted() }
             .let { if (it == -1) _exercises.size else it }
         _exercises.add(insertionIndex, itemToInsert)
+    }
+
+    private fun reorderToDefaultOrder(items: List<ExerciseUiState>): List<ExerciseUiState> {
+        if (defaultOrder.isEmpty()) return items
+        val positions = defaultOrder.withIndex().associate { it.value to it.index }
+        return items.sortedWith(compareBy { positions[it.id] ?: Int.MAX_VALUE })
     }
 
     private fun updateExerciseRest(exerciseId: String, secondsRemaining: Int?) {
