@@ -14,4 +14,9 @@
     <string name="secondary_reset_hint">Сброс</string>
     <string name="more_actions">Дополнительно</string>
     <string name="activity_duration_minutes">%1$d мин</string>
+    <string name="share_notes_action">Поделиться заметками</string>
+    <string name="share_notes_subject">Заметки тренировки</string>
+    <string name="share_notes_chooser_title">Отправить заметки</string>
+    <string name="share_notes_empty">Нет заметок для отправки</string>
+    <string name="share_notes_no_app">Нет приложений для отправки заметок</string>
 </resources>

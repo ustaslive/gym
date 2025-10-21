@@ -1,10 +1,15 @@
 package com.example.gymprogress
 
+import android.app.Activity
 import android.app.Application
-import android.os.Bundle
+import android.content.ClipData
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.os.Bundle
+import android.text.Html
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -67,6 +72,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -104,6 +110,11 @@ enum class ExerciseType {
     WEIGHTS,
     ACTIVITY
 }
+
+data class ShareContent(
+    val plainText: String,
+    val htmlText: String
+)
 
 data class ExerciseUiState(
     val id: String,
@@ -275,6 +286,37 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun buildShareContent(): ShareContent? {
+        val entries = _exercises.mapNotNull { exercise ->
+            val name = exercise.name.trim()
+            val note = exercise.personalNote?.trim()?.takeIf { it.isNotEmpty() }
+            if (name.isNotEmpty() && note != null) {
+                name to note
+            } else {
+                null
+            }
+        }
+        if (entries.isEmpty()) return null
+
+        val plainText = entries.joinToString(separator = "\n\n") { (name, note) ->
+            "$name: $note"
+        }
+        val htmlBody = entries.joinToString(separator = "") { (name, note) ->
+            "<p><strong>${Html.escapeHtml(name)}</strong>: ${escapeNoteToHtml(note)}</p>"
+        }
+        val htmlText = "<html><body>$htmlBody</body></html>"
+
+        return ShareContent(
+            plainText = plainText,
+            htmlText = htmlText
+        )
+    }
+
+    private fun escapeNoteToHtml(note: String): String =
+        note.split('\n').joinToString("<br>") { line ->
+            Html.escapeHtml(line)
+        }
 
     fun stopActiveRestTimer() {
         val activeId = activeStatusExerciseId ?: return
@@ -696,7 +738,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onPersonalNoteSaved = viewModel::updatePersonalNote,
         statusText = statusText,
         onStatusTapped = viewModel::stopActiveRestTimer,
-        onFullReset = viewModel::performFullReset
+        onFullReset = viewModel::performFullReset,
+        onShareNotes = viewModel::buildShareContent
     )
 }
 
@@ -710,7 +753,8 @@ fun GymScreen(
     onPersonalNoteSaved: (String, String) -> Unit,
     statusText: String?,
     onStatusTapped: () -> Unit,
-    onFullReset: () -> Unit
+    onFullReset: () -> Unit,
+    onShareNotes: () -> ShareContent?
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
@@ -720,6 +764,7 @@ fun GymScreen(
         it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
     }
     val noteDialogExercise = exercises.firstOrNull { it.id == noteDialogFor }
+    val context = LocalContext.current
 
     if (dialogExercise != null) {
         WeightPickerDialog(
@@ -938,6 +983,55 @@ fun GymScreen(
                     expanded = overflowExpanded,
                     onDismissRequest = { overflowExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.share_notes_action)) },
+                        onClick = {
+                            overflowExpanded = false
+                            val shareContent = onShareNotes()
+                            if (shareContent != null) {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/html"
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT,
+                                        context.getString(R.string.share_notes_subject)
+                                    )
+                                    val htmlSpanned = Html.fromHtml(
+                                        shareContent.htmlText,
+                                        Html.FROM_HTML_MODE_LEGACY
+                                    )
+                                    putExtra(Intent.EXTRA_TEXT, htmlSpanned)
+                                    putExtra(Intent.EXTRA_HTML_TEXT, shareContent.htmlText)
+                                    clipData = ClipData.newHtmlText(
+                                        context.getString(R.string.share_notes_subject),
+                                        shareContent.plainText,
+                                        shareContent.htmlText
+                                    )
+                                }
+                                val chooserTitle = context.getString(R.string.share_notes_chooser_title)
+                                val resolved = shareIntent.resolveActivity(context.packageManager)
+                                if (resolved != null) {
+                                    val chooserIntent = Intent.createChooser(shareIntent, chooserTitle).apply {
+                                        if (context !is Activity) {
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        }
+                                    }
+                                    context.startActivity(chooserIntent)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.share_notes_no_app),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.share_notes_empty),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    )
                     DropdownMenuItem(
                         text = { Text(text = stringResource(R.string.secondary_reset_hint)) },
                         onClick = {
@@ -1452,7 +1546,8 @@ private fun GymScreenPreview() {
             onPersonalNoteSaved = { _, _ -> },
             statusText = null,
             onStatusTapped = {},
-            onFullReset = {}
+            onFullReset = {},
+            onShareNotes = { null }
         )
     }
 }
