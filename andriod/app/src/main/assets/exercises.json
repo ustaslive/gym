@@ -15,7 +15,7 @@
     "label": "Leg Press",
     "type": "weights",
     "weightOptions": [23, 30, 37, 44, 51, 58, 65, 72, 79],
-    "defaultWeight": 37,
+    "defaultWeight": 44,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Перед началом установите длину салазок на позицию 8.",
@@ -26,7 +26,7 @@
     "id": "leg_extension",
     "label": "Leg Extension",
     "type": "weights",
-    "weightOptions": [7, 14, 21, 28, 35, 42, 49],
+    "weightOptions": [7, 12, 14, 19, 21, 26, 28, 35, 42, 49],
     "defaultWeight": 14,
     "sets": 3,
     "hasSettings": true,
@@ -48,10 +48,10 @@
   },
   {
     "id": "leg_abductor",
-    "label": "Leg Abductor",
+    "label": "Hip abductor",
     "type": "weights",
     "weightOptions": [14, 21, 28, 35, 42, 49],
-    "defaultWeight": 28,
+    "defaultWeight": 35,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Установите начальную ширину в положение 1.",
@@ -67,7 +67,7 @@
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Отрегулируйте высоту сиденья на уровень 8.",
-    "restBetweenSeconds": 45,
+    "restBetweenSeconds": 60,
     "restFinalSeconds": 120
   },
   {
@@ -75,7 +75,7 @@
     "label": "Lat Pulldown",
     "type": "weights",
     "weightOptions": [7, 14, 21, 28, 35, 42, 49],
-    "defaultWeight": 28,
+    "defaultWeight": 35,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Перед тягой установите высоту сиденья на уровень 3.",
@@ -99,7 +99,7 @@
     "label": "Seated Row",
     "type": "weights",
     "weightOptions": [14, 21, 28, 35, 42, 49],
-    "defaultWeight": 28,
+    "defaultWeight": 35,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми.",
@@ -114,7 +114,7 @@
     "durationMinutes": 15,
     "level": 14,
     "hasSettings": true,
-    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 14.",
+    "settingsNote": "Вес: 91 кг (200 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 14. Высота сиденья: 20.",
     "restFinalSeconds": 120
   }
 ]
