@@ -569,8 +569,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         private const val DEFAULT_REST_BETWEEN_SECONDS = 45
         private const val DEFAULT_REST_FINAL_SECONDS = 120
         private const val DEFAULT_ACTIVITY_REST_SECONDS = 120
-        private const val USER_WEIGHT_KG = 91
-        private const val USER_WEIGHT_LB = 200
+        private const val USER_WEIGHT_KG = 90
+        private const val USER_WEIGHT_LB = 198
         private const val USER_AGE = 55
         private const val USER_MAX_HEART_RATE = 140
 
@@ -610,7 +610,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_extension",
                 name = "Leg Extension",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(7, 12, 14, 19, 21, 26, 28, 35, 42, 49),
+                weightOptions = listOf(7, 12, 14, 19, 21, 26, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
@@ -652,9 +652,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "shoulder_press",
                 name = "Shoulder Press",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(7, 14, 21, 28, 35, 42),
-                selectedWeight = 7,
-                defaultWeight = 7,
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+                selectedWeight = 14,
+                defaultWeight = 14,
                 restBetweenSeconds = 60,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,
@@ -680,7 +680,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "chest_press",
                 name = "Chest Press",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(7, 14, 21, 28, 35, 42),
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
@@ -710,7 +710,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 type = ExerciseType.ACTIVITY,
                 mode = "bike",
                 durationMinutes = 15,
-                level = 14,
+                level = 18,
                 weightOptions = emptyList(),
                 selectedWeight = 0,
                 defaultWeight = 0,
@@ -719,7 +719,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 totalSets = 1,
                 completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 14. Высота сиденья: 20."
+                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 18. Высота сиденья: 20."
             )
         )
     }
