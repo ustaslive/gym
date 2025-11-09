@@ -14,6 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +34,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -66,13 +70,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -1392,6 +1398,8 @@ private fun WeightPickerDialog(
     onDismiss: () -> Unit,
     onWeightSelected: (Int) -> Unit
 ) {
+    val listState = rememberLazyListState()
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {},
@@ -1404,45 +1412,109 @@ private fun WeightPickerDialog(
             Text(text = stringResource(R.string.weight_picker_title))
         },
         text = {
-            LazyColumn(
-                modifier = Modifier.heightIn(max = 320.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier
+                    .heightIn(max = 320.dp)
+                    .fillMaxWidth()
             ) {
-                items(exercise.weightOptions) { weight ->
-                    val isSelected = weight == exercise.selectedWeight
-                    val isDefault = weight == exercise.defaultWeight
-                    val defaultHighlight = Color(0xFFFACC15)
-                    val textStyle = if (isDefault) {
-                        MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                    } else {
-                        MaterialTheme.typography.bodyLarge
-                    }
-                    val textColor = when {
-                        isSelected && isDefault -> defaultHighlight
-                        isSelected -> MaterialTheme.colorScheme.primary
-                        isDefault -> defaultHighlight
-                        else -> MaterialTheme.colorScheme.onSurface
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { onWeightSelected(weight) }
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(exercise.weightOptions) { weight ->
+                        val isSelected = weight == exercise.selectedWeight
+                        val isDefault = weight == exercise.defaultWeight
+                        val defaultHighlight = Color(0xFFFACC15)
+                        val textStyle = if (isDefault) {
+                            MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                        } else {
+                            MaterialTheme.typography.bodyLarge
+                        }
+                        val textColor = when {
+                            isSelected && isDefault -> defaultHighlight
+                            isSelected -> MaterialTheme.colorScheme.primary
+                            isDefault -> defaultHighlight
+                            else -> MaterialTheme.colorScheme.onSurface
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { onWeightSelected(weight) }
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
+                                )
+                                .padding(vertical = 10.dp, horizontal = 12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.weight_label_template, weight),
+                                style = textStyle,
+                                color = textColor
                             )
-                            .padding(vertical = 10.dp, horizontal = 12.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.weight_label_template, weight),
-                            style = textStyle,
-                            color = textColor
-                        )
+                        }
                     }
                 }
+                WeightListScrollbar(
+                    state = listState,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .padding(vertical = 4.dp)
+                )
             }
         }
     )
+}
+
+@Composable
+private fun WeightListScrollbar(
+    state: LazyListState,
+    modifier: Modifier = Modifier,
+    minThumbSize: Dp = 28.dp
+) {
+    val layoutInfo = state.layoutInfo
+    val visibleItems = layoutInfo.visibleItemsInfo
+    val totalItems = layoutInfo.totalItemsCount
+    val canScroll = totalItems > visibleItems.size && visibleItems.isNotEmpty()
+    if (!canScroll) {
+        return
+    }
+
+    val density = LocalDensity.current
+    val minThumbPx = with(density) { minThumbSize.toPx() }
+    val trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+    val thumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+
+    Canvas(
+        modifier = modifier
+            .width(6.dp)
+            .padding(horizontal = 2.dp)
+    ) {
+        val trackWidth = size.width
+        val trackHeight = size.height
+        val visibleFraction = (visibleItems.size.toFloat() / totalItems.toFloat()).coerceIn(0f, 1f)
+        val thumbHeight = (trackHeight * visibleFraction).coerceAtLeast(minThumbPx)
+        val scrollableItems = (totalItems - visibleItems.size).coerceAtLeast(1)
+        val firstItemSize = visibleItems.first().size.takeIf { it > 0 } ?: 1
+        val offsetFraction = (state.firstVisibleItemScrollOffset / firstItemSize.toFloat()).coerceIn(0f, 1f)
+        val scrollFraction = ((state.firstVisibleItemIndex + offsetFraction) / scrollableItems.toFloat()).coerceIn(0f, 1f)
+        val thumbTop = (trackHeight - thumbHeight) * scrollFraction
+
+        drawRoundRect(
+            color = trackColor,
+            size = Size(trackWidth, trackHeight),
+            cornerRadius = CornerRadius(trackWidth / 2, trackWidth / 2)
+        )
+        drawRoundRect(
+            color = thumbColor,
+            topLeft = Offset(0f, thumbTop),
+            size = Size(trackWidth, thumbHeight),
+            cornerRadius = CornerRadius(trackWidth / 2, trackWidth / 2)
+        )
+    }
 }
 
 @Composable
