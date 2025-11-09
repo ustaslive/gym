@@ -67,6 +67,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
@@ -202,9 +203,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             if (wasCompleted != isCompleted) {
                 repositionExercise(index, updatedExercise)
             }
-            if (isCompleted) {
-                clearActiveSelectionIfMatches(exercise.id)
-            } else {
+            if (!isCompleted) {
                 updateActiveSelection(updatedExercise.id)
             }
             if (nextValue == 0) {
@@ -332,7 +331,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     fun markExerciseActive(exerciseId: String) {
         val target = _exercises.firstOrNull { it.id == exerciseId } ?: return
         if (target.isCompleted()) {
-            clearActiveSelectionIfMatches(exerciseId)
             return
         }
         if (activeExerciseId == exerciseId && target.isActive) {
@@ -455,12 +453,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun stopTone() {
         toneGenerator?.stopTone()
-    }
-
-    private fun clearActiveSelectionIfMatches(exerciseId: String) {
-        if (activeExerciseId == exerciseId) {
-            updateActiveSelection(null)
-        }
     }
 
     private fun updateActiveSelection(newActiveId: String?) {
@@ -1064,7 +1056,9 @@ private fun ExerciseCard(
     val isActivity = exercise.type == ExerciseType.ACTIVITY
     val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
     val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
-    val isActive = exercise.isActive && !isCompleted
+    val isActive = exercise.isActive
+    val isActiveAndIncomplete = isActive && !isCompleted
+    val isCompletedActive = isCompleted && isActive
     val activeGlowColor = ActiveGlowBlue
     val weightText = if (isActivity) {
         null
@@ -1076,20 +1070,20 @@ private fun ExerciseCard(
         ?.let { duration -> stringResource(R.string.activity_duration_minutes, duration) }
     val titleStyle = when {
         isCompleted -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
-        isActive -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        isActiveAndIncomplete -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
         else -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
     }
     val baseContentColor = MaterialTheme.colorScheme.onSurface
     val completedContentColor = baseContentColor.copy(alpha = 0.5f)
     val contentColor = when {
-        isActive -> activeGlowColor
         isCompleted -> completedContentColor
+        isActiveAndIncomplete -> activeGlowColor
         else -> baseContentColor
     }
     val iconTintBase = contentColor
     val noteIconTint = when {
-        isActive -> activeGlowColor
         isCompleted -> contentColor.copy(alpha = 0.85f)
+        isActiveAndIncomplete -> activeGlowColor
         else -> iconTintBase
     }
     val noteIcon = if (hasPersonalNote) {
@@ -1098,8 +1092,8 @@ private fun ExerciseCard(
         Icons.Default.Edit
     }
     val outlineColor = when {
-        isActive -> activeGlowColor.copy(alpha = 0.75f)
         isCompleted -> MaterialTheme.colorScheme.outline.copy(alpha = 0.32f)
+        isActiveAndIncomplete -> activeGlowColor.copy(alpha = 0.75f)
         else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
     }
     val shape = RoundedCornerShape(16.dp)
@@ -1122,12 +1116,17 @@ private fun ExerciseCard(
     )
 
     val cardModifier = when {
+        isCompletedActive -> Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(glowBackground)
+            .border(1.2.dp, activeGlowColor.copy(alpha = 0.62f), shape)
         isCompleted -> Modifier
             .fillMaxWidth()
             .clip(shape)
             .background(pressedBackground)
             .border(1.dp, outlineColor, shape)
-        isActive -> Modifier
+        isActiveAndIncomplete -> Modifier
             .fillMaxWidth()
             .shadow(
                 elevation = 18.dp,
@@ -1161,30 +1160,46 @@ private fun ExerciseCard(
     val neutralChipBackground = surfaceBase.blendWith(Color.White, 0.12f)
     val chipBackgroundColor = when {
         isCompleted -> pressedBackground
-        isActive -> activeGlowColor.copy(alpha = 0.18f)
+        isActiveAndIncomplete -> activeGlowColor.copy(alpha = 0.18f)
         else -> neutralChipBackground
     }
     val chipTextColor = when {
-        isActive -> activeGlowColor
         isCompleted -> contentColor
+        isActiveAndIncomplete -> activeGlowColor
         else -> MaterialTheme.colorScheme.onSurface
     }
     val chipBorderColor = when {
-        isActive -> activeGlowColor.copy(alpha = 0.65f)
+        isActiveAndIncomplete -> activeGlowColor.copy(alpha = 0.65f)
         else -> outlineColor
     }
     val counterBackgroundColor = when {
         isCompleted -> pressedBackground
-        isActive -> activeGlowColor.copy(alpha = 0.16f)
+        isActiveAndIncomplete -> activeGlowColor.copy(alpha = 0.16f)
         else -> neutralChipBackground
     }
     val counterTextColor = when {
-        isActive -> activeGlowColor
         isCompleted -> contentColor
+        isActiveAndIncomplete -> activeGlowColor
         else -> MaterialTheme.colorScheme.onSurface
     }
 
+    val showCompletedGlow = isCompletedActive
+    val completedGlowDimming = Brush.verticalGradient(
+        colors = listOf(
+            Color.Black.copy(alpha = 0.18f),
+            Color.Black.copy(alpha = 0.55f)
+        )
+    )
+
     Box(modifier = cardModifier) {
+        if (showCompletedGlow) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape)
+                    .background(completedGlowDimming)
+            )
+        }
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val titleModifier = if (isCompleted) {
