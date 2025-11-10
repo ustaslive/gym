@@ -93,6 +93,8 @@ import com.example.gymprogress.ui.theme.GymProgressTheme
 import com.example.gymprogress.ui.theme.HighlightGreen
 import com.example.gymprogress.ui.theme.PrimaryGreen
 import com.example.gymprogress.ui.theme.SecondaryGreen
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -122,6 +124,14 @@ data class ShareContent(
     val plainText: String,
     val htmlText: String
 )
+
+private const val SHARE_SUBJECT_DATE_PATTERN = "yyyy-MM-dd"
+
+private fun buildShareNotesSubject(context: Context): String {
+    val currentDate = SimpleDateFormat(SHARE_SUBJECT_DATE_PATTERN, Locale.getDefault()).format(Date())
+    val baseSubject = context.getString(R.string.share_notes_subject)
+    return "$currentDate - $baseSubject"
+}
 
 data class ExerciseUiState(
     val id: String,
@@ -594,7 +604,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_press",
                 name = "Leg Press",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(23, 30, 37, 44, 51, 58, 65, 72, 79),
+                weightOptions = listOf(23, 30, 37, 44, 51, 58, 65, 72, 79, 86, 93, 100),
                 selectedWeight = 44,
                 defaultWeight = 44,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
@@ -616,13 +626,13 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 totalSets = 3,
                 completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Спинку зафиксируйте в пазе 4, валик для ног поставьте в положение XL."
+                settingsNote = "Спинку зафиксируйте в пазе 5, валик для ног поставьте в положение XL."
             ),
             ExerciseUiState(
                 id = "leg_curl",
                 name = "Leg Curl",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
@@ -667,7 +677,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
                 selectedWeight = 35,
                 defaultWeight = 35,
-                restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
+                restBetweenSeconds = 60,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,
                 completedSets = 0,
@@ -692,9 +702,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "seated_row",
                 name = "Seated Row",
                 type = ExerciseType.WEIGHTS,
-                weightOptions = listOf(14, 21, 28, 35, 42, 49),
-                selectedWeight = 35,
-                defaultWeight = 35,
+                weightOptions = listOf(14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+                selectedWeight = 42,
+                defaultWeight = 42,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,
@@ -987,11 +997,12 @@ fun GymScreen(
                             overflowExpanded = false
                             val shareContent = onShareNotes()
                             if (shareContent != null) {
+                                val shareSubject = buildShareNotesSubject(context)
                                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/html"
                                     putExtra(
                                         Intent.EXTRA_SUBJECT,
-                                        context.getString(R.string.share_notes_subject)
+                                        shareSubject
                                     )
                                     val htmlSpanned = Html.fromHtml(
                                         shareContent.htmlText,
@@ -1000,7 +1011,7 @@ fun GymScreen(
                                     putExtra(Intent.EXTRA_TEXT, htmlSpanned)
                                     putExtra(Intent.EXTRA_HTML_TEXT, shareContent.htmlText)
                                     clipData = ClipData.newHtmlText(
-                                        context.getString(R.string.share_notes_subject),
+                                        shareSubject,
                                         shareContent.plainText,
                                         shareContent.htmlText
                                     )
