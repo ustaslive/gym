@@ -41,7 +41,8 @@
         "fwcd.kotlin",
         "vscjava.vscode-gradle",
         "eamodio.gitlens",
-        "gsejas.markdown-checkbox-preview"
+        "gsejas.markdown-checkbox-preview",
+        "ms-vscode.live-preview"
       ]
     },
     "postAttachCommand": {
