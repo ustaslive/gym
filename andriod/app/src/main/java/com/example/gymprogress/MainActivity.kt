@@ -60,6 +60,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -120,6 +121,12 @@ enum class ExerciseType {
     ACTIVITY
 }
 
+enum class ExerciseGroup(val order: Int) {
+    WARM_UP(0),
+    MAIN(1),
+    CARDIO(2)
+}
+
 data class ShareContent(
     val plainText: String,
     val htmlText: String
@@ -137,6 +144,7 @@ data class ExerciseUiState(
     val id: String,
     val name: String,
     val type: ExerciseType,
+    val group: ExerciseGroup,
     val mode: String? = null,
     val durationMinutes: Int? = null,
     val level: Int? = null,
@@ -152,7 +160,8 @@ data class ExerciseUiState(
     val personalNote: String? = null,
     val persistedWeight: Int? = null,
     val restSecondsRemaining: Int? = null,
-    val isActive: Boolean = false
+    val isActive: Boolean = false,
+    val isUnlocked: Boolean = true
 )
 
 private fun ExerciseUiState.isCompleted(): Boolean =
@@ -160,13 +169,14 @@ private fun ExerciseUiState.isCompleted(): Boolean =
 
 class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val _exercises = mutableStateListOf<ExerciseUiState>()
-    val exercises: List<ExerciseUiState> get() = _exercises
+    val exercises: List<ExerciseUiState> get() = _exercises.filter { it.isUnlocked }
     private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
     private val defaultOrder = mutableListOf<String>()
     private val restTimers = mutableMapOf<String, Job>()
     private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
+    private var initialGroup: ExerciseGroup? = GROUP_SEQUENCE.firstOrNull()
     private val toneGenerator: ToneGenerator? = runCatching {
         ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
     }.getOrNull()
@@ -177,19 +187,25 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     var generalNote by mutableStateOf<String?>(null)
         private set
 
+    var newlyUnlockedGroupAnchorId by mutableStateOf<String?>(null)
+        private set
+
     init {
         generalNote = loadGeneralNote()
         val savedNotes = loadSavedNotes()
         val savedWeights = loadSavedWeights()
         val defaults = loadExercisesFromAssets() ?: fallbackExercises()
+        initialGroup = GROUP_SEQUENCE.firstOrNull { group -> defaults.any { it.group == group } } ?: initialGroup
         _exercises.addAll(defaults.map { exercise ->
             val note = savedNotes[exercise.id]
             val persistedWeight = savedWeights[exercise.id]?.takeIf { it in exercise.weightOptions }
+            val unlocked = shouldUnlockInitially(exercise)
             exercise.copy(
                 personalNote = note?.takeIf { it.isNotBlank() },
                 selectedWeight = persistedWeight ?: exercise.selectedWeight,
                 persistedWeight = persistedWeight,
-                restSecondsRemaining = null
+                restSecondsRemaining = null,
+                isUnlocked = unlocked
             )
         })
         defaultOrder.clear()
@@ -200,6 +216,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
             val exercise = _exercises[index]
+            if (!exercise.isUnlocked) {
+                return
+            }
             val total = exercise.totalSets.coerceAtLeast(1)
             val wasCompleted = exercise.isCompleted()
             val nextValue = if (exercise.completedSets >= total) 0 else exercise.completedSets + 1
@@ -216,6 +235,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             _exercises[index] = updatedExercise
             if (wasCompleted != isCompleted) {
                 repositionExercise(index, updatedExercise)
+                if (isCompleted) {
+                    maybeUnlockNextGroup()
+                }
             }
             if (!isCompleted) {
                 updateActiveSelection(updatedExercise.id)
@@ -236,6 +258,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
             val exercise = _exercises[index]
+            if (!exercise.isUnlocked) {
+                return
+            }
             if (exercise.type != ExerciseType.WEIGHTS) {
                 return
             }
@@ -257,10 +282,12 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         updateActiveSelection(null)
         statusText = null
         stopTone()
+        newlyUnlockedGroupAnchorId = null
         val resetExercises = _exercises.map { exercise ->
             exercise.copy(
                 completedSets = 0,
-                restSecondsRemaining = null
+                restSecondsRemaining = null,
+                isUnlocked = shouldUnlockInitially(exercise)
             )
         }
         val ordered = reorderToDefaultOrder(resetExercises)
@@ -278,13 +305,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         notesPrefs.edit().clear().apply()
         generalNote = null
         weightsPrefs.edit().clear().apply()
+        newlyUnlockedGroupAnchorId = null
         val resetExercises = _exercises.map { exercise ->
             exercise.copy(
                 completedSets = 0,
                 personalNote = null,
                 selectedWeight = exercise.defaultWeight,
                 persistedWeight = null,
-                restSecondsRemaining = null
+                restSecondsRemaining = null,
+                isUnlocked = shouldUnlockInitially(exercise)
             )
         }
         val ordered = reorderToDefaultOrder(resetExercises)
@@ -364,6 +393,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markExerciseActive(exerciseId: String) {
         val target = _exercises.firstOrNull { it.id == exerciseId } ?: return
+        if (!target.isUnlocked) {
+            return
+        }
         if (target.isCompleted()) {
             return
         }
@@ -371,6 +403,57 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         updateActiveSelection(exerciseId)
+    }
+
+    fun consumeNewlyUnlockedAnchor() {
+        newlyUnlockedGroupAnchorId = null
+    }
+
+    private fun shouldUnlockInitially(exercise: ExerciseUiState): Boolean =
+        initialGroup?.let { exercise.group == it } ?: true
+
+    private fun isGroupUnlocked(group: ExerciseGroup): Boolean =
+        _exercises.any { it.group == group && it.isUnlocked }
+
+    private fun areGroupExercisesCompleted(group: ExerciseGroup): Boolean {
+        val groupExercises = _exercises.filter { it.group == group }
+        if (groupExercises.isEmpty()) {
+            return true
+        }
+        return groupExercises.all { it.isCompleted() }
+    }
+
+    private fun unlockGroup(group: ExerciseGroup): String? {
+        var firstUnlockedId: String? = null
+        _exercises.replaceAll { exercise ->
+            if (exercise.group == group && !exercise.isUnlocked) {
+                if (firstUnlockedId == null) {
+                    firstUnlockedId = exercise.id
+                }
+                exercise.copy(isUnlocked = true)
+            } else {
+                exercise
+            }
+        }
+        return firstUnlockedId
+    }
+
+    private fun maybeUnlockNextGroup() {
+        if (GROUP_SEQUENCE.isEmpty()) return
+        for ((index, group) in GROUP_SEQUENCE.withIndex()) {
+            if (isGroupUnlocked(group)) {
+                continue
+            }
+            val previousGroup = GROUP_SEQUENCE.getOrNull(index - 1)
+            val canUnlock = previousGroup == null || areGroupExercisesCompleted(previousGroup)
+            if (canUnlock) {
+                val anchorId = unlockGroup(group)
+                if (anchorId != null) {
+                    newlyUnlockedGroupAnchorId = anchorId
+                }
+            }
+            return
+        }
     }
 
     private fun loadSavedNotes(): Map<String, String> =
@@ -533,6 +616,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val items = mutableListOf<ExerciseUiState>()
         for (index in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(index)
+            val exerciseId = obj.getString("id")
+            val group = resolveGroupForExercise(exerciseId)
             val rawType = obj.optString("type", ExerciseType.WEIGHTS.name)
             val type = runCatching { ExerciseType.valueOf(rawType.uppercase(Locale.US)) }
                 .getOrDefault(ExerciseType.WEIGHTS)
@@ -548,9 +633,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     val restFinal = obj.optInt("restFinalSeconds", DEFAULT_REST_FINAL_SECONDS)
                     val normalizedDefault = if (defaultWeight in options) defaultWeight else options.first()
                     items += ExerciseUiState(
-                        id = obj.getString("id"),
+                        id = exerciseId,
                         name = obj.optString("label", obj.getString("id")),
                         type = ExerciseType.WEIGHTS,
+                        group = group,
                         mode = obj.optString("mode").takeIf { it.isNotBlank() },
                         durationMinutes = null,
                         level = null,
@@ -576,9 +662,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     val settingsNote = obj.optString("settingsNote")
                         .takeIf { it.isNotBlank() }
                     items += ExerciseUiState(
-                        id = obj.getString("id"),
+                        id = exerciseId,
                         name = obj.optString("label", obj.getString("id")),
                         type = ExerciseType.ACTIVITY,
+                        group = group,
                         mode = obj.optString("mode").takeIf { it.isNotBlank() },
                         durationMinutes = duration,
                         level = level,
@@ -610,12 +697,25 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         private const val USER_WEIGHT_LB = 196
         private const val USER_AGE = 55
         private const val USER_MAX_HEART_RATE = 140
+        private val GROUP_SEQUENCE = listOf(
+            ExerciseGroup.WARM_UP,
+            ExerciseGroup.MAIN,
+            ExerciseGroup.CARDIO
+        )
+
+        private fun resolveGroupForExercise(exerciseId: String): ExerciseGroup =
+            when (exerciseId) {
+                "elliptical" -> ExerciseGroup.WARM_UP
+                "bike" -> ExerciseGroup.CARDIO
+                else -> ExerciseGroup.MAIN
+            }
 
         internal fun fallbackExercises(): List<ExerciseUiState> = listOf(
             ExerciseUiState(
                 id = "elliptical",
                 name = "Elliptical",
                 type = ExerciseType.ACTIVITY,
+                group = ExerciseGroup.WARM_UP,
                 mode = "elliptical",
                 durationMinutes = 5,
                 level = 7,
@@ -633,6 +733,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_press",
                 name = "Leg Press",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(23, 30, 37, 44, 51, 58, 65, 72, 79, 86, 93, 100),
                 selectedWeight = 44,
                 defaultWeight = 44,
@@ -647,6 +748,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_extension",
                 name = "Leg Extension",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 12, 14, 19, 21, 26, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
@@ -661,6 +763,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_curl",
                 name = "Leg Curl",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
@@ -675,6 +778,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "leg_abductor",
                 name = "Hip abductor",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(14, 21, 28, 35, 42, 49),
                 selectedWeight = 35,
                 defaultWeight = 35,
@@ -689,6 +793,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "shoulder_press",
                 name = "Shoulder Press",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
@@ -703,6 +808,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "lat_pulldown",
                 name = "Lat Pulldown",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
                 selectedWeight = 35,
                 defaultWeight = 35,
@@ -717,6 +823,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "chest_press",
                 name = "Chest Press",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 14,
                 defaultWeight = 14,
@@ -731,6 +838,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "seated_row",
                 name = "Seated Row",
                 type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
                 weightOptions = listOf(14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
                 selectedWeight = 42,
                 defaultWeight = 42,
@@ -745,6 +853,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 id = "bike",
                 name = "Exercise Bike",
                 type = ExerciseType.ACTIVITY,
+                group = ExerciseGroup.CARDIO,
                 mode = "bike",
                 durationMinutes = 15,
                 level = 18,
@@ -767,8 +876,11 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val exercises = viewModel.exercises
     val statusText = viewModel.statusText
     val generalNote = viewModel.generalNote
+    val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
     GymScreen(
         exercises = exercises,
+        newlyUnlockedAnchorId = newlyUnlockedAnchorId,
+        onNewGroupAnchorConsumed = viewModel::consumeNewlyUnlockedAnchor,
         onExerciseSelected = viewModel::markExerciseActive,
         onProgressTapped = viewModel::advanceProgress,
         onWeightSelected = viewModel::updateWeight,
@@ -786,6 +898,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
 @Composable
 fun GymScreen(
     exercises: List<ExerciseUiState>,
+    newlyUnlockedAnchorId: String?,
+    onNewGroupAnchorConsumed: () -> Unit,
     onExerciseSelected: (String) -> Unit,
     onProgressTapped: (String) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
@@ -802,12 +916,22 @@ fun GymScreen(
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
     var noteDialogFor by remember { mutableStateOf<String?>(null) }
     var generalNoteDialogVisible by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor && it.type == ExerciseType.WEIGHTS }
     val settingsDialogExercise = exercises.firstOrNull {
         it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
     }
     val noteDialogExercise = exercises.firstOrNull { it.id == noteDialogFor }
     val context = LocalContext.current
+
+    LaunchedEffect(newlyUnlockedAnchorId, exercises) {
+        val targetId = newlyUnlockedAnchorId ?: return@LaunchedEffect
+        val targetIndex = exercises.indexOfFirst { it.id == targetId }
+        if (targetIndex >= 0) {
+            listState.animateScrollToItem(targetIndex)
+        }
+        onNewGroupAnchorConsumed()
+    }
 
     if (dialogExercise != null) {
         WeightPickerDialog(
@@ -861,7 +985,8 @@ fun GymScreen(
                 .weight(1f)
                 .fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            state = listState
         ) {
             items(exercises, key = { it.id }) { exercise ->
                 ExerciseCard(
@@ -1761,6 +1886,8 @@ private fun GymScreenPreview() {
     GymProgressTheme {
         GymScreen(
             exercises = GymViewModel.fallbackExercises(),
+            newlyUnlockedAnchorId = null,
+            onNewGroupAnchorConsumed = {},
             onExerciseSelected = {},
             onProgressTapped = { _ -> },
             onWeightSelected = { _, _ -> },
