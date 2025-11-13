@@ -174,7 +174,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     var statusText by mutableStateOf<String?>(null)
         private set
 
+    var generalNote by mutableStateOf<String?>(null)
+        private set
+
     init {
+        generalNote = loadGeneralNote()
         val savedNotes = loadSavedNotes()
         val savedWeights = loadSavedWeights()
         val defaults = loadExercisesFromAssets() ?: fallbackExercises()
@@ -272,6 +276,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         statusText = null
         stopTone()
         notesPrefs.edit().clear().apply()
+        generalNote = null
         weightsPrefs.edit().clear().apply()
         val resetExercises = _exercises.map { exercise ->
             exercise.copy(
@@ -302,8 +307,27 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateGeneralNote(newNote: String) {
+        val trimmed = newNote.trim()
+        val normalized = trimmed.takeIf { it.isNotEmpty() }
+        generalNote = normalized
+        val editor = notesPrefs.edit()
+        if (normalized == null) {
+            editor.remove(GENERAL_NOTE_PREF_KEY)
+        } else {
+            editor.putString(GENERAL_NOTE_PREF_KEY, trimmed)
+        }
+        editor.apply()
+    }
+
     fun buildShareContent(): ShareContent? {
-        val entries = _exercises.mapNotNull { exercise ->
+        val entries = mutableListOf<Pair<String, String>>()
+        val general = generalNote?.trim()?.takeIf { it.isNotEmpty() }
+        if (general != null) {
+            val generalTitle = getApplication<Application>().getString(R.string.general_note_title)
+            entries += generalTitle to general
+        }
+        entries += _exercises.mapNotNull { exercise ->
             val name = exercise.name.trim()
             val note = exercise.personalNote?.trim()?.takeIf { it.isNotEmpty() }
             if (name.isNotEmpty() && note != null) {
@@ -351,6 +375,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadSavedNotes(): Map<String, String> =
         notesPrefs.all.mapNotNull { (key, value) ->
+            if (key == GENERAL_NOTE_PREF_KEY) return@mapNotNull null
             (value as? String)?.takeIf { it.isNotBlank() }?.let { key to it }
         }.toMap()
 
@@ -358,6 +383,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         weightsPrefs.all.mapNotNull { (key, value) ->
             (value as? Int)?.let { key to it }
         }.toMap()
+
+    private fun loadGeneralNote(): String? =
+        notesPrefs.getString(GENERAL_NOTE_PREF_KEY, null)?.trim()?.takeIf { it.isNotEmpty() }
 
     private fun startRestTimer(exercise: ExerciseUiState, durationSeconds: Int) {
         if (durationSeconds <= 0) return
@@ -573,6 +601,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private const val DEFAULT_ASSET = "exercises.json"
         private const val NOTES_PREFS = "exercise_notes"
+        private const val GENERAL_NOTE_PREF_KEY = "general_note"
         private const val WEIGHTS_PREFS = "exercise_weights"
         private const val DEFAULT_REST_BETWEEN_SECONDS = 45
         private const val DEFAULT_REST_FINAL_SECONDS = 120
@@ -737,6 +766,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 fun GymApp(viewModel: GymViewModel = viewModel()) {
     val exercises = viewModel.exercises
     val statusText = viewModel.statusText
+    val generalNote = viewModel.generalNote
     GymScreen(
         exercises = exercises,
         onExerciseSelected = viewModel::markExerciseActive,
@@ -744,6 +774,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onWeightSelected = viewModel::updateWeight,
         onResetDay = viewModel::resetAllSets,
         onPersonalNoteSaved = viewModel::updatePersonalNote,
+        generalNote = generalNote,
+        onGeneralNoteSaved = viewModel::updateGeneralNote,
         statusText = statusText,
         onStatusTapped = viewModel::stopActiveRestTimer,
         onFullReset = viewModel::performFullReset,
@@ -759,6 +791,8 @@ fun GymScreen(
     onWeightSelected: (String, Int) -> Unit,
     onResetDay: () -> Unit,
     onPersonalNoteSaved: (String, String) -> Unit,
+    generalNote: String?,
+    onGeneralNoteSaved: (String) -> Unit,
     statusText: String?,
     onStatusTapped: () -> Unit,
     onFullReset: () -> Unit,
@@ -767,6 +801,7 @@ fun GymScreen(
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
     var noteDialogFor by remember { mutableStateOf<String?>(null) }
+    var generalNoteDialogVisible by remember { mutableStateOf(false) }
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor && it.type == ExerciseType.WEIGHTS }
     val settingsDialogExercise = exercises.firstOrNull {
         it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
@@ -781,6 +816,17 @@ fun GymScreen(
             onWeightSelected = { weight ->
                 onWeightSelected(dialogExercise.id, weight)
                 weightDialogFor = null
+            }
+        )
+    }
+
+    if (generalNoteDialogVisible) {
+        GeneralNoteDialog(
+            note = generalNote.orEmpty(),
+            onDismiss = { generalNoteDialogVisible = false },
+            onSave = { text ->
+                onGeneralNoteSaved(text)
+                generalNoteDialogVisible = false
             }
         )
     }
@@ -863,6 +909,14 @@ fun GymScreen(
                 surfaceVariant.blendWith(Color.Black, 0.28f)
             )
         )
+        val hasGeneralNote = !generalNote.isNullOrBlank()
+        val generalNoteIcon = if (hasGeneralNote) {
+            Icons.Default.EditNote
+        } else {
+            Icons.Default.Edit
+        }
+        val generalNoteTint = MaterialTheme.colorScheme.onSurfaceVariant
+        val statusWidthWeight = 2f / 3f
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -901,7 +955,7 @@ fun GymScreen(
             }
             Surface(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(statusWidthWeight)
                     .height(48.dp),
                 shape = statusShape,
                 color = Color.Transparent,
@@ -975,6 +1029,16 @@ fun GymScreen(
                         }
                     }
                 }
+            }
+            IconButton(
+                modifier = Modifier.size(40.dp),
+                onClick = { generalNoteDialogVisible = true }
+            ) {
+                Icon(
+                    imageVector = generalNoteIcon,
+                    contentDescription = stringResource(R.string.general_note_action),
+                    tint = generalNoteTint
+                )
             }
             Box {
                 IconButton(
@@ -1631,6 +1695,66 @@ private fun NoteEditorDialog(
     )
 }
 
+@Composable
+private fun GeneralNoteDialog(
+    note: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var draftNote by remember(note) { mutableStateOf(note) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable { draftNote = "" },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = stringResource(R.string.note_dialog_clear),
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                TextButton(onClick = { onSave(draftNote) }) {
+                    Text(text = stringResource(R.string.note_dialog_save))
+                }
+            }
+        },
+        title = {
+            Text(text = stringResource(R.string.general_note_title))
+        },
+        text = {
+            Column {
+                TextField(
+                    value = draftNote,
+                    onValueChange = { draftNote = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.note_dialog_placeholder),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    maxLines = 4
+                )
+            }
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun GymScreenPreview() {
@@ -1642,6 +1766,8 @@ private fun GymScreenPreview() {
             onWeightSelected = { _, _ -> },
             onResetDay = {},
             onPersonalNoteSaved = { _, _ -> },
+            generalNote = null,
+            onGeneralNoteSaved = { _ -> },
             statusText = null,
             onStatusTapped = {},
             onFullReset = {},
