@@ -577,8 +577,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         private const val DEFAULT_REST_BETWEEN_SECONDS = 45
         private const val DEFAULT_REST_FINAL_SECONDS = 120
         private const val DEFAULT_ACTIVITY_REST_SECONDS = 120
-        private const val USER_WEIGHT_KG = 90
-        private const val USER_WEIGHT_LB = 198
+        private const val USER_WEIGHT_KG = 89
+        private const val USER_WEIGHT_LB = 196
         private const val USER_AGE = 55
         private const val USER_MAX_HEART_RATE = 140
 
