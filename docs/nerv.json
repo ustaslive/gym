@@ -2,86 +2,76 @@
   {
     "id": 2,
     "type": "sequence",
-    "title": "High support: set shin horizontal (outer hip/glute release)",
-    "description": "Right foot on high support, knee bent. Gently press knee down/in so shin rests; foot stays planted, torso long. Hold 20-30 s, 2 sets/side. No pressure on patella (towel under knee if needed).",
+    "title": "На высокой основе: горизонтальная голень и мягкое качание",
+    "description": "Правая нога упирается в устойчивую поверхность на уровне середины бедра, колено согнуто. Сначала удерживайте голень горизонтально, затем мягко опускайте колено и выполняйте лёгкие качания. Каждое движение — 20-30 секунд одной ногой, потом повтор другой.",
     "steps": [
-      { "label": "Right leg - Set 1 (hold)", "time": 25 },
-      { "label": "Left leg - Set 1 (hold)", "time": 25 },
-      { "label": "Right leg - Set 2 (hold)", "time": 25 },
-      { "label": "Left leg - Set 2 (hold)", "time": 25 }
+      { "label": "Правая: голень горизонтально, лёгкое надавливание", "time": 25 },
+      { "label": "Левая: голень горизонтально, лёгкое надавливание", "time": 25 },
+      { "label": "Правая: мягкое опускание и маленькие качания колена", "time": 25 },
+      { "label": "Левая: мягкое опускание и маленькие качания колена", "time": 25 }
     ]
   },
   {
     "id": 3,
-    "type": "repetitions",
-    "title": "High support: gentle sinking + tiny knee swings",
-    "description": "A) Exhale: hinge into thigh 1-2 s → back. B) Tiny knee swings 1-2 cm over foot. 2-4 + 6-10 per side. Keep back neutral, foot rooted; never press kneecap; stop if pain/shooting.",
-    "repetitions": "2-4 + 6-10 each side"
+    "type": "timer",
+    "title": "Бантик",
+    "description": "Сидя, одна нога (верхняя) полностью кладётся коленом на другую, как при перекрещивании в позе. Просуньте руки под верхней ногой и обхватите кистями нижнюю под коленом, мягко тяните её на себя. Удерживайте 20-30 секунд на каждую сторону, избегая усилий и сохраняя дыхание ровным.",
+    "duration": 30
   },
   {
     "id": 4,
     "type": "timer",
-    "title": "Figure-4 stretch on the mat (lying)",
-    "description": "Supine: right ankle on left knee. Hold left thigh and draw until a light right‑glute stretch. 20-40 s or 6-10 breath pulses; switch. Hold thigh (not shin); no kneecap pressure.",
+    "title": "Бабочка к себе",
+    "description": "Лёжа на спине, одна нога остаётся на полу, другая ставится внешней частью стопы на колено опорной ноги, образуя полый треугольник. Руками за колено ноги «крыла» мягко тяните его к себе, как при бантике, ощущая мягкое тянущее напряжение в бедре. 20-30 секунд на каждую сторону, без давления на чашечку, дыхание ровное.",
     "duration": 30
   },
   {
     "id": 5,
-    "type": "repetitions",
-    "title": "Knee to chest with ankle on the other knee",
-    "description": "Supine: left foot on floor; right ankle on left knee, foot flexed. Hold right knee/upper shin and draw to chest to glute stretch. 6-10 or 20-30 s/side. No patella pressure; no shooting pain.",
-    "repetitions": "6-10 or 20-30s per side"
+    "type": "timer",
+    "title": "Бабочка — от себя",
+    "description": "Лёжа на спине, верхняя нога ставится внешней частью ступни на колено другой, образуя полый треугольник. Под нижнюю часть колена ноги «крыла» подставьте йога-кирпич и отталкивайте ногу от себя, мягко открывая внутреннюю поверхность бедра, не давя на коленную чашечку. 20-30 секунд, 1-2 подхода с ровным дыханием.",
+    "duration": 30
   },
   {
     "id": 6,
     "type": "timer",
-    "title": "Press the knee away with a block (ankle on knee)",
-    "description": "Supine: right ankle on left knee; block/palm between right knee and torso. Gently press knee away 2-4 cm; hold 20-40 s, 1-2 sets/side (or 4-6 short cycles). Don’t press patella; stop if pain/shooting.",
+    "title": "Баланс на блоке — глаза открыты",
+    "description": "Стоя на устойчивом блоке, стопы на ширине бедер, тело вертикально. Удерживайте равновесие с открытыми глазами 30 секунд; повторите при необходимости, сохраняя контроль и мягкое колено.",
     "duration": 30
   },
   {
     "id": 7,
     "type": "timer",
-    "title": "Soft pigeon (knee-friendly)",
-    "description": "From kneeling: right knee forward/out, left leg back; pelvis on cushion. Right foot closer to pelvis; light fold onto thigh. 20-30 s/side. Skip if knee sensitive; exit with any knee discomfort.",
-    "duration": 25
+    "title": "Лёжа: диагональный тянущий ход",
+    "description": "Лёжа на спине, тянитесь рукой по диагонали к бедру вытянутой ноги; делайте 5-8 повторов каждой стороны, сохраняя мягкую стабилизацию таза.",
+    "duration": 45
   },
   {
     "id": 8,
     "type": "timer",
-    "title": "Ball under the glute: trigger point",
-    "description": "Sit, firm ball under tender right‑glute spot. Dose weight with hands. Micro‑moves: knee bend/extend, thigh shift, 1-2 cm circles. 30-60 s/point. Stop for numbness/shooting. Chair alternative is OK.",
+    "title": "Лёжа: носки внутрь-наружу",
+    "description": "Лёжа на спине, двигайте носки внутрь и наружу в комфортном диапазоне, следя, чтобы бедра оставались на полу. Выполняйте 10-15 повторов с контролем.",
     "duration": 45
   },
   {
     "id": 9,
-    "type": "sequence",
-    "title": "Balance on a block/cube",
-    "description": "Stand on stable block, feet hip‑width. 30 s eyes open → 30 s open/close → 30 s closed. Avoid knee collapse; simplify if painful.",
-    "steps": [
-      { "label": "Eyes open", "time": 30 },
-      { "label": "Open-close eyes", "time": 30 },
-      { "label": "Eyes closed", "time": 30 }
-    ]
+    "type": "timer",
+    "title": "Лёжа: качание обеими коленями",
+    "description": "Согните колени и качайте их из стороны в сторону, удерживая таз ровным и активируя кор. Сделайте 8-12 качаний, возвращаясь в центр между повторениями.",
+    "duration": 45
   },
   {
     "id": 10,
-    "type": "sequence",
-    "title": "Supine: soft hip mobilization",
-    "description": "Comfort range only: a) Diagonal reach 5-8/side. b) Toes in-out 10-15. c) Two‑knee rocks 8-12. d) Single‑knee inward 6-10/side. e) Small hip circles 30-45 s/side.",
-    "steps": [
-      { "label": "Diagonal reach (both sides)", "time": 45 },
-      { "label": "Toes in-out", "time": 45 },
-      { "label": "Both-knees rocks", "time": 45 },
-      { "label": "Single-knee inward (each side)", "time": 45 },
-      { "label": "Small hip circles (each side)", "time": 45 }
-    ]
+    "type": "timer",
+    "title": "Лёжа: одно колено внутрь",
+    "description": "Согнутое колено тяните к центру туловища, удерживая бедро на полу и не допуская боли. Сделайте 6-10 повторов каждой ноги, чередуя стороны.",
+    "duration": 45
   },
   {
     "id": 11,
     "type": "timer",
-    "title": "Finish: easy walk and ankle/toe pumps",
-    "description": "Finish: walk calmly 1-2 min; gentle ankle/toe pumps.",
-    "duration": 90
+    "title": "Растяжка согнутых коленей в стороны",
+    "description": "Лёжа на спине, ноги согнуты, стопы сомкнуты. Мягко разводите колени в стороны, растягивая внутреннюю поверхность бедер и сохраняя поясницу на полу. 30 секунд, дыхание ровное, легкое напряжение.",
+    "duration": 30
   }
 ]
