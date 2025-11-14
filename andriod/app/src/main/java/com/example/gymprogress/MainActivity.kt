@@ -42,6 +42,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -77,10 +78,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,13 +121,15 @@ class MainActivity : ComponentActivity() {
 
 enum class ExerciseType {
     WEIGHTS,
-    ACTIVITY
+    ACTIVITY,
+    COOLDOWN
 }
 
 enum class ExerciseGroup(val order: Int) {
     WARM_UP(0),
     MAIN(1),
-    CARDIO(2)
+    CARDIO(2),
+    COOLDOWN(3)
 }
 
 data class ShareContent(
@@ -157,6 +162,7 @@ data class ExerciseUiState(
     val completedSets: Int,
     val hasSettings: Boolean,
     val settingsNote: String? = null,
+    val detailSections: List<String> = emptyList(),
     val personalNote: String? = null,
     val persistedWeight: Int? = null,
     val restSecondsRemaining: Int? = null,
@@ -617,10 +623,14 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         for (index in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(index)
             val exerciseId = obj.getString("id")
-            val group = resolveGroupForExercise(exerciseId)
             val rawType = obj.optString("type", ExerciseType.WEIGHTS.name)
             val type = runCatching { ExerciseType.valueOf(rawType.uppercase(Locale.US)) }
                 .getOrDefault(ExerciseType.WEIGHTS)
+            val group = if (type == ExerciseType.COOLDOWN) {
+                ExerciseGroup.COOLDOWN
+            } else {
+                resolveGroupForExercise(exerciseId)
+            }
             when (type) {
                 ExerciseType.WEIGHTS -> {
                     val options = obj.optJSONArray("weightOptions")?.toIntList().orEmpty()
@@ -680,6 +690,27 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                         settingsNote = settingsNote
                     )
                 }
+
+                ExerciseType.COOLDOWN -> {
+                    val details = obj.optJSONArray("details")?.toStringList().orEmpty()
+                    val sets = obj.optInt("sets", 1).coerceAtLeast(1)
+                    items += ExerciseUiState(
+                        id = exerciseId,
+                        name = obj.optString("label", obj.getString("id")),
+                        type = ExerciseType.COOLDOWN,
+                        group = ExerciseGroup.COOLDOWN,
+                        weightOptions = emptyList(),
+                        selectedWeight = 0,
+                        defaultWeight = 0,
+                        restBetweenSeconds = 0,
+                        restFinalSeconds = 0,
+                        totalSets = sets,
+                        completedSets = 0,
+                        hasSettings = false,
+                        settingsNote = null,
+                        detailSections = details
+                    )
+                }
             }
         }
         return items
@@ -700,7 +731,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         private val GROUP_SEQUENCE = listOf(
             ExerciseGroup.WARM_UP,
             ExerciseGroup.MAIN,
-            ExerciseGroup.CARDIO
+            ExerciseGroup.CARDIO,
+            ExerciseGroup.COOLDOWN
         )
 
         private fun resolveGroupForExercise(exerciseId: String): ExerciseGroup =
@@ -866,6 +898,168 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 18. Высота сиденья: 20."
+            ),
+            ExerciseUiState(
+                id = "cooldown_chest_pillar",
+                name = "Передняя дельта",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf(
+                    "После: chest press, shoulder press.",
+                    "Как: встань у стойки или рамы. Локоть согнут под 90°, предплечье прижато к стойке, плечо примерно на уровне плечевого сустава.",
+                    "Шагни корпусом чуть вперед и мягко разверни грудь от опорной руки, пока не почувствуешь тягу спереди плеча и груди.",
+                    "Сколько: удерживай по 20–30 секунд на каждую сторону, 1–2 подхода."
+                )
+            ),
+            ExerciseUiState(
+                id = "cooldown_lats",
+                name = "Широчайшие",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Широчайшие / бок корпуса у рамы.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_shoulders",
+                name = "Плечи",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Задняя поверхность плеча (cross-body).")
+            ),
+            ExerciseUiState(
+                id = "cooldown_neck",
+                name = "Шея",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Шея / верх трапеций.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_horizontal_leg",
+                name = "Куб: гнуть нерв",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf(
+                    "На высоком кубе/подоконнике до середины бедра.",
+                    "Для чего: отпустить наружную сторону бедра и ягодицу, разгрузить поясницу и седалищный нерв.",
+                    "Как: поставь правую стопу целиком на высокий стол/подоконник на уровне пояса или выше. Колено согнуто. Свободной рукой мягко дави на правое колено вниз и чуть внутрь, чтобы голень легла на поверхность. Стопа не отрывается. Корпус длинный.",
+                    "Сколько: по 2 подхода 20–30 секунд на каждую сторону.",
+                    "Подсказки: дави ладонью по бедру сразу над коленом, а не по чашечке. Если не ложится — подложи полотенце под колено.",
+                    "Где тянет: бок бедра и ягодица поднятой ноги, может слегка тянуть бок корпуса."
+                )
+            ),
+            ExerciseUiState(
+                id = "cooldown_box_forward",
+                name = "Куб: вперед",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("ДАВЛЕНИЕ ВПЕРЕД.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_box_swing",
+                name = "Куб: качели",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("КАЧЕЛИ КОЛЕНА.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_bow",
+                name = "Бантик",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Бантик.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_butterfly_in",
+                name = "Бабочка к себе",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Бабочка к себе.")
+            ),
+            ExerciseUiState(
+                id = "cooldown_butterfly_out",
+                name = "Бабочка от себя",
+                type = ExerciseType.COOLDOWN,
+                group = ExerciseGroup.COOLDOWN,
+                weightOptions = emptyList(),
+                selectedWeight = 0,
+                defaultWeight = 0,
+                restBetweenSeconds = 0,
+                restFinalSeconds = 0,
+                totalSets = 1,
+                completedSets = 0,
+                hasSettings = false,
+                detailSections = listOf("Бабочка от себя.")
             )
         )
     }
@@ -915,6 +1109,7 @@ fun GymScreen(
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
     var noteDialogFor by remember { mutableStateOf<String?>(null) }
+    var detailsDialogFor by remember { mutableStateOf<String?>(null) }
     var generalNoteDialogVisible by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor && it.type == ExerciseType.WEIGHTS }
@@ -922,6 +1117,9 @@ fun GymScreen(
         it.id == settingsDialogFor && !it.settingsNote.isNullOrBlank()
     }
     val noteDialogExercise = exercises.firstOrNull { it.id == noteDialogFor }
+    val detailsDialogExercise = exercises.firstOrNull {
+        it.id == detailsDialogFor && it.detailSections.isNotEmpty()
+    }
     val context = LocalContext.current
 
     LaunchedEffect(newlyUnlockedAnchorId, exercises) {
@@ -963,6 +1161,13 @@ fun GymScreen(
         )
     }
 
+    if (detailsDialogExercise != null) {
+        CooldownDetailsDialog(
+            exercise = detailsDialogExercise,
+            onDismiss = { detailsDialogFor = null }
+        )
+    }
+
     if (noteDialogExercise != null) {
         NoteEditorDialog(
             exercise = noteDialogExercise,
@@ -1001,6 +1206,11 @@ fun GymScreen(
                     onSettingsClick = {
                         if (!exercise.settingsNote.isNullOrBlank()) {
                             settingsDialogFor = exercise.id
+                        }
+                    },
+                    onInfoClick = {
+                        if (exercise.detailSections.isNotEmpty()) {
+                            detailsDialogFor = exercise.id
                         }
                     },
                     onNoteClick = { noteDialogFor = exercise.id }
@@ -1250,20 +1460,24 @@ private fun ExerciseCard(
     onProgressClick: () -> Unit,
     onWeightClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onInfoClick: () -> Unit,
     onNoteClick: () -> Unit
 ) {
     val isCompleted = exercise.totalSets > 0 && exercise.completedSets >= exercise.totalSets
     val isActivity = exercise.type == ExerciseType.ACTIVITY
-    val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank()
+    val isCooldown = exercise.type == ExerciseType.COOLDOWN
+    val isWeights = exercise.type == ExerciseType.WEIGHTS
+    val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank() && !isCooldown
+    val hasDetailSections = exercise.detailSections.isNotEmpty()
     val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
     val isActive = exercise.isActive
     val isActiveAndIncomplete = isActive && !isCompleted
     val isCompletedActive = isCompleted && isActive
     val activeGlowColor = ActiveGlowBlue
-    val weightText = if (isActivity) {
-        null
-    } else {
+    val weightText = if (isWeights) {
         stringResource(R.string.weight_label_template, exercise.selectedWeight)
+    } else {
+        null
     }
     val durationText = exercise.durationMinutes
         ?.takeIf { isActivity }
@@ -1401,65 +1615,82 @@ private fun ExerciseCard(
             )
         }
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val titleModifier = if (isCompleted) {
-                    Modifier.weight(1f)
-                } else {
-                    Modifier
-                        .weight(1f)
-                        .clickable(onClick = onSelect)
-                }
-                Column(modifier = titleModifier) {
-                    Text(
-                        text = exercise.name,
-                        style = titleStyle,
-                        color = contentColor
-                    )
-                }
-                if (isActivity) {
-                    Spacer(modifier = Modifier.width(12.dp))
-                    ActivityCompletionRow(
-                        checked = isCompleted,
-                        durationText = durationText.orEmpty(),
-                        onToggle = onProgressClick,
-                        textColor = chipTextColor,
-                        backgroundColor = chipBackgroundColor,
-                        borderColor = chipBorderColor
-                    )
-                } else {
-                    Spacer(modifier = Modifier.width(12.dp))
-                    ProgressCounter(
-                        value = exercise.completedSets,
-                        onClick = onProgressClick,
-                        textColor = counterTextColor,
-                        backgroundColor = counterBackgroundColor,
-                        borderColor = chipBorderColor
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    WeightChip(
-                        value = weightText.orEmpty(),
-                        onClick = onWeightClick,
-                        textColor = chipTextColor,
-                        backgroundColor = chipBackgroundColor,
-                        borderColor = chipBorderColor
-                    )
+            if (isCooldown) {
+                CooldownCardContent(
+                    exercise = exercise,
+                    titleStyle = titleStyle,
+                    contentColor = contentColor,
+                    checkboxColor = chipTextColor,
+                    isCompleted = isCompleted,
+                    onSelect = onSelect,
+                    onToggle = onProgressClick,
+                    onInfoClick = if (hasDetailSections) onInfoClick else null,
+                    infoIconTint = iconTintBase,
+                    onNoteClick = onNoteClick,
+                    noteIcon = noteIcon,
+                    noteIconTint = noteIconTint
+                )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val titleModifier = if (isCompleted) {
+                        Modifier.weight(1f)
+                    } else {
+                        Modifier
+                            .weight(1f)
+                            .clickable(onClick = onSelect)
+                    }
+                    Column(modifier = titleModifier) {
+                        Text(
+                            text = exercise.name,
+                            style = titleStyle,
+                            color = contentColor
+                        )
+                    }
+                    if (isActivity) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        ActivityCompletionRow(
+                            checked = isCompleted,
+                            durationText = durationText.orEmpty(),
+                            onToggle = onProgressClick,
+                            textColor = chipTextColor,
+                            backgroundColor = chipBackgroundColor,
+                            borderColor = chipBorderColor
+                        )
+                    } else if (isWeights) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        ProgressCounter(
+                            value = exercise.completedSets,
+                            onClick = onProgressClick,
+                            textColor = counterTextColor,
+                            backgroundColor = counterBackgroundColor,
+                            borderColor = chipBorderColor
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        WeightChip(
+                            value = weightText.orEmpty(),
+                            onClick = onWeightClick,
+                            textColor = chipTextColor,
+                            backgroundColor = chipBackgroundColor,
+                            borderColor = chipBorderColor
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
+                        val iconAlpha = if (hasSettingsNote) 1f else 0.4f
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = iconTintBase.copy(alpha = iconAlpha)
+                        )
+                    }
                     Spacer(modifier = Modifier.width(4.dp))
-                }
-                IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
-                    val iconAlpha = if (hasSettingsNote) 1f else 0.4f
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null,
-                        tint = iconTintBase.copy(alpha = iconAlpha)
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = onNoteClick) {
-                    Icon(
-                        imageVector = noteIcon,
-                        contentDescription = null,
-                        tint = noteIconTint
-                    )
+                    IconButton(onClick = onNoteClick) {
+                        Icon(
+                            imageVector = noteIcon,
+                            contentDescription = null,
+                            tint = noteIconTint
+                        )
+                    }
                 }
             }
         }
@@ -1497,6 +1728,69 @@ private fun ActivityCompletionRow(
             backgroundColor = backgroundColor,
             borderColor = borderColor
         )
+    }
+}
+
+@Composable
+private fun CooldownCardContent(
+    exercise: ExerciseUiState,
+    titleStyle: TextStyle,
+    contentColor: Color,
+    checkboxColor: Color,
+    isCompleted: Boolean,
+    onSelect: () -> Unit,
+    onToggle: () -> Unit,
+    onInfoClick: (() -> Unit)?,
+    infoIconTint: Color,
+    onNoteClick: () -> Unit,
+    noteIcon: ImageVector,
+    noteIconTint: Color
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        val titleModifier = if (isCompleted) {
+            Modifier.weight(1f)
+        } else {
+            Modifier
+                .weight(1f)
+                .clickable(onClick = onSelect)
+        }
+        Column(modifier = titleModifier) {
+            Text(
+                text = exercise.name,
+                style = titleStyle,
+                color = contentColor
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Checkbox(
+            checked = isCompleted,
+            onCheckedChange = { onToggle() },
+            colors = CheckboxDefaults.colors(
+                checkedColor = checkboxColor.copy(alpha = 0.32f),
+                uncheckedColor = checkboxColor.copy(alpha = 0.32f),
+                checkmarkColor = checkboxColor.copy(alpha = 0.9f),
+                disabledCheckedColor = checkboxColor.copy(alpha = 0.2f),
+                disabledUncheckedColor = checkboxColor.copy(alpha = 0.2f)
+            )
+        )
+        if (onInfoClick != null) {
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = onInfoClick) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = stringResource(R.string.cooldown_details_action),
+                    tint = infoIconTint
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        IconButton(onClick = onNoteClick) {
+            Icon(
+                imageVector = noteIcon,
+                contentDescription = null,
+                tint = noteIconTint
+            )
+        }
     }
 }
 
@@ -1759,6 +2053,35 @@ private fun SettingsNoteDialog(
 }
 
 @Composable
+private fun CooldownDetailsDialog(
+    exercise: ExerciseUiState,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.cooldown_details_close))
+            }
+        },
+        title = {
+            Text(text = stringResource(R.string.cooldown_details_title, exercise.name))
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                exercise.detailSections.forEach { section ->
+                    Text(
+                        text = section,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+    )
+}
+
+@Composable
 private fun NoteEditorDialog(
     exercise: ExerciseUiState,
     onDismiss: () -> Unit,
@@ -1906,5 +2229,14 @@ private fun GymScreenPreview() {
 private fun JSONArray.toIntList(): List<Int> = buildList {
     for (i in 0 until length()) {
         add(getInt(i))
+    }
+}
+
+private fun JSONArray.toStringList(): List<String> = buildList {
+    for (i in 0 until length()) {
+        val value = optString(i)
+        if (value.isNotBlank()) {
+            add(value)
+        }
     }
 }

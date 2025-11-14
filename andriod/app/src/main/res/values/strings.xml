@@ -21,4 +21,7 @@
     <string name="share_notes_chooser_title">Отправить заметки</string>
     <string name="share_notes_empty">Нет заметок для отправки</string>
     <string name="share_notes_no_app">Нет приложений для отправки заметок</string>
+    <string name="cooldown_details_title">Details for %1$s</string>
+    <string name="cooldown_details_close">Close</string>
+    <string name="cooldown_details_action">Show exercise details</string>
 </resources>
