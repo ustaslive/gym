@@ -356,17 +356,19 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun buildShareContent(): ShareContent? {
+        val app = getApplication<Application>()
         val entries = mutableListOf<Pair<String, String>>()
         val general = generalNote?.trim()?.takeIf { it.isNotEmpty() }
         if (general != null) {
-            val generalTitle = getApplication<Application>().getString(R.string.general_note_title)
+            val generalTitle = app.getString(R.string.general_note_title)
             entries += generalTitle to general
         }
         entries += _exercises.mapNotNull { exercise ->
             val name = exercise.name.trim()
             val note = exercise.personalNote?.trim()?.takeIf { it.isNotEmpty() }
             if (name.isNotEmpty() && note != null) {
-                name to note
+                val displayName = buildShareExerciseTitle(exercise, app, name)
+                displayName to note
             } else {
                 null
             }
@@ -386,6 +388,38 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             htmlText = htmlText
         )
     }
+
+    private fun buildShareExerciseTitle(
+        exercise: ExerciseUiState,
+        app: Application,
+        baseName: String
+    ): String {
+        val metadata = when (exercise.type) {
+            ExerciseType.WEIGHTS -> buildWeightShareMetadata(exercise, app)
+            ExerciseType.ACTIVITY -> buildActivityShareMetadata(exercise)
+            ExerciseType.COOLDOWN -> null
+        }
+        return if (metadata != null) "$baseName$metadata" else baseName
+    }
+
+    private fun buildWeightShareMetadata(exercise: ExerciseUiState, app: Application): String? {
+        val defaultWeight = exercise.defaultWeight.takeIf { it > 0 }
+        val selectedWeight = exercise.selectedWeight.takeIf { it > 0 }
+        if (defaultWeight == null && selectedWeight == null) return null
+
+        val parts = listOfNotNull(
+            defaultWeight?.let { weight -> "default=${formatShareWeight(app, weight)}" },
+            selectedWeight?.let { weight -> "selected=${formatShareWeight(app, weight)}" }
+        )
+        if (parts.isEmpty()) return null
+        return parts.joinToString(prefix = "(", postfix = ")", separator = ",")
+    }
+
+    private fun buildActivityShareMetadata(exercise: ExerciseUiState): String? =
+        exercise.level?.takeIf { it > 0 }?.let { level -> "(level=$level)" }
+
+    private fun formatShareWeight(app: Application, weight: Int): String =
+        app.getString(R.string.weight_label_template, weight).replace(" ", "")
 
     private fun escapeNoteToHtml(note: String): String =
         note.split('\n').joinToString("<br>") { line ->
