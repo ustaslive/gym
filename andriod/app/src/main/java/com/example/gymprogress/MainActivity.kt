@@ -750,7 +750,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 group = ExerciseGroup.WARM_UP,
                 mode = "elliptical",
                 durationMinutes = 5,
-                level = 7,
+                level = 8,
                 weightOptions = emptyList(),
                 selectedWeight = 0,
                 defaultWeight = 0,
@@ -759,7 +759,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 totalSets = 1,
                 completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 7."
+                settingsNote = "Вес: $USER_WEIGHT_KG кг ($USER_WEIGHT_LB lb). Возраст: $USER_AGE. Максимальный пульс: $USER_MAX_HEART_RATE. Установите уровень 8."
             ),
             ExerciseUiState(
                 id = "leg_press",
@@ -872,8 +872,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 type = ExerciseType.WEIGHTS,
                 group = ExerciseGroup.MAIN,
                 weightOptions = listOf(14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-                selectedWeight = 42,
-                defaultWeight = 42,
+                selectedWeight = 49,
+                defaultWeight = 49,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,

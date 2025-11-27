@@ -5,9 +5,9 @@
     "type": "activity",
     "mode": "elliptical",
     "durationMinutes": 5,
-    "level": 7,
+    "level": 8,
     "hasSettings": true,
-    "settingsNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 7.",
+    "settingsNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 8.",
     "restFinalSeconds": 120
   },
   {
@@ -99,7 +99,7 @@
     "label": "Seated Row",
     "type": "weights",
     "weightOptions": [14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91],
-    "defaultWeight": 42,
+    "defaultWeight": 49,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми.",
