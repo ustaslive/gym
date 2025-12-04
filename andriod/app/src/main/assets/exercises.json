@@ -51,7 +51,7 @@
     "label": "Hip abductor",
     "type": "weights",
     "weightOptions": [14, 21, 28, 35, 42, 49, 56, 63],
-    "defaultWeight": 49,
+    "defaultWeight": 56,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Установите начальную ширину в положение 1.",
