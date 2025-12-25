@@ -831,8 +831,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 type = ExerciseType.WEIGHTS,
                 group = ExerciseGroup.MAIN,
                 weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-                selectedWeight = 14,
-                defaultWeight = 14,
+                selectedWeight = 21,
+                defaultWeight = 21,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,
@@ -846,8 +846,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 type = ExerciseType.WEIGHTS,
                 group = ExerciseGroup.MAIN,
                 weightOptions = listOf(14, 21, 28, 35, 42, 49, 56, 63),
-                selectedWeight = 56,
-                defaultWeight = 56,
+                selectedWeight = 63,
+                defaultWeight = 63,
                 restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
                 restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
                 totalSets = 3,
@@ -883,7 +883,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 totalSets = 3,
                 completedSets = 0,
                 hasSettings = true,
-                settingsNote = "Перед тягой установите высоту сиденья на уровень 3."
+                settingsNote = "Перед тягой установите высоту сиденья на уровень 5."
             ),
             ExerciseUiState(
                 id = "chest_press",
