@@ -937,6 +937,20 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 hasSettings = false
             ),
             ExerciseUiState(
+                id = "pec_deck",
+                name = "Pec Deck / Butterfly",
+                type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
+                weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+                selectedWeight = 21,
+                defaultWeight = 21,
+                restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
+                restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
+                totalSets = 3,
+                completedSets = 0,
+                hasSettings = false
+            ),
+            ExerciseUiState(
                 id = "bike",
                 name = "Exercise Bike",
                 type = ExerciseType.ACTIVITY,

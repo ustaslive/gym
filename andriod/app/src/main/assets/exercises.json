@@ -118,6 +118,16 @@
     "restFinalSeconds": 120
   },
   {
+    "id": "pec_deck",
+    "label": "Pec Deck / Butterfly",
+    "type": "weights",
+    "weightOptions": [7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91],
+    "defaultWeight": 21,
+    "sets": 3,
+    "restBetweenSeconds": 45,
+    "restFinalSeconds": 120
+  },
+  {
     "id": "bike",
     "label": "Exercise Bike",
     "type": "activity",
