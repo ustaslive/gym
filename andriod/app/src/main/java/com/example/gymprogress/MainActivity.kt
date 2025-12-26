@@ -156,6 +156,7 @@ data class ExerciseUiState(
     val weightOptions: List<Int>,
     val selectedWeight: Int,
     val defaultWeight: Int,
+    val weightLabel: String? = null,
     val restBetweenSeconds: Int,
     val restFinalSeconds: Int,
     val totalSets: Int,
@@ -407,9 +408,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val selectedWeight = exercise.selectedWeight.takeIf { it > 0 }
         if (defaultWeight == null && selectedWeight == null) return null
 
+        val labelOverride = exercise.weightLabel
+            ?.takeIf { it.isNotBlank() && exercise.weightOptions.size <= 1 }
         val parts = listOfNotNull(
-            defaultWeight?.let { weight -> "default=${formatShareWeight(app, weight)}" },
-            selectedWeight?.let { weight -> "selected=${formatShareWeight(app, weight)}" }
+            defaultWeight?.let { weight -> "default=${formatShareWeight(app, weight, labelOverride)}" },
+            selectedWeight?.let { weight -> "selected=${formatShareWeight(app, weight, labelOverride)}" }
         )
         if (parts.isEmpty()) return null
         return parts.joinToString(prefix = "(", postfix = ")", separator = ",")
@@ -418,8 +421,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private fun buildActivityShareMetadata(exercise: ExerciseUiState): String? =
         exercise.level?.takeIf { it > 0 }?.let { level -> "(level=$level)" }
 
-    private fun formatShareWeight(app: Application, weight: Int): String =
-        app.getString(R.string.weight_label_template, weight).replace(" ", "")
+    private fun formatShareWeight(app: Application, weight: Int, labelOverride: String? = null): String =
+        (labelOverride ?: app.getString(R.string.weight_label_template, weight)).replace(" ", "")
 
     private fun escapeNoteToHtml(note: String): String =
         note.split('\n').joinToString("<br>") { line ->
@@ -673,6 +676,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                     val defaultWeight = obj.optInt("defaultWeight", options.first())
                     val settingsNote = obj.optString("settingsNote")
                         .takeIf { it.isNotBlank() }
+                    val weightLabel = obj.optString("weightLabel")
+                        .takeIf { it.isNotBlank() }
                     val restBetween = obj.optInt("restBetweenSeconds", DEFAULT_REST_BETWEEN_SECONDS)
                     val restFinal = obj.optInt("restFinalSeconds", DEFAULT_REST_FINAL_SECONDS)
                     val normalizedDefault = if (defaultWeight in options) defaultWeight else options.first()
@@ -687,6 +692,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                         weightOptions = options,
                         selectedWeight = normalizedDefault,
                         defaultWeight = normalizedDefault,
+                        weightLabel = weightLabel,
                         restBetweenSeconds = restBetween,
                         restFinalSeconds = restFinal,
                         totalSets = setsCount,
@@ -914,6 +920,21 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 completedSets = 0,
                 hasSettings = true,
                 settingsNote = "Сядьте прямо, чтобы грудной упор лишь касался корпуса. Если индикатор веса отсутствует, выберите уровень 9, вдавив девять кнопок и оставив остальные вынутыми."
+            ),
+            ExerciseUiState(
+                id = "row",
+                name = "Row",
+                type = ExerciseType.WEIGHTS,
+                group = ExerciseGroup.MAIN,
+                weightOptions = listOf(10),
+                selectedWeight = 10,
+                defaultWeight = 10,
+                weightLabel = "2x5кг",
+                restBetweenSeconds = DEFAULT_REST_BETWEEN_SECONDS,
+                restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
+                totalSets = 3,
+                completedSets = 0,
+                hasSettings = false
             ),
             ExerciseUiState(
                 id = "bike",
@@ -1529,11 +1550,14 @@ private fun ExerciseCard(
     val isActiveAndIncomplete = isActive && !isCompleted
     val isCompletedActive = isCompleted && isActive
     val activeGlowColor = ActiveGlowBlue
+    val weightLabel = exercise.weightLabel
+        ?.takeIf { it.isNotBlank() && exercise.weightOptions.size <= 1 }
     val weightText = if (isWeights) {
-        stringResource(R.string.weight_label_template, exercise.selectedWeight)
+        weightLabel ?: stringResource(R.string.weight_label_template, exercise.selectedWeight)
     } else {
         null
     }
+    val isWeightSelectable = isWeights && weightLabel == null
     val durationText = exercise.durationMinutes
         ?.takeIf { isActivity }
         ?.let { duration -> stringResource(R.string.activity_duration_minutes, duration) }
@@ -1723,7 +1747,7 @@ private fun ExerciseCard(
                         Spacer(modifier = Modifier.width(12.dp))
                         WeightChip(
                             value = weightText.orEmpty(),
-                            onClick = onWeightClick,
+                            onClick = if (isWeightSelectable) onWeightClick else null,
                             textColor = chipTextColor,
                             backgroundColor = chipBackgroundColor,
                             borderColor = chipBorderColor
