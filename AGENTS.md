@@ -38,3 +38,17 @@ This contains instructions related to particular dev environments, and not saved
 # Dockerfile changes
 
 - When modifying the `Dockerfile`, keep layer caching and rebuild speed in mind—place new commands as close to the bottom as practical so container rebuilds stay fast.
+
+
+# Development environment and tools
+
+- The development is performed with these IDEs (not limited to):
+  - VSCode
+  - Google Antigravity
+- Consider that the development can be done with AI assistants (not limited to):
+  - Codex
+  - GitHub Copilot
+  - Google Antigravity
+  - Gemini CLI
+- All the development tools are available in the Docker container.
+

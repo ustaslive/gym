@@ -18,7 +18,7 @@
 - [x] fix vscode/devcontainer trust - so codex does not ask for confirmations
 - [x] add less commad to Dockerfile
 - [x] make openai.chatgpt back - local to container.
-- [ ] 
+- [ ] прокинуть docker socket в контейнер
 - [ ] 
 - [ ] 
 - [ ] 

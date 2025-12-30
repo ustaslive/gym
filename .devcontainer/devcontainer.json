@@ -12,6 +12,7 @@
     "source=${localEnv:HOME}/.ssh,target=/home/android/.ssh,type=bind,consistency=cached"
   ],
   "runArgs": [
+    "--name=gym",
     "--network=host"
   ],
   "containerEnv": {
