@@ -5,9 +5,9 @@
     "type": "activity",
     "mode": "elliptical",
     "durationMinutes": 5,
-    "level": 8,
+    "level": 10,
     "hasSettings": true,
-    "settingsNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 8.",
+    "settingsNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 10.",
     "restFinalSeconds": 120
   },
   {
@@ -223,7 +223,7 @@
       84,
       91
     ],
-    "defaultWeight": 21,
+    "defaultWeight": 35,
     "sets": 3,
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
