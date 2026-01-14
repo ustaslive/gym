@@ -1,0 +1,23 @@
+services:
+  gym:
+    container_name: gym
+    image: gym
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    network_mode: host
+    user: android
+    command: sleep infinity
+    volumes:
+      - ..:/workspace:cached
+      - android-gradle-cache:/home/android/.gradle
+      - ${HOME}/.ssh:/home/android/.ssh:cached
+    environment:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      ANDROID_NDK_ROOT: /opt/android-sdk/ndk/26.1.10909125
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      GRADLE_HOME: /opt/gradle/latest
+
+volumes:
+  android-gradle-cache:

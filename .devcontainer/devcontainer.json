@@ -1,20 +1,10 @@
 {
-  "name": "Gym Android",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-  "remoteUser": "android",
+  "name": "gym",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "gym",
   "workspaceFolder": "/workspace",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "mounts": [
-    "source=android-gradle-cache,target=/home/android/.gradle,type=volume",
-    "source=${localEnv:HOME}/.ssh,target=/home/android/.ssh,type=bind,consistency=cached"
-  ],
-  "runArgs": [
-    "--name=gym",
-    "--network=host"
-  ],
+  "remoteUser": "android",
+  "updateRemoteUserUID": false,
   "containerEnv": {
     "ANDROID_HOME": "/opt/android-sdk",
     "ANDROID_SDK_ROOT": "/opt/android-sdk",
@@ -46,8 +36,6 @@
         "ms-vscode.live-preview"
       ]
     },
-    "postAttachCommand": {
-      "shellCommand": "echo 'Container ready. Use adb connect <device-ip>:5555 to pair your device.'"
-    }
+    "postStartCommand": "git config --global --add safe.directory /workspace"
   }
 }
