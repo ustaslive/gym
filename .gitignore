@@ -1,4 +1,5 @@
 CUSTOM.md
+.env
 
 # Gradle cache and build outputs
 .gradle/
