@@ -12,6 +12,7 @@ services:
       - ..:/workspace:cached
       - android-gradle-cache:/home/android/.gradle
       - ${HOME}/.ssh:/home/android/.ssh:cached
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk

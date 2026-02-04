@@ -1,5 +1,21 @@
 FROM ubuntu:22.04@sha256:09506232a8004baa32c47d68f1e5c307d648fdd59f5e7eaa42aaf87914100db3
 
+
+# Install Docker CLI
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc && \
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli nodejs npm
+
+
+
+
 SHELL ["/bin/bash", "-lc"]
 
 # Prevent interactive prompts during package installation.
@@ -16,24 +32,27 @@ ENV ANDROID_HOME=/opt/android-sdk \
 # Install system dependencies and OpenJDK (required for Gradle/Android builds).
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        git \
-        less \
-        openssh-client \
-        openjdk-17-jdk \
-        python3 \
-        unzip \
-        zip \
-        wget \
-        build-essential \
+    ca-certificates \
+    curl \
+    git \
+    less \
+    openssh-client \
+    openjdk-17-jdk \
+    python3 \
+    unzip \
+    zip \
+    wget \
+    build-essential \
+    socat \
+    iproute2 \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Gradle for project builds.
 ARG GRADLE_VERSION=8.7
 RUN set -euxo pipefail \
     && curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
-        -o /tmp/gradle.zip \
+    -o /tmp/gradle.zip \
     && mkdir -p /opt/gradle \
     && unzip -q /tmp/gradle.zip -d /opt/gradle \
     && rm -f /opt/gradle/latest \
@@ -45,7 +64,7 @@ ARG CMDLINE_TOOLS_VERSION=11076708
 RUN set -euxo pipefail \
     && mkdir -p "${ANDROID_HOME}/cmdline-tools" \
     && curl -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-${CMDLINE_TOOLS_VERSION}_latest.zip" \
-        -o /tmp/cmdline-tools.zip \
+    -o /tmp/cmdline-tools.zip \
     && unzip -q /tmp/cmdline-tools.zip -d /tmp \
     && mv /tmp/cmdline-tools "${ANDROID_HOME}/cmdline-tools/latest" \
     && rm -f /tmp/cmdline-tools.zip
@@ -58,10 +77,10 @@ ENV PATH="${GRADLE_HOME}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/late
 RUN set -eux \
     && yes | sdkmanager --sdk_root="${ANDROID_HOME}" --licenses \
     && sdkmanager --sdk_root="${ANDROID_HOME}" \
-        "platform-tools" \
-        "platforms;android-34" \
-        "build-tools;34.0.0" \
-        "ndk;26.1.10909125"
+    "platform-tools" \
+    "platforms;android-34" \
+    "build-tools;34.0.0" \
+    "ndk;26.1.10909125"
 
 # Create an unprivileged user that will own the workspace.
 ARG USER_NAME=android
@@ -74,6 +93,13 @@ RUN groupadd --gid "${USER_GID}" "${USER_NAME}" \
     && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.gradle" \
     && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.android" \
     && install -d -o "${USER_NAME}" -g "${USER_NAME}" "/home/${USER_NAME}/.cache"
+
+# Setup Docker Group for Android User
+# We need to ensure the container's docker group matches the host's socket GID (usually 998 or 999)
+# Better approach: Add android to docker group if it exists, or create it.
+RUN groupadd -g 998 docker || groupadd docker && \
+    usermod -aG docker "${USER_NAME}"
+
 
 USER ${USER_NAME}
 WORKDIR /workspace
