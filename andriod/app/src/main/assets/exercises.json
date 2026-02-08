@@ -182,7 +182,7 @@
       84,
       91
     ],
-    "defaultWeight": 28,
+    "defaultWeight": 35,
     "sets": 3,
     "hasSettings": true,
     "settingsNote": "Отрегулируйте высоту сиденья на уровень 7 и убедитесь, что руки выстроены ровно.",
@@ -223,7 +223,7 @@
       84,
       91
     ],
-    "defaultWeight": 28,
+    "defaultWeight": 35,
     "sets": 3,
     "restBetweenSeconds": 45,
     "restFinalSeconds": 120
