@@ -1,13 +1,23 @@
+
+## [ ] Bugs
+- [ ] when screen is locked, or another app is selected - the relax counter does not tick
+        .
+
 ## [ ] Immediate goals
-- [ ] extensin codex  make internal only for container. not shared with host instance.
+- [x] extensin codex  make internal only for container. not shared with host instance.
 
 ### [ ] Android app for lemon gym exercises
-
 - [X] create docker for android development
 - [ ] see design/andriod.app.md
 - [ ] иконка моего приложения может быть согнутая мускулистая рука и бицепс чтобы был лимоном
 - [ ] железное дополнение - на перчатку, с кучей кнопок для управления приложением прямо с ладони.
         возможно включая даже спотифай. 
+- [ ] what if not phisycal button to use but touchscreen ?glass
+        and make phisycal holes to regions
+- [ ] when an exercise is selected as current, make the counter circle
+        as big as possible with numver inside also bigger.
+        make it only for one selected/current exercise. leave
+        other small as currently they are
 
 
 
