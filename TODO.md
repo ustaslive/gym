@@ -2,6 +2,7 @@
 ## [ ] Bugs
 - [ ] when screen is locked, or another app is selected - the relax counter does not tick
         .
+- [ ] refactoring
 
 ## [ ] Immediate goals
 - [x] extensin codex  make internal only for container. not shared with host instance.
@@ -18,6 +19,10 @@
         as big as possible with numver inside also bigger.
         make it only for one selected/current exercise. leave
         other small as currently they are
+- [ ] Hands day
+        [ ] develop set of exercises
+        [ ] add alternative DAY 
+        [ ] create alternative day for hands
 
 
 
