@@ -63,6 +63,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -2109,13 +2110,25 @@ private fun WeightListScrollbar(
     modifier: Modifier = Modifier,
     minThumbSize: Dp = 28.dp
 ) {
-    val layoutInfo = state.layoutInfo
-    val visibleItems = layoutInfo.visibleItemsInfo
-    val totalItems = layoutInfo.totalItemsCount
-    val canScroll = totalItems > visibleItems.size && visibleItems.isNotEmpty()
-    if (!canScroll) {
-        return
+    val scrollbarState by remember(state) {
+        derivedStateOf {
+            val layoutInfo = state.layoutInfo
+            val visibleItems = layoutInfo.visibleItemsInfo
+            val totalItems = layoutInfo.totalItemsCount
+            if (visibleItems.isEmpty() || totalItems <= visibleItems.size) {
+                null
+            } else {
+                WeightScrollbarState(
+                    visibleItemCount = visibleItems.size,
+                    totalItemCount = totalItems,
+                    firstVisibleItemIndex = state.firstVisibleItemIndex,
+                    firstVisibleItemScrollOffset = state.firstVisibleItemScrollOffset,
+                    firstVisibleItemSize = visibleItems.first().size.takeIf { it > 0 } ?: 1
+                )
+            }
+        }
     }
+    val currentScrollbarState = scrollbarState ?: return
 
     val density = LocalDensity.current
     val minThumbPx = with(density) { minThumbSize.toPx() }
@@ -2129,12 +2142,21 @@ private fun WeightListScrollbar(
     ) {
         val trackWidth = size.width
         val trackHeight = size.height
-        val visibleFraction = (visibleItems.size.toFloat() / totalItems.toFloat()).coerceIn(0f, 1f)
+        val visibleFraction = (
+            currentScrollbarState.visibleItemCount.toFloat() /
+                currentScrollbarState.totalItemCount.toFloat()
+            ).coerceIn(0f, 1f)
         val thumbHeight = (trackHeight * visibleFraction).coerceAtLeast(minThumbPx)
-        val scrollableItems = (totalItems - visibleItems.size).coerceAtLeast(1)
-        val firstItemSize = visibleItems.first().size.takeIf { it > 0 } ?: 1
-        val offsetFraction = (state.firstVisibleItemScrollOffset / firstItemSize.toFloat()).coerceIn(0f, 1f)
-        val scrollFraction = ((state.firstVisibleItemIndex + offsetFraction) / scrollableItems.toFloat()).coerceIn(0f, 1f)
+        val scrollableItems =
+            (currentScrollbarState.totalItemCount - currentScrollbarState.visibleItemCount).coerceAtLeast(1)
+        val offsetFraction = (
+            currentScrollbarState.firstVisibleItemScrollOffset /
+                currentScrollbarState.firstVisibleItemSize.toFloat()
+            ).coerceIn(0f, 1f)
+        val scrollFraction = (
+            (currentScrollbarState.firstVisibleItemIndex + offsetFraction) /
+                scrollableItems.toFloat()
+            ).coerceIn(0f, 1f)
         val thumbTop = (trackHeight - thumbHeight) * scrollFraction
 
         drawRoundRect(
@@ -2150,6 +2172,14 @@ private fun WeightListScrollbar(
         )
     }
 }
+
+private data class WeightScrollbarState(
+    val visibleItemCount: Int,
+    val totalItemCount: Int,
+    val firstVisibleItemIndex: Int,
+    val firstVisibleItemScrollOffset: Int,
+    val firstVisibleItemSize: Int
+)
 
 @Composable
 private fun SettingsNoteDialog(
