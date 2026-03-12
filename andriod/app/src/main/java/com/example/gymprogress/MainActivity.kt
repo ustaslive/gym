@@ -106,6 +106,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,6 +140,27 @@ data class ShareContent(
     val htmlText: String
 )
 
+internal data class WorkoutSessionExerciseState(
+    val id: String,
+    val completedSets: Int,
+    val isUnlocked: Boolean
+)
+
+internal data class WorkoutSessionSnapshot(
+    val exerciseStates: List<WorkoutSessionExerciseState>,
+    val exerciseOrder: List<String>,
+    val activeExerciseId: String?,
+    val activeRestTimerExerciseId: String?,
+    val restTimerEndEpochMillis: Long?
+)
+
+internal data class RestoredWorkoutSession(
+    val exercises: List<ExerciseUiState>,
+    val activeExerciseId: String?,
+    val activeRestTimerExerciseId: String?,
+    val restTimerRemainingSeconds: Int?
+)
+
 private data class ExerciseAssetLoadResult(
     val exercises: List<ExerciseUiState>,
     val issueMessage: String? = null
@@ -164,6 +186,115 @@ internal fun computeDelayUntilNextTick(endElapsedRealtimeMs: Long, nowElapsedRea
     }
     val secondsRemaining = computeRemainingSeconds(endElapsedRealtimeMs, nowElapsedRealtimeMs)
     return (millisRemaining - ((secondsRemaining.toLong() - 1L) * 1_000L)).coerceAtLeast(1L)
+}
+
+internal fun computeRemainingSecondsFromEpochMillis(endEpochMillis: Long, nowEpochMillis: Long): Int {
+    val millisRemaining = (endEpochMillis - nowEpochMillis).coerceAtLeast(0L)
+    return ((millisRemaining + 999L) / 1_000L).toInt()
+}
+
+internal fun serializeWorkoutSessionSnapshot(snapshot: WorkoutSessionSnapshot): String {
+    val root = JSONObject()
+    val exerciseStates = JSONArray()
+    snapshot.exerciseStates.forEach { exercise ->
+        exerciseStates.put(
+            JSONObject()
+                .put("id", exercise.id)
+                .put("completedSets", exercise.completedSets)
+                .put("isUnlocked", exercise.isUnlocked)
+        )
+    }
+    root.put("exerciseStates", exerciseStates)
+    root.put("exerciseOrder", JSONArray(snapshot.exerciseOrder))
+    snapshot.activeExerciseId?.let { root.put("activeExerciseId", it) }
+    snapshot.activeRestTimerExerciseId?.let { root.put("activeRestTimerExerciseId", it) }
+    snapshot.restTimerEndEpochMillis?.let { root.put("restTimerEndEpochMillis", it) }
+    return root.toString()
+}
+
+internal fun deserializeWorkoutSessionSnapshot(raw: String): WorkoutSessionSnapshot {
+    val root = JSONObject(raw)
+    val exerciseStates = root.optJSONArray("exerciseStates")?.let { jsonArray ->
+        buildList {
+            for (index in 0 until jsonArray.length()) {
+                val item = jsonArray.getJSONObject(index)
+                add(
+                    WorkoutSessionExerciseState(
+                        id = item.getString("id"),
+                        completedSets = item.optInt("completedSets", 0),
+                        isUnlocked = item.optBoolean("isUnlocked", true)
+                    )
+                )
+            }
+        }
+    }.orEmpty()
+    val exerciseOrder = root.optJSONArray("exerciseOrder")?.toStringList().orEmpty()
+    return WorkoutSessionSnapshot(
+        exerciseStates = exerciseStates,
+        exerciseOrder = exerciseOrder,
+        activeExerciseId = root.optString("activeExerciseId").takeIf { it.isNotBlank() },
+        activeRestTimerExerciseId = root.optString("activeRestTimerExerciseId").takeIf { it.isNotBlank() },
+        restTimerEndEpochMillis = root.takeIf { it.has("restTimerEndEpochMillis") }
+            ?.optLong("restTimerEndEpochMillis")
+    )
+}
+
+internal fun restoreWorkoutSession(
+    baseExercises: List<ExerciseUiState>,
+    snapshot: WorkoutSessionSnapshot?,
+    defaultOrder: List<String>,
+    nowEpochMillis: Long
+): RestoredWorkoutSession {
+    if (snapshot == null) {
+        return RestoredWorkoutSession(
+            exercises = baseExercises,
+            activeExerciseId = null,
+            activeRestTimerExerciseId = null,
+            restTimerRemainingSeconds = null
+        )
+    }
+    val savedStates = snapshot.exerciseStates.associateBy { it.id }
+    val defaultPositions = defaultOrder.withIndex().associate { it.value to it.index }
+    val savedPositions = snapshot.exerciseOrder.withIndex().associate { it.value to it.index }
+    val activeRestTimerExerciseId = snapshot.activeRestTimerExerciseId
+        ?.takeIf { id -> baseExercises.any { it.id == id } }
+    val restTimerRemainingSeconds = snapshot.restTimerEndEpochMillis
+        ?.let { endEpochMillis -> computeRemainingSecondsFromEpochMillis(endEpochMillis, nowEpochMillis) }
+        ?.takeIf { remaining -> activeRestTimerExerciseId != null && remaining > 0 }
+    val restoredExercises = baseExercises
+        .map { exercise ->
+            val saved = savedStates[exercise.id]
+            val restoredCompletedSets = saved?.completedSets?.coerceIn(0, exercise.totalSets.coerceAtLeast(0))
+                ?: exercise.completedSets
+            val restoredUnlocked = saved?.isUnlocked ?: exercise.isUnlocked
+            exercise.copy(
+                completedSets = restoredCompletedSets,
+                restSecondsRemaining = if (exercise.id == activeRestTimerExerciseId) {
+                    restTimerRemainingSeconds
+                } else {
+                    null
+                }
+            )
+                .copy(isUnlocked = restoredUnlocked)
+        }
+        .sortedWith(
+            compareBy<ExerciseUiState> { exercise ->
+                savedPositions[exercise.id] ?: Int.MAX_VALUE
+            }.thenBy { exercise ->
+                defaultPositions[exercise.id] ?: Int.MAX_VALUE
+            }
+        )
+    val activeExerciseId = snapshot.activeExerciseId
+        ?.takeIf { id -> restoredExercises.any { it.id == id } }
+    val exercisesWithActiveFlags = restoredExercises.map { exercise ->
+        exercise.copy(isActive = activeExerciseId != null && exercise.id == activeExerciseId)
+    }
+    return RestoredWorkoutSession(
+        exercises = exercisesWithActiveFlags,
+        activeExerciseId = activeExerciseId,
+        activeRestTimerExerciseId = activeRestTimerExerciseId.takeIf { restTimerRemainingSeconds != null },
+        restTimerRemainingSeconds = restTimerRemainingSeconds
+    )
 }
 
 data class ExerciseUiState(
@@ -195,15 +326,20 @@ data class ExerciseUiState(
 private fun ExerciseUiState.isCompleted(): Boolean =
     totalSets > 0 && completedSets >= totalSets
 
+internal fun shouldActivateBeforeAdvancing(exercise: ExerciseUiState): Boolean =
+    exercise.type == ExerciseType.COOLDOWN && !exercise.isCompleted() && !exercise.isActive
+
 class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val _exercises = mutableStateListOf<ExerciseUiState>()
     val exercises: List<ExerciseUiState> get() = _exercises.filter { it.isUnlocked }
     private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
+    private val sessionPrefs = application.getSharedPreferences(WORKOUT_SESSION_PREFS, Context.MODE_PRIVATE)
     private val defaultOrder = mutableListOf<String>()
     private val restTimers = mutableMapOf<String, Job>()
     private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
+    private var activeRestTimerEndEpochMillis: Long? = null
     private var initialGroup: ExerciseGroup? = GROUP_SEQUENCE.firstOrNull()
 
     var statusText by mutableStateOf<String?>(null)
@@ -224,9 +360,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val savedWeights = loadSavedWeights()
         val loadResult = loadExercisesFromAssets()
         exerciseAssetIssueMessage = loadResult.issueMessage
-        val defaults = loadResult.exercises
-        initialGroup = GROUP_SEQUENCE.firstOrNull { group -> defaults.any { it.group == group } } ?: initialGroup
-        _exercises.addAll(defaults.map { exercise ->
+        val defaultExercises = loadResult.exercises
+        initialGroup = GROUP_SEQUENCE.firstOrNull { group -> defaultExercises.any { it.group == group } } ?: initialGroup
+        val defaults = defaultExercises.map { exercise ->
             val note = savedNotes[exercise.id]
             val persistedWeight = savedWeights[exercise.id]?.takeIf { it in exercise.weightOptions }
             val unlocked = shouldUnlockInitially(exercise)
@@ -237,17 +373,49 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 restSecondsRemaining = null,
                 isUnlocked = unlocked
             )
-        })
+        }
         defaultOrder.clear()
-        defaultOrder.addAll(_exercises.map { it.id })
+        defaultOrder.addAll(defaultExercises.map { it.id })
+        val savedSession = loadWorkoutSession()
+        val restoredSession = restoreWorkoutSession(
+            baseExercises = defaults,
+            snapshot = savedSession,
+            defaultOrder = defaultOrder,
+            nowEpochMillis = System.currentTimeMillis()
+        )
+        activeExerciseId = restoredSession.activeExerciseId
+        activeStatusExerciseId = restoredSession.activeRestTimerExerciseId
+        activeRestTimerEndEpochMillis = restoredSession.restTimerRemainingSeconds
+            ?.let { remainingSeconds -> System.currentTimeMillis() + remainingSeconds.toLong() * 1_000L }
+        statusText = restoredSession.restTimerRemainingSeconds?.let { remaining ->
+            formatRestTime(remaining)
+        }
+        _exercises.addAll(restoredSession.exercises)
+        if (
+            restoredSession.activeRestTimerExerciseId != null &&
+            restoredSession.restTimerRemainingSeconds != null
+        ) {
+            val restoredExercise = _exercises.firstOrNull { exercise ->
+                exercise.id == restoredSession.activeRestTimerExerciseId
+            }
+            if (restoredExercise != null) {
+                startRestTimer(restoredExercise, restoredSession.restTimerRemainingSeconds)
+            }
+        } else if (savedSession != null) {
+            persistWorkoutSessionState()
+        }
     }
 
     fun advanceProgress(exerciseId: String) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
-            val exercise = _exercises[index]
+            var exercise = _exercises[index]
             if (!exercise.isUnlocked) {
                 return
+            }
+            if (shouldActivateBeforeAdvancing(exercise)) {
+                updateActiveSelection(exercise.id)
+                exercise = _exercises[index]
             }
             val total = exercise.totalSets.coerceAtLeast(1)
             val wasCompleted = exercise.isCompleted()
@@ -273,6 +441,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 updateActiveSelection(updatedExercise.id)
             }
             if (nextValue == 0) {
+                persistWorkoutSessionState()
                 return
             }
             val duration = if (nextValue >= total) {
@@ -280,7 +449,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 updatedExercise.restBetweenSeconds
             }
-            startRestTimer(updatedExercise, duration)
+            if (duration > 0) {
+                startRestTimer(updatedExercise, duration)
+            } else {
+                persistWorkoutSessionState()
+            }
         }
     }
 
@@ -309,6 +482,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
         RestTimerSoundService.stop(getApplication())
+        activeRestTimerEndEpochMillis = null
         activeStatusExerciseId = null
         updateActiveSelection(null)
         statusText = null
@@ -323,12 +497,14 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val ordered = reorderToDefaultOrder(resetExercises)
         _exercises.clear()
         _exercises.addAll(ordered)
+        clearWorkoutSessionState()
     }
 
     fun performFullReset() {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
         RestTimerSoundService.stop(getApplication())
+        activeRestTimerEndEpochMillis = null
         activeStatusExerciseId = null
         updateActiveSelection(null)
         statusText = null
@@ -349,6 +525,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val ordered = reorderToDefaultOrder(resetExercises)
         _exercises.clear()
         _exercises.addAll(ordered)
+        clearWorkoutSessionState()
     }
 
     fun updatePersonalNote(exerciseId: String, newNote: String) {
@@ -469,6 +646,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         updateActiveSelection(exerciseId)
+        persistWorkoutSessionState()
     }
 
     fun consumeNewlyUnlockedAnchor() {
@@ -544,9 +722,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         if (durationSeconds <= 0) return
         restTimers.remove(exercise.id)?.cancel()
         activeStatusExerciseId = exercise.id
+        activeRestTimerEndEpochMillis = System.currentTimeMillis() + durationSeconds.toLong() * 1_000L
         updateExerciseRest(exercise.id, durationSeconds)
         RestTimerSoundService.start(getApplication(), durationSeconds)
         val endElapsedRealtimeMs = SystemClock.elapsedRealtime() + durationSeconds.toLong() * 1_000L
+        persistWorkoutSessionState()
         val job = viewModelScope.launch {
             val currentJob = coroutineContext[Job]
             var lastReportedRemaining = durationSeconds
@@ -566,7 +746,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             } finally {
                 if (restTimers[exercise.id] == currentJob) {
                     restTimers.remove(exercise.id)
+                    activeRestTimerEndEpochMillis = null
                     updateExerciseRest(exercise.id, null)
+                    persistWorkoutSessionState()
                 }
             }
         }
@@ -575,8 +757,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun cancelRestTimer(exerciseId: String) {
         restTimers.remove(exerciseId)?.cancel()
+        activeRestTimerEndEpochMillis = null
         updateExerciseRest(exerciseId, null)
         RestTimerSoundService.stop(getApplication())
+        persistWorkoutSessionState()
     }
 
     private fun repositionExercise(currentIndex: Int, exercise: ExerciseUiState) {
@@ -648,6 +832,41 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun loadWorkoutSession(): WorkoutSessionSnapshot? {
+        val raw = sessionPrefs.getString(WORKOUT_SESSION_PREF_KEY, null) ?: return null
+        return runCatching {
+            deserializeWorkoutSessionSnapshot(raw)
+        }.getOrElse { error ->
+            Log.e(LOG_TAG, "Could not parse persisted workout session. Clearing saved state.", error)
+            clearWorkoutSessionState()
+            null
+        }
+    }
+
+    private fun persistWorkoutSessionState() {
+        val snapshot = WorkoutSessionSnapshot(
+            exerciseStates = _exercises.map { exercise ->
+                WorkoutSessionExerciseState(
+                    id = exercise.id,
+                    completedSets = exercise.completedSets,
+                    isUnlocked = exercise.isUnlocked
+                )
+            },
+            exerciseOrder = _exercises.map { exercise -> exercise.id },
+            activeExerciseId = activeExerciseId,
+            activeRestTimerExerciseId = activeStatusExerciseId,
+            restTimerEndEpochMillis = activeRestTimerEndEpochMillis
+        )
+        sessionPrefs.edit().putString(
+            WORKOUT_SESSION_PREF_KEY,
+            serializeWorkoutSessionSnapshot(snapshot)
+        ).apply()
+    }
+
+    private fun clearWorkoutSessionState() {
+        sessionPrefs.edit().remove(WORKOUT_SESSION_PREF_KEY).apply()
+    }
+
     private fun loadExercisesFromAssets(): ExerciseAssetLoadResult {
         val context = getApplication<Application>()
         val assets = context.assets
@@ -680,6 +899,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         private const val NOTES_PREFS = "exercise_notes"
         private const val GENERAL_NOTE_PREF_KEY = "general_note"
         private const val WEIGHTS_PREFS = "exercise_weights"
+        private const val WORKOUT_SESSION_PREFS = "workout_session"
+        private const val WORKOUT_SESSION_PREF_KEY = "session_snapshot"
         private const val DEFAULT_REST_BETWEEN_SECONDS = 45
         private const val DEFAULT_REST_FINAL_SECONDS = 120
         private const val DEFAULT_ACTIVITY_REST_SECONDS = 120
@@ -1317,7 +1538,7 @@ fun GymScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             state = listState
         ) {
-            items(exercises, key = { it.id }) { exercise ->
+            items(exercises) { exercise ->
                 ExerciseCard(
                     exercise = exercise,
                     onSelect = { onExerciseSelected(exercise.id) },
