@@ -1,0 +1,51 @@
+package com.example.gymprogress
+
+enum class ExerciseType {
+    WEIGHTS,
+    ACTIVITY,
+    COOLDOWN
+}
+
+enum class ExerciseGroup(val order: Int) {
+    WARM_UP(0),
+    MAIN(1),
+    CARDIO(2),
+    COOLDOWN(3)
+}
+
+data class ShareContent(
+    val plainText: String,
+    val htmlText: String
+)
+
+data class ExerciseUiState(
+    val id: String,
+    val name: String,
+    val type: ExerciseType,
+    val group: ExerciseGroup,
+    val mode: String? = null,
+    val durationMinutes: Int? = null,
+    val level: Int? = null,
+    val weightOptions: List<Int>,
+    val selectedWeight: Int,
+    val defaultWeight: Int,
+    val weightLabel: String? = null,
+    val restBetweenSeconds: Int,
+    val restFinalSeconds: Int,
+    val totalSets: Int,
+    val completedSets: Int,
+    val hasSettings: Boolean,
+    val settingsNote: String? = null,
+    val detailSections: List<String> = emptyList(),
+    val personalNote: String? = null,
+    val persistedWeight: Int? = null,
+    val restSecondsRemaining: Int? = null,
+    val isActive: Boolean = false,
+    val isUnlocked: Boolean = true
+)
+
+internal fun ExerciseUiState.isCompleted(): Boolean =
+    totalSets > 0 && completedSets >= totalSets
+
+internal fun shouldActivateBeforeAdvancing(exercise: ExerciseUiState): Boolean =
+    exercise.type == ExerciseType.COOLDOWN && !exercise.isCompleted() && !exercise.isActive
