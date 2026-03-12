@@ -1,6 +1,7 @@
 package com.example.gymprogress
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.app.Application
 import android.content.ClipData
 import android.content.Context
@@ -1538,15 +1539,14 @@ fun GymScreen(
                                     )
                                 }
                                 val chooserTitle = context.getString(R.string.share_notes_chooser_title)
-                                val resolved = shareIntent.resolveActivity(context.packageManager)
-                                if (resolved != null) {
-                                    val chooserIntent = Intent.createChooser(shareIntent, chooserTitle).apply {
-                                        if (context !is Activity) {
-                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        }
+                                val chooserIntent = Intent.createChooser(shareIntent, chooserTitle).apply {
+                                    if (context !is Activity) {
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     }
+                                }
+                                try {
                                     context.startActivity(chooserIntent)
-                                } else {
+                                } catch (_: ActivityNotFoundException) {
                                     Toast.makeText(
                                         context,
                                         context.getString(R.string.share_notes_no_app),
