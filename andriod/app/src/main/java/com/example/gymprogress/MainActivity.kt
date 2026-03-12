@@ -5,9 +5,8 @@ import android.app.Application
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
-import android.media.ToneGenerator
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.Html
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -145,6 +144,20 @@ private fun buildShareNotesSubject(context: Context): String {
     return "$currentDate - $baseSubject"
 }
 
+internal fun computeRemainingSeconds(endElapsedRealtimeMs: Long, nowElapsedRealtimeMs: Long): Int {
+    val millisRemaining = (endElapsedRealtimeMs - nowElapsedRealtimeMs).coerceAtLeast(0L)
+    return ((millisRemaining + 999L) / 1_000L).toInt()
+}
+
+internal fun computeDelayUntilNextTick(endElapsedRealtimeMs: Long, nowElapsedRealtimeMs: Long): Long {
+    val millisRemaining = (endElapsedRealtimeMs - nowElapsedRealtimeMs).coerceAtLeast(0L)
+    if (millisRemaining == 0L) {
+        return 0L
+    }
+    val secondsRemaining = computeRemainingSeconds(endElapsedRealtimeMs, nowElapsedRealtimeMs)
+    return (millisRemaining - ((secondsRemaining.toLong() - 1L) * 1_000L)).coerceAtLeast(1L)
+}
+
 data class ExerciseUiState(
     val id: String,
     val name: String,
@@ -184,9 +197,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
     private var initialGroup: ExerciseGroup? = GROUP_SEQUENCE.firstOrNull()
-    private val toneGenerator: ToneGenerator? = runCatching {
-        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
-    }.getOrNull()
 
     var statusText by mutableStateOf<String?>(null)
         private set
@@ -285,10 +295,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     fun resetAllSets() {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
+        RestTimerSoundService.stop(getApplication())
         activeStatusExerciseId = null
         updateActiveSelection(null)
         statusText = null
-        stopTone()
         newlyUnlockedGroupAnchorId = null
         val resetExercises = _exercises.map { exercise ->
             exercise.copy(
@@ -305,10 +315,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     fun performFullReset() {
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
+        RestTimerSoundService.stop(getApplication())
         activeStatusExerciseId = null
         updateActiveSelection(null)
         statusText = null
-        stopTone()
         notesPrefs.edit().clear().apply()
         generalNote = null
         weightsPrefs.edit().clear().apply()
@@ -518,17 +528,23 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimers.remove(exercise.id)?.cancel()
         activeStatusExerciseId = exercise.id
         updateExerciseRest(exercise.id, durationSeconds)
+        RestTimerSoundService.start(getApplication(), durationSeconds)
+        val endElapsedRealtimeMs = SystemClock.elapsedRealtime() + durationSeconds.toLong() * 1_000L
         val job = viewModelScope.launch {
             val currentJob = coroutineContext[Job]
+            var lastReportedRemaining = durationSeconds
             try {
-                var remaining = durationSeconds
-                while (remaining > 0) {
-                    delay(1_000L)
-                    remaining -= 1
-                    updateExerciseRest(exercise.id, remaining)
-                    if (remaining in 0..6) {
-                        playRestTick(remaining)
+                while (true) {
+                    val nowElapsedRealtimeMs = SystemClock.elapsedRealtime()
+                    val remaining = computeRemainingSeconds(endElapsedRealtimeMs, nowElapsedRealtimeMs)
+                    if (remaining != lastReportedRemaining) {
+                        updateExerciseRest(exercise.id, remaining)
+                        lastReportedRemaining = remaining
                     }
+                    if (remaining <= 0) {
+                        break
+                    }
+                    delay(computeDelayUntilNextTick(endElapsedRealtimeMs, nowElapsedRealtimeMs))
                 }
             } finally {
                 if (restTimers[exercise.id] == currentJob) {
@@ -543,7 +559,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private fun cancelRestTimer(exerciseId: String) {
         restTimers.remove(exerciseId)?.cancel()
         updateExerciseRest(exerciseId, null)
-        stopTone()
+        RestTimerSoundService.stop(getApplication())
     }
 
     private fun repositionExercise(currentIndex: Int, exercise: ExerciseUiState) {
@@ -573,7 +589,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             statusText = secondsRemaining?.let { formatRestTime(it) }
             if (secondsRemaining == null) {
                 activeStatusExerciseId = null
-                stopTone()
             }
         }
     }
@@ -589,34 +604,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         super.onCleared()
         restTimers.values.forEach { it.cancel() }
         restTimers.clear()
-        stopTone()
-        toneGenerator?.release()
-    }
-
-    private fun playRestTick(remainingSeconds: Int) {
-        val isFinalTick = remainingSeconds <= 0
-        toneGenerator?.let { generator ->
-            generator.stopTone()
-            if (isFinalTick) {
-                val pulseDurationMs = 40
-                val gapDurationMs = 20
-                generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
-                viewModelScope.launch {
-                    delay(pulseDurationMs.toLong())
-                    generator.stopTone()
-                    delay(gapDurationMs.toLong())
-                    generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
-                    delay(pulseDurationMs.toLong())
-                    generator.stopTone()
-                }
-            } else {
-                generator.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
-            }
-        }
-    }
-
-    private fun stopTone() {
-        toneGenerator?.stopTone()
+        RestTimerSoundService.stop(getApplication())
     }
 
     private fun updateActiveSelection(newActiveId: String?) {

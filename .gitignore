@@ -3,6 +3,7 @@ CUSTOM.md
 
 # Gradle cache and build outputs
 .gradle/
+.gradle-home/
 **/build/
 
 # Android/IntelliJ project files

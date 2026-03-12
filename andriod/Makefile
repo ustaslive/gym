@@ -5,7 +5,28 @@ ADB := adb
 APPLICATION_ID := com.example.gymprogress
 DEBUG_APK := app/build/outputs/apk/debug/app-debug.apk
 
-.PHONY: check build install list connect
+.PHONY: help check build install uninstall list connect
+
+help:
+	@printf "%s\n" \
+		"Available commands:" \
+		"  make help     Show this help message." \
+		"  make list     List ADB devices." \
+		"  make check    Verify that at least one ADB device is connected." \
+		"  make connect  Connect to an ADB host using ADB_HOST and a prompted port." \
+		"  make build    Build the debug APK with Gradle." \
+		"  make install  Build the debug APK if needed and install it on the device." \
+		"  make uninstall Uninstall the app from the connected device." \
+		"" \
+		"Examples:" \
+		"  make help" \
+		"  make list" \
+		"  make check" \
+		"  ADB_HOST=192.0.2.1 make connect" \
+		"  printf 'ADB_HOST=192.0.2.1\n' > .env && make connect" \
+		"  make build" \
+		"  make install" \
+		"  make uninstall"
 
 check:
 	@$(ADB) devices | awk 'NR==1{next} /device$$/{found=1} END{if(found) print "ADB device connected."; else {print "No ADB device detected."; exit 1}}'
@@ -36,3 +57,6 @@ install: check
 		$(MAKE) build; \
 	fi
 	$(ADB) install -r $(DEBUG_APK)
+
+uninstall: check
+	$(ADB) uninstall $(APPLICATION_ID)

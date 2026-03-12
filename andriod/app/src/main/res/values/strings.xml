@@ -24,4 +24,7 @@
     <string name="cooldown_details_title">Details for %1$s</string>
     <string name="cooldown_details_close">Close</string>
     <string name="cooldown_details_action">Show exercise details</string>
+    <string name="rest_timer_notification_channel_name">Rest timer sounds</string>
+    <string name="rest_timer_notification_title">Rest timer active</string>
+    <string name="rest_timer_notification_text">Countdown sounds stay active while the screen is locked.</string>
 </resources>
