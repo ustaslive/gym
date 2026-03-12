@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.Html
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -136,6 +137,11 @@ data class ShareContent(
     val htmlText: String
 )
 
+private data class ExerciseAssetLoadResult(
+    val exercises: List<ExerciseUiState>,
+    val issueMessage: String? = null
+)
+
 private const val SHARE_SUBJECT_DATE_PATTERN = "yyyy-MM-dd"
 
 private fun buildShareNotesSubject(context: Context): String {
@@ -207,11 +213,16 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     var newlyUnlockedGroupAnchorId by mutableStateOf<String?>(null)
         private set
 
+    var exerciseAssetIssueMessage by mutableStateOf<String?>(null)
+        private set
+
     init {
         generalNote = loadGeneralNote()
         val savedNotes = loadSavedNotes()
         val savedWeights = loadSavedWeights()
-        val defaults = loadExercisesFromAssets() ?: fallbackExercises()
+        val loadResult = loadExercisesFromAssets()
+        exerciseAssetIssueMessage = loadResult.issueMessage
+        val defaults = loadResult.exercises
         initialGroup = GROUP_SEQUENCE.firstOrNull { group -> defaults.any { it.group == group } } ?: initialGroup
         _exercises.addAll(defaults.map { exercise ->
             val note = savedNotes[exercise.id]
@@ -462,6 +473,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         newlyUnlockedGroupAnchorId = null
     }
 
+    fun dismissExerciseAssetIssue() {
+        exerciseAssetIssueMessage = null
+    }
+
     private fun shouldUnlockInitially(exercise: ExerciseUiState): Boolean =
         initialGroup?.let { exercise.group == it } ?: true
 
@@ -631,121 +646,35 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun loadExercisesFromAssets(): List<ExerciseUiState>? {
+    private fun loadExercisesFromAssets(): ExerciseAssetLoadResult {
         val context = getApplication<Application>()
         val assets = context.assets
-        return runCatching {
+        val raw = runCatching {
             assets.open(DEFAULT_ASSET).bufferedReader().use { it.readText() }
+        }.getOrElse { error ->
+            val issueMessage = context.getString(R.string.exercise_asset_issue_message, DEFAULT_ASSET)
+            Log.e(LOG_TAG, "Could not read exercises asset '$DEFAULT_ASSET'. Falling back to built-in exercises.", error)
+            return ExerciseAssetLoadResult(
+                exercises = fallbackExercises(),
+                issueMessage = issueMessage
+            )
         }
-            .mapCatching { parseExercisesFromJson(it) }
-            .getOrNull()
-            ?.takeIf { it.isNotEmpty() }
-    }
-
-    private fun parseExercisesFromJson(raw: String): List<ExerciseUiState> {
-        val jsonArray = JSONArray(raw)
-        val items = mutableListOf<ExerciseUiState>()
-        for (index in 0 until jsonArray.length()) {
-            val obj = jsonArray.getJSONObject(index)
-            val exerciseId = obj.getString("id")
-            val rawType = obj.optString("type", ExerciseType.WEIGHTS.name)
-            val type = runCatching { ExerciseType.valueOf(rawType.uppercase(Locale.US)) }
-                .getOrDefault(ExerciseType.WEIGHTS)
-            val group = if (type == ExerciseType.COOLDOWN) {
-                ExerciseGroup.COOLDOWN
-            } else {
-                resolveGroupForExercise(exerciseId)
-            }
-            when (type) {
-                ExerciseType.WEIGHTS -> {
-                    val options = obj.optJSONArray("weightOptions")?.toIntList().orEmpty()
-                    if (options.isEmpty()) continue
-                    val setsCount = obj.optInt("sets", 3).coerceAtLeast(1)
-                    val defaultWeight = obj.optInt("defaultWeight", options.first())
-                    val settingsNote = obj.optString("settingsNote")
-                        .takeIf { it.isNotBlank() }
-                    val weightLabel = obj.optString("weightLabel")
-                        .takeIf { it.isNotBlank() }
-                    val restBetween = obj.optInt("restBetweenSeconds", DEFAULT_REST_BETWEEN_SECONDS)
-                    val restFinal = obj.optInt("restFinalSeconds", DEFAULT_REST_FINAL_SECONDS)
-                    val normalizedDefault = if (defaultWeight in options) defaultWeight else options.first()
-                    items += ExerciseUiState(
-                        id = exerciseId,
-                        name = obj.optString("label", obj.getString("id")),
-                        type = ExerciseType.WEIGHTS,
-                        group = group,
-                        mode = obj.optString("mode").takeIf { it.isNotBlank() },
-                        durationMinutes = null,
-                        level = null,
-                        weightOptions = options,
-                        selectedWeight = normalizedDefault,
-                        defaultWeight = normalizedDefault,
-                        weightLabel = weightLabel,
-                        restBetweenSeconds = restBetween,
-                        restFinalSeconds = restFinal,
-                        totalSets = setsCount,
-                        completedSets = 0,
-                        hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
-                        settingsNote = settingsNote
-                    )
-                }
-
-                ExerciseType.ACTIVITY -> {
-                    val duration = obj.optInt("durationMinutes", 0).coerceAtLeast(0)
-                        .takeIf { it > 0 }
-                    val level = obj.optInt("level", 0).coerceAtLeast(0)
-                        .takeIf { it > 0 }
-                    val restFinal = obj.optInt("restFinalSeconds", DEFAULT_ACTIVITY_REST_SECONDS)
-                        .coerceAtLeast(0)
-                    val settingsNote = obj.optString("settingsNote")
-                        .takeIf { it.isNotBlank() }
-                    items += ExerciseUiState(
-                        id = exerciseId,
-                        name = obj.optString("label", obj.getString("id")),
-                        type = ExerciseType.ACTIVITY,
-                        group = group,
-                        mode = obj.optString("mode").takeIf { it.isNotBlank() },
-                        durationMinutes = duration,
-                        level = level,
-                        weightOptions = emptyList(),
-                        selectedWeight = 0,
-                        defaultWeight = 0,
-                        restBetweenSeconds = 0,
-                        restFinalSeconds = restFinal,
-                        totalSets = 1,
-                        completedSets = 0,
-                        hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
-                        settingsNote = settingsNote
-                    )
-                }
-
-                ExerciseType.COOLDOWN -> {
-                    val details = obj.optJSONArray("details")?.toStringList().orEmpty()
-                    val sets = obj.optInt("sets", 1).coerceAtLeast(1)
-                    items += ExerciseUiState(
-                        id = exerciseId,
-                        name = obj.optString("label", obj.getString("id")),
-                        type = ExerciseType.COOLDOWN,
-                        group = ExerciseGroup.COOLDOWN,
-                        weightOptions = emptyList(),
-                        selectedWeight = 0,
-                        defaultWeight = 0,
-                        restBetweenSeconds = 0,
-                        restFinalSeconds = 0,
-                        totalSets = sets,
-                        completedSets = 0,
-                        hasSettings = false,
-                        settingsNote = null,
-                        detailSections = details
-                    )
-                }
-            }
+        val exercises = runCatching {
+            parseExercisesFromJson(raw)
+        }.getOrElse { error ->
+            val issueMessage = context.getString(R.string.exercise_asset_issue_message, DEFAULT_ASSET)
+            Log.e(LOG_TAG, "Could not parse exercises asset '$DEFAULT_ASSET'. Falling back to built-in exercises.", error)
+            return ExerciseAssetLoadResult(
+                exercises = fallbackExercises(),
+                issueMessage = issueMessage
+            )
         }
-        return items
+        return ExerciseAssetLoadResult(exercises = exercises)
     }
 
     companion object {
         private const val DEFAULT_ASSET = "exercises.json"
+        private const val LOG_TAG = "GymViewModel"
         private const val NOTES_PREFS = "exercise_notes"
         private const val GENERAL_NOTE_PREF_KEY = "general_note"
         private const val WEIGHTS_PREFS = "exercise_weights"
@@ -769,6 +698,117 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 "bike" -> ExerciseGroup.CARDIO
                 else -> ExerciseGroup.MAIN
             }
+
+        internal fun parseExercisesFromJson(raw: String): List<ExerciseUiState> {
+            val jsonArray = JSONArray(raw)
+            require(jsonArray.length() > 0) { "Exercises asset must not be empty." }
+            val items = mutableListOf<ExerciseUiState>()
+            for (index in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(index)
+                val exerciseId = obj.getString("id")
+                val rawType = obj.optString("type", ExerciseType.WEIGHTS.name)
+                val type = runCatching { ExerciseType.valueOf(rawType.uppercase(Locale.US)) }
+                    .getOrElse { error ->
+                        throw IllegalArgumentException(
+                            "Exercise '$exerciseId' has unsupported type '$rawType'.",
+                            error
+                        )
+                    }
+                val group = if (type == ExerciseType.COOLDOWN) {
+                    ExerciseGroup.COOLDOWN
+                } else {
+                    resolveGroupForExercise(exerciseId)
+                }
+                when (type) {
+                    ExerciseType.WEIGHTS -> {
+                        val options = obj.optJSONArray("weightOptions")?.toIntList().orEmpty()
+                        require(options.isNotEmpty()) {
+                            "Exercise '$exerciseId' must define a non-empty weightOptions list."
+                        }
+                        val setsCount = obj.optInt("sets", 3).coerceAtLeast(1)
+                        val defaultWeight = obj.optInt("defaultWeight", options.first())
+                        val settingsNote = obj.optString("settingsNote")
+                            .takeIf { it.isNotBlank() }
+                        val weightLabel = obj.optString("weightLabel")
+                            .takeIf { it.isNotBlank() }
+                        val restBetween = obj.optInt("restBetweenSeconds", DEFAULT_REST_BETWEEN_SECONDS)
+                        val restFinal = obj.optInt("restFinalSeconds", DEFAULT_REST_FINAL_SECONDS)
+                        val normalizedDefault = if (defaultWeight in options) defaultWeight else options.first()
+                        items += ExerciseUiState(
+                            id = exerciseId,
+                            name = obj.optString("label", obj.getString("id")),
+                            type = ExerciseType.WEIGHTS,
+                            group = group,
+                            mode = obj.optString("mode").takeIf { it.isNotBlank() },
+                            durationMinutes = null,
+                            level = null,
+                            weightOptions = options,
+                            selectedWeight = normalizedDefault,
+                            defaultWeight = normalizedDefault,
+                            weightLabel = weightLabel,
+                            restBetweenSeconds = restBetween,
+                            restFinalSeconds = restFinal,
+                            totalSets = setsCount,
+                            completedSets = 0,
+                            hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
+                            settingsNote = settingsNote
+                        )
+                    }
+
+                    ExerciseType.ACTIVITY -> {
+                        val duration = obj.optInt("durationMinutes", 0).coerceAtLeast(0)
+                            .takeIf { it > 0 }
+                        val level = obj.optInt("level", 0).coerceAtLeast(0)
+                            .takeIf { it > 0 }
+                        val restFinal = obj.optInt("restFinalSeconds", DEFAULT_ACTIVITY_REST_SECONDS)
+                            .coerceAtLeast(0)
+                        val settingsNote = obj.optString("settingsNote")
+                            .takeIf { it.isNotBlank() }
+                        items += ExerciseUiState(
+                            id = exerciseId,
+                            name = obj.optString("label", obj.getString("id")),
+                            type = ExerciseType.ACTIVITY,
+                            group = group,
+                            mode = obj.optString("mode").takeIf { it.isNotBlank() },
+                            durationMinutes = duration,
+                            level = level,
+                            weightOptions = emptyList(),
+                            selectedWeight = 0,
+                            defaultWeight = 0,
+                            restBetweenSeconds = 0,
+                            restFinalSeconds = restFinal,
+                            totalSets = 1,
+                            completedSets = 0,
+                            hasSettings = obj.optBoolean("hasSettings", false) || settingsNote != null,
+                            settingsNote = settingsNote
+                        )
+                    }
+
+                    ExerciseType.COOLDOWN -> {
+                        val details = obj.optJSONArray("details")?.toStringList().orEmpty()
+                        val sets = obj.optInt("sets", 1).coerceAtLeast(1)
+                        items += ExerciseUiState(
+                            id = exerciseId,
+                            name = obj.optString("label", obj.getString("id")),
+                            type = ExerciseType.COOLDOWN,
+                            group = ExerciseGroup.COOLDOWN,
+                            weightOptions = emptyList(),
+                            selectedWeight = 0,
+                            defaultWeight = 0,
+                            restBetweenSeconds = 0,
+                            restFinalSeconds = 0,
+                            totalSets = sets,
+                            completedSets = 0,
+                            hasSettings = false,
+                            settingsNote = null,
+                            detailSections = details
+                        )
+                    }
+                }
+            }
+            require(items.isNotEmpty()) { "Exercises asset did not produce any exercises." }
+            return items
+        }
 
         internal fun fallbackExercises(): List<ExerciseUiState> = listOf(
             ExerciseUiState(
@@ -1135,6 +1175,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val statusText = viewModel.statusText
     val generalNote = viewModel.generalNote
     val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
+    val exerciseAssetIssueMessage = viewModel.exerciseAssetIssueMessage
     GymScreen(
         exercises = exercises,
         newlyUnlockedAnchorId = newlyUnlockedAnchorId,
@@ -1149,7 +1190,9 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         statusText = statusText,
         onStatusTapped = viewModel::stopActiveRestTimer,
         onFullReset = viewModel::performFullReset,
-        onShareNotes = viewModel::buildShareContent
+        onShareNotes = viewModel::buildShareContent,
+        exerciseAssetIssueMessage = exerciseAssetIssueMessage,
+        onExerciseAssetIssueDismissed = viewModel::dismissExerciseAssetIssue
     )
 }
 
@@ -1168,7 +1211,9 @@ fun GymScreen(
     statusText: String?,
     onStatusTapped: () -> Unit,
     onFullReset: () -> Unit,
-    onShareNotes: () -> ShareContent?
+    onShareNotes: () -> ShareContent?,
+    exerciseAssetIssueMessage: String?,
+    onExerciseAssetIssueDismissed: () -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
@@ -1239,6 +1284,19 @@ fun GymScreen(
             onSave = { text ->
                 onPersonalNoteSaved(noteDialogExercise.id, text)
                 noteDialogFor = null
+            }
+        )
+    }
+
+    if (!exerciseAssetIssueMessage.isNullOrBlank()) {
+        AlertDialog(
+            onDismissRequest = onExerciseAssetIssueDismissed,
+            title = { Text(text = stringResource(R.string.exercise_asset_issue_title)) },
+            text = { Text(text = exerciseAssetIssueMessage) },
+            confirmButton = {
+                TextButton(onClick = onExerciseAssetIssueDismissed) {
+                    Text(text = stringResource(R.string.exercise_asset_issue_confirm))
+                }
             }
         )
     }
@@ -2288,7 +2346,9 @@ private fun GymScreenPreview() {
             statusText = null,
             onStatusTapped = {},
             onFullReset = {},
-            onShareNotes = { null }
+            onShareNotes = { null },
+            exerciseAssetIssueMessage = null,
+            onExerciseAssetIssueDismissed = {}
         )
     }
 }

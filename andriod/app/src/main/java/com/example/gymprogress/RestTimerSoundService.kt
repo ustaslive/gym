@@ -110,7 +110,7 @@ class RestTimerSoundService : Service() {
         wakeLock = null
     }
 
-    private fun playRestTick(remainingSeconds: Int) {
+    private suspend fun playRestTick(remainingSeconds: Int) {
         val isFinalTick = remainingSeconds <= 0
         val generator = toneGenerator ?: return
         generator.stopTone()
@@ -118,14 +118,12 @@ class RestTimerSoundService : Service() {
             val pulseDurationMs = 40
             val gapDurationMs = 20
             generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
-            serviceScope.launch {
-                delay(pulseDurationMs.toLong())
-                generator.stopTone()
-                delay(gapDurationMs.toLong())
-                generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
-                delay(pulseDurationMs.toLong())
-                generator.stopTone()
-            }
+            delay(pulseDurationMs.toLong())
+            generator.stopTone()
+            delay(gapDurationMs.toLong())
+            generator.startTone(ToneGenerator.TONE_PROP_ACK, pulseDurationMs)
+            delay(pulseDurationMs.toLong())
+            generator.stopTone()
         } else {
             generator.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
         }
