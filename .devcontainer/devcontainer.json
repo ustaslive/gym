@@ -20,6 +20,7 @@
         "terminal.integrated.defaultProfile.linux": "bash",
         "chat.tools.global.autoApprove": true,
         "chat.editing.autoAccept": true,
+        "chat.disableAIFeatures": true,
         "chat.tools.edits.autoApprove": {
           "**/*": true
         }
@@ -27,8 +28,8 @@
       "extensions": [
         "ms-androidtools.vscode-android",
         "ms-vscode.vscode-typescript-next",
-        "openai.chatgpt",
         "ms-python.python",
+        "openai.chatgpt",
         "fwcd.kotlin",
         "vscjava.vscode-gradle",
         "eamodio.gitlens",

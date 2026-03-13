@@ -18,14 +18,14 @@
         make it only for one selected/current exercise. leave
         other small as currently they are
 
-- [ ] only on zaminka - if not select4ed as current, and checked - it appers afret latest selected+completed
+- [x] only on zaminka - if not select4ed as current, and checked - it appers afret latest selected+completed
         wrong/ must be after last active, below last active, right below it
 
 - [ ] for active exercire the counter circle must be much bigger. circle almost all hight diameter. for easy touch experience
 
-- [ ] in android dir - make help - shall return commands
-- [ ] if missing add pair command
-- [ ] let make remember last port and IP address and offer as defaults - can change
+- [x] in android dir - make help - shall return commands
+- [/] if missing add pair command
+- [/] let make remember last port and IP address and offer as defaults - can change
 
 - [ ] Hands day
         [ ] develop set of exercises
