@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -662,7 +663,8 @@ private fun ExerciseCard(
                     .background(completedGlowDimming)
             )
         }
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        val contentVerticalPadding = if (isActive && isWeights) 6.dp else 12.dp
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = contentVerticalPadding)) {
             if (isCooldown) {
                 CooldownCardContent(
                     exercise = exercise,
@@ -709,6 +711,7 @@ private fun ExerciseCard(
                         ProgressCounter(
                             value = exercise.completedSets,
                             onClick = onProgressClick,
+                            isActive = isActive,
                             textColor = counterTextColor,
                             backgroundColor = counterBackgroundColor,
                             borderColor = chipBorderColor
@@ -846,26 +849,48 @@ private fun CooldownCardContent(
 private fun ProgressCounter(
     value: Int,
     onClick: () -> Unit,
+    isActive: Boolean,
     textColor: Color,
     backgroundColor: Color,
     borderColor: Color
 ) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = if (isActive) CircleShape else RoundedCornerShape(12.dp)
+    val counterModifier = if (isActive) {
+        Modifier
+            .size(60.dp)
+            .clip(shape)
+            .clickable(onClick = onClick)
+    } else {
+        Modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+    }
     Surface(
         shape = shape,
         color = backgroundColor,
         border = BorderStroke(1.dp, borderColor),
-        modifier = Modifier
-            .clip(shape)
-            .clickable(onClick = onClick)
+        modifier = counterModifier
     ) {
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = textColor,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-        )
+        Box(
+            modifier = if (isActive) Modifier.fillMaxSize() else Modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = value.toString(),
+                style = if (isActive) {
+                    MaterialTheme.typography.headlineSmall
+                } else {
+                    MaterialTheme.typography.titleMedium
+                },
+                fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
+                color = textColor,
+                modifier = if (isActive) {
+                    Modifier
+                } else {
+                    Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                }
+            )
+        }
     }
 }
 
