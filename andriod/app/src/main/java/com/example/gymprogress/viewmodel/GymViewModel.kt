@@ -26,10 +26,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private val defaultOrder = mutableListOf<String>()
     private val restTimers = mutableMapOf<String, Job>()
 
+    private var catalogExercises: List<ExerciseUiState> = emptyList()
     private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
     private var activeRestTimerEndEpochMillis: Long? = null
     private var initialGroup: ExerciseGroup? = GROUP_SEQUENCE.firstOrNull()
+    private var currentDayType by mutableStateOf(WorkoutDayType.GENERAL)
+
+    var selectedDayType by mutableStateOf(WorkoutDayType.GENERAL)
+        private set
 
     var statusText by mutableStateOf<String?>(null)
         private set
@@ -45,33 +50,24 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         generalNote = loadGeneralNote()
-        val savedNotes = loadSavedNotes()
-        val savedWeights = loadSavedWeights()
         val loadResult = loadExercisesFromAssets(application)
         exerciseAssetIssueMessage = loadResult.issueMessage
-        val defaultExercises = loadResult.exercises
-        initialGroup = GROUP_SEQUENCE.firstOrNull { group -> defaultExercises.any { it.group == group } } ?: initialGroup
-        val defaults = defaultExercises.map { exercise ->
-            val note = savedNotes[exercise.id]
-            val persistedWeight = savedWeights[exercise.id]?.takeIf { it in exercise.weightOptions }
-            val unlocked = shouldUnlockInitially(exercise)
-            exercise.copy(
-                personalNote = note?.takeIf { it.isNotBlank() },
-                selectedWeight = persistedWeight ?: exercise.selectedWeight,
-                persistedWeight = persistedWeight,
-                restSecondsRemaining = null,
-                isUnlocked = unlocked
-            )
-        }
-        defaultOrder.clear()
-        defaultOrder.addAll(defaultExercises.map { it.id })
+        catalogExercises = loadResult.exercises
+        initialGroup = GROUP_SEQUENCE.firstOrNull { group -> catalogExercises.any { it.group == group } } ?: initialGroup
         val savedSession = loadWorkoutSession()
+        currentDayType = savedSession?.currentDayType ?: WorkoutDayType.GENERAL
+        selectedDayType = savedSession?.selectedDayType ?: currentDayType
+        val baseExercises = buildExercisesForDayType(currentDayType)
+        defaultOrder.clear()
+        defaultOrder.addAll(baseExercises.map { it.id })
         val restoredSession = restoreWorkoutSession(
-            baseExercises = defaults,
+            baseExercises = baseExercises,
             snapshot = savedSession,
             defaultOrder = defaultOrder,
             nowEpochMillis = System.currentTimeMillis()
         )
+        currentDayType = restoredSession.currentDayType
+        selectedDayType = restoredSession.selectedDayType
         activeExerciseId = restoredSession.activeExerciseId
         activeStatusExerciseId = restoredSession.activeRestTimerExerciseId
         activeRestTimerEndEpochMillis = restoredSession.restTimerRemainingSeconds
@@ -99,7 +95,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
             var exercise = _exercises[index]
-            if (!exercise.isUnlocked) {
+            if (!exercise.isUnlocked || exercise.type == ExerciseType.PLACEHOLDER) {
                 return
             }
             if (shouldActivateBeforeAdvancing(exercise)) {
@@ -164,54 +160,23 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun resetAllSets() {
-        restTimers.values.forEach { it.cancel() }
-        restTimers.clear()
-        RestTimerSoundService.stop(getApplication())
-        activeRestTimerEndEpochMillis = null
-        activeStatusExerciseId = null
-        updateActiveSelection(null)
-        statusText = null
-        newlyUnlockedGroupAnchorId = null
-        val resetExercises = _exercises.map { exercise ->
-            exercise.copy(
-                completedSets = 0,
-                restSecondsRemaining = null,
-                isUnlocked = shouldUnlockInitially(exercise)
-            )
+    fun selectDayType(dayType: WorkoutDayType) {
+        if (selectedDayType == dayType) {
+            return
         }
-        val ordered = reorderToDefaultOrder(resetExercises)
-        _exercises.clear()
-        _exercises.addAll(ordered)
-        clearWorkoutSessionState()
+        selectedDayType = dayType
+        persistWorkoutSessionState()
+    }
+
+    fun resetAllSets() {
+        applyNewDayType(selectedDayType)
     }
 
     fun performFullReset() {
-        restTimers.values.forEach { it.cancel() }
-        restTimers.clear()
-        RestTimerSoundService.stop(getApplication())
-        activeRestTimerEndEpochMillis = null
-        activeStatusExerciseId = null
-        updateActiveSelection(null)
-        statusText = null
         notesPrefs.edit().clear().apply()
         generalNote = null
         weightsPrefs.edit().clear().apply()
-        newlyUnlockedGroupAnchorId = null
-        val resetExercises = _exercises.map { exercise ->
-            exercise.copy(
-                completedSets = 0,
-                personalNote = null,
-                selectedWeight = exercise.defaultWeight,
-                persistedWeight = null,
-                restSecondsRemaining = null,
-                isUnlocked = shouldUnlockInitially(exercise)
-            )
-        }
-        val ordered = reorderToDefaultOrder(resetExercises)
-        _exercises.clear()
-        _exercises.addAll(ordered)
-        clearWorkoutSessionState()
+        applyNewDayType(currentDayType)
     }
 
     fun updatePersonalNote(exerciseId: String, newNote: String) {
@@ -283,7 +248,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markExerciseActive(exerciseId: String) {
         val target = _exercises.firstOrNull { it.id == exerciseId } ?: return
-        if (!target.isUnlocked || target.isCompleted()) {
+        if (!target.isUnlocked || target.isCompleted() || target.type == ExerciseType.PLACEHOLDER) {
             return
         }
         if (activeExerciseId == exerciseId && target.isActive) {
@@ -316,7 +281,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val metadata = when (exercise.type) {
             ExerciseType.WEIGHTS -> buildWeightShareMetadata(exercise, app)
             ExerciseType.ACTIVITY -> buildActivityShareMetadata(exercise)
-            ExerciseType.COOLDOWN -> null
+            ExerciseType.COOLDOWN,
+            ExerciseType.PLACEHOLDER -> null
         }
         return if (metadata != null) "$baseName$metadata" else baseName
     }
@@ -348,10 +314,19 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     private fun shouldUnlockInitially(exercise: ExerciseUiState): Boolean =
-        initialGroup?.let { exercise.group == it } ?: true
+        if (exercise.type == ExerciseType.PLACEHOLDER) {
+            true
+        } else {
+            initialGroup?.let { exercise.group == it } ?: true
+        }
 
-    private fun isGroupUnlocked(group: ExerciseGroup): Boolean =
-        _exercises.any { it.group == group && it.isUnlocked }
+    private fun isGroupUnlocked(group: ExerciseGroup): Boolean {
+        val groupExercises = _exercises.filter { it.group == group }
+        if (groupExercises.isEmpty()) {
+            return true
+        }
+        return groupExercises.any { it.isUnlocked }
+    }
 
     private fun areGroupExercisesCompleted(group: ExerciseGroup): Boolean {
         val groupExercises = _exercises.filter { it.group == group }
@@ -377,12 +352,15 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun maybeUnlockNextGroup() {
-        if (GROUP_SEQUENCE.isEmpty()) return
-        for ((index, group) in GROUP_SEQUENCE.withIndex()) {
+        val activeGroups = GROUP_SEQUENCE.filter { group ->
+            _exercises.any { exercise -> exercise.group == group }
+        }
+        if (activeGroups.isEmpty()) return
+        for ((index, group) in activeGroups.withIndex()) {
             if (isGroupUnlocked(group)) {
                 continue
             }
-            val previousGroup = GROUP_SEQUENCE.getOrNull(index - 1)
+            val previousGroup = activeGroups.getOrNull(index - 1)
             val canUnlock = previousGroup == null || areGroupExercisesCompleted(previousGroup)
             if (canUnlock) {
                 val anchorId = unlockGroup(group)
@@ -392,6 +370,332 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             }
             return
         }
+    }
+
+    private fun buildExercisesForDayType(dayType: WorkoutDayType): List<ExerciseUiState> = when (dayType) {
+        WorkoutDayType.GENERAL -> buildPreparedExercises(catalogExercises)
+        WorkoutDayType.HANDS -> buildPreparedExercises(buildHandsDayTemplates())
+        WorkoutDayType.LEGS -> listOf(buildPlaceholderExercise(dayType))
+    }
+
+    private fun buildPreparedExercises(templates: List<ExerciseUiState>): List<ExerciseUiState> {
+        val savedNotes = loadSavedNotes()
+        val savedWeights = loadSavedWeights()
+        return templates.map { exercise ->
+            val note = savedNotes[exercise.id]
+            val persistedWeight = savedWeights[exercise.id]?.takeIf { it in exercise.weightOptions }
+            exercise.copy(
+                completedSets = 0,
+                personalNote = note?.takeIf { it.isNotBlank() },
+                selectedWeight = if (exercise.type == ExerciseType.WEIGHTS) {
+                    persistedWeight ?: exercise.defaultWeight
+                } else {
+                    exercise.defaultWeight
+                },
+                persistedWeight = persistedWeight,
+                restSecondsRemaining = null,
+                isActive = false,
+                isUnlocked = shouldUnlockInitially(exercise)
+            )
+        }
+    }
+
+    private fun buildHandsDayTemplates(): List<ExerciseUiState> = listOf(
+        handsDayGuidedExercise(
+            id = "hands_warmup_shoulder_circles",
+            name = "Круги плечами",
+            group = ExerciseGroup.WARM_UP,
+            instructions = listOf(
+                "30 секунд вперед.",
+                "30 секунд назад.",
+                "Двигайся мягко, без рывков и без боли."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_shoulder_pendulum",
+            name = "Плечевой маятник",
+            group = ExerciseGroup.WARM_UP,
+            instructions = listOf(
+                "Подними правое плечо вверх и одновременно опусти левое вниз.",
+                "Потом поменяй стороны.",
+                "Сделай 20 чередований в спокойном темпе."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_wrist_circles",
+            name = "Круги запястьями",
+            group = ExerciseGroup.WARM_UP,
+            instructions = listOf(
+                "Сделай по 10 кругов в каждую сторону.",
+                "Локти держи расслабленными.",
+                "Подготовь кисти без резких движений."
+            )
+        ),
+        handsDayWeightExercise(
+            id = "chest_press",
+            name = "Chest Press",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+            defaultWeight = 28,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Сядь плотно, прижми спину и затылок. Ноги расслабленно поставь на пол или на подножку тренажера. Сознательно не отталкивайся ногами при жиме — жми только силой грудных мышц и трицепсов.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "pec_deck",
+            name = "Pec Deck / Butterfly",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+            defaultWeight = 35,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Спина плотно прижата к спинке. Движение плавное, в точке сведения рук сделай паузу на 1 секунду. Это изолирующее упражнение, ноги здесь отдыхают.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "dumbbell_chest_press",
+            name = "Dumbbell Chest Press",
+            weightOptions = listOf(8, 10, 12, 14, 16, 18, 20, 22, 24),
+            defaultWeight = 14,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: ляг на горизонтальную скамью. Ступни поставь на край скамьи, а не на пол. Это снимает прогиб в пояснице, снижает риск для седалищного нерва и полностью исключает упор ногами.
+                Выполнение: жми гантели вверх, сводя их вместе в верхней точке. Опускай плавно.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "incline_db_press",
+            name = "Incline DB Press",
+            weightOptions = listOf(8, 10, 12, 14, 16, 18, 20, 22, 24),
+            defaultWeight = 12,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: установи спинку скамьи под углом 30-45 градусов. Сядь, плотно прижми спину. Ноги просто стоят на полу без напряжения.
+                Выполнение: жми гантели вверх. Упражнение развивает верхнюю часть груди.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "biceps_machine",
+            name = "Biceps Machine",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+            defaultWeight = 14,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Сядь, упрись грудью и локтями в подушку тренажера. Сгибай руки плавно, не забрасывая вес всем телом.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "dumbbell_biceps",
+            name = "Dumbbell Biceps",
+            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18, 20),
+            defaultWeight = 10,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов.
+                Сядь, плотно прижми спину. Руки с гантелями опущены вниз. Сгибай руки к плечам одновременно или поочередно. Ноги стоят на полу только для равновесия, упор в них не делай.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "seated_hammer_curl",
+            name = "Seated Hammer Curl",
+            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18, 20),
+            defaultWeight = 10,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.
+                Выполнение: держи гантели нейтральным хватом, ладони смотрят друг на друга. Сгибай руки к плечам. Упражнение развивает предплечья и мышцу под бицепсом.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "incline_db_biceps",
+            name = "Incline DB Biceps",
+            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18),
+            defaultWeight = 8,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: установи скамью под углом 45-60 градусов. Сядь, откинься на спинку, руки с гантелями свободно свисают вниз.
+                Выполнение: сгибай руки одновременно. Из-за наклона корпуса бицепс сильнее растягивается. Ноги полностью исключены из работы.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "triceps_machine",
+            name = "Triceps Machine",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+            defaultWeight = 14,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Если в зале есть тренажер для трицепса сидя, где нужно давить ручки вниз или разгибать руки перед собой, используй его. Спина прижата, работает только задняя поверхность руки.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "dumbbell_french_press",
+            name = "Dumbbell French Press",
+            weightOptions = listOf(6, 8, 10, 12, 14, 16, 18, 20, 22, 24),
+            defaultWeight = 12,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+
+                Подготовка: используй скамью с вертикальной спинкой для фиксации корпуса.
+                Возьми одну гантель двумя руками, обхвати ладонями верхний блин. Подними гантель над головой. Медленно опускай ее за голову, сгибая локти, затем выпрямляй руки вверх. Локти держи ближе к голове и не разводи их сильно в стороны.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "lying_db_triceps",
+            name = "Lying DB Triceps",
+            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18),
+            defaultWeight = 8,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: ляг на горизонтальную скамью. Ступни поставь на скамью для защиты поясницы и отключения ног.
+                Выполнение: подними руки с гантелями вверх перед собой. Сгибай локти, опуская гантели по бокам от головы, затем разгибай обратно. Локти зафиксированы.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "seated_cable_triceps",
+            name = "Seated Cable Triceps",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
+            defaultWeight = 14,
+            settingsNote = """
+                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+
+                Подготовка: придвинь скамью к верхнему блоку. Сядь лицом к блоку, спина прямая.
+                Выполнение: возьмись за канатную рукоять и разгибай руки вниз. Скамья позволяет не использовать ноги для равновесия, как это бывает в классическом варианте стоя.
+            """.trimIndent()
+        ),
+        handsDayGuidedExercise(
+            id = "hands_cooldown_chest_stretch",
+            name = "Растяжка груди",
+            group = ExerciseGroup.COOLDOWN,
+            instructions = listOf(
+                "Встань боком к стене.",
+                "Прямую руку оставь на стене чуть позади линии корпуса.",
+                "Плавно разворачивай грудную клетку от руки до ощущения растяжения.",
+                "Удерживай 20-30 секунд на каждую сторону."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_cooldown_shoulder_stretch",
+            name = "Растяжка плеч",
+            group = ExerciseGroup.COOLDOWN,
+            instructions = listOf(
+                "Прямую руку прижми к груди другой рукой.",
+                "Не поднимай плечо к уху.",
+                "Удерживай 20-30 секунд на каждую сторону."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_cooldown_wall_hang",
+            name = "Вис у стенки",
+            group = ExerciseGroup.COOLDOWN,
+            instructions = listOf(
+                "Используй этот вариант только если он не вызывает дискомфорта в пояснице и не требует спрыгивания на ноги.",
+                "Плавно потянись и повиси 20-30 секунд.",
+                "Прекрати сразу, если появляется неприятное ощущение в пояснице или седалищном нерве."
+            )
+        )
+    )
+
+    private fun handsDayWeightExercise(
+        id: String,
+        name: String,
+        weightOptions: List<Int>,
+        defaultWeight: Int,
+        settingsNote: String
+    ): ExerciseUiState = ExerciseUiState(
+        id = id,
+        name = name,
+        type = ExerciseType.WEIGHTS,
+        group = ExerciseGroup.MAIN,
+        weightOptions = weightOptions,
+        selectedWeight = defaultWeight,
+        defaultWeight = defaultWeight,
+        restBetweenSeconds = 45,
+        restFinalSeconds = 120,
+        totalSets = 3,
+        completedSets = 0,
+        hasSettings = true,
+        settingsNote = settingsNote
+    )
+
+    private fun handsDayGuidedExercise(
+        id: String,
+        name: String,
+        group: ExerciseGroup,
+        instructions: List<String>
+    ): ExerciseUiState = ExerciseUiState(
+        id = id,
+        name = name,
+        type = ExerciseType.COOLDOWN,
+        group = group,
+        weightOptions = emptyList(),
+        selectedWeight = 0,
+        defaultWeight = 0,
+        restBetweenSeconds = 0,
+        restFinalSeconds = 0,
+        totalSets = 1,
+        completedSets = 0,
+        hasSettings = false,
+        detailSections = instructions
+    )
+
+    private fun buildPlaceholderExercise(dayType: WorkoutDayType): ExerciseUiState {
+        val app = getApplication<Application>()
+        val (id, titleRes, messageRes) = when (dayType) {
+            WorkoutDayType.HANDS -> Triple(
+                "hands_placeholder",
+                R.string.day_placeholder_hands_title,
+                R.string.day_placeholder_hands_text
+            )
+            WorkoutDayType.LEGS -> Triple(
+                "legs_placeholder",
+                R.string.day_placeholder_legs_title,
+                R.string.day_placeholder_legs_text
+            )
+            WorkoutDayType.GENERAL -> error("General day does not use a placeholder card.")
+        }
+        return ExerciseUiState(
+            id = id,
+            name = app.getString(titleRes),
+            type = ExerciseType.PLACEHOLDER,
+            group = ExerciseGroup.MAIN,
+            weightOptions = emptyList(),
+            selectedWeight = 0,
+            defaultWeight = 0,
+            restBetweenSeconds = 0,
+            restFinalSeconds = 0,
+            totalSets = 0,
+            completedSets = 0,
+            hasSettings = false,
+            isUnlocked = true,
+            supportingText = app.getString(messageRes)
+        )
+    }
+
+    private fun applyNewDayType(dayType: WorkoutDayType) {
+        restTimers.values.forEach { it.cancel() }
+        restTimers.clear()
+        RestTimerSoundService.stop(getApplication())
+        activeRestTimerEndEpochMillis = null
+        activeStatusExerciseId = null
+        updateActiveSelection(null)
+        statusText = null
+        newlyUnlockedGroupAnchorId = null
+        currentDayType = dayType
+        val resetExercises = buildExercisesForDayType(dayType)
+        defaultOrder.clear()
+        defaultOrder.addAll(resetExercises.map { it.id })
+        _exercises.clear()
+        _exercises.addAll(resetExercises)
+        persistWorkoutSessionState()
     }
 
     private fun loadSavedNotes(): Map<String, String> =
@@ -462,12 +766,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         _exercises.add(insertionIndex, itemToInsert)
     }
 
-    private fun reorderToDefaultOrder(items: List<ExerciseUiState>): List<ExerciseUiState> {
-        if (defaultOrder.isEmpty()) return items
-        val positions = defaultOrder.withIndex().associate { it.value to it.index }
-        return items.sortedWith(compareBy { positions[it.id] ?: Int.MAX_VALUE })
-    }
-
     private fun updateExerciseRest(exerciseId: String, secondsRemaining: Int?) {
         val index = _exercises.indexOfFirst { it.id == exerciseId }
         if (index >= 0) {
@@ -493,7 +791,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateActiveSelection(newActiveId: String?) {
         val sanitizedId = newActiveId?.takeIf { id ->
-            _exercises.any { it.id == id && !it.isCompleted() }
+            _exercises.any { it.id == id && it.type != ExerciseType.PLACEHOLDER && !it.isCompleted() }
         }
         if (activeExerciseId == sanitizedId) {
             val mismatchExists = _exercises.any { exercise ->
@@ -538,7 +836,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             exerciseOrder = _exercises.map { exercise -> exercise.id },
             activeExerciseId = activeExerciseId,
             activeRestTimerExerciseId = activeStatusExerciseId,
-            restTimerEndEpochMillis = activeRestTimerEndEpochMillis
+            restTimerEndEpochMillis = activeRestTimerEndEpochMillis,
+            currentDayType = currentDayType,
+            selectedDayType = selectedDayType
         )
         sessionPrefs.edit().putString(
             WORKOUT_SESSION_PREF_KEY,

@@ -150,6 +150,12 @@ internal fun parseExercisesFromJson(raw: String): List<ExerciseUiState> {
                     detailSections = details
                 )
             }
+
+            ExerciseType.PLACEHOLDER -> {
+                throw IllegalArgumentException(
+                    "Exercise '$exerciseId' uses the reserved type '$rawType'."
+                )
+            }
         }
     }
     require(items.isNotEmpty()) { "Exercises asset did not produce any exercises." }

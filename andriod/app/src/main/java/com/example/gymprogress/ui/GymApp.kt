@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditNote
@@ -41,8 +42,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
@@ -99,6 +98,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val exercises = viewModel.exercises
     val statusText = viewModel.statusText
     val generalNote = viewModel.generalNote
+    val selectedDayType = viewModel.selectedDayType
     val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
     val exerciseAssetIssueMessage = viewModel.exerciseAssetIssueMessage
     GymScreen(
@@ -109,6 +109,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onProgressTapped = viewModel::advanceProgress,
         onWeightSelected = viewModel::updateWeight,
         onResetDay = viewModel::resetAllSets,
+        selectedDayType = selectedDayType,
+        onDayTypeSelected = viewModel::selectDayType,
         onPersonalNoteSaved = viewModel::updatePersonalNote,
         generalNote = generalNote,
         onGeneralNoteSaved = viewModel::updateGeneralNote,
@@ -130,6 +132,8 @@ fun GymScreen(
     onProgressTapped: (String) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
     onResetDay: () -> Unit,
+    selectedDayType: WorkoutDayType,
+    onDayTypeSelected: (WorkoutDayType) -> Unit,
     onPersonalNoteSaved: (String, String) -> Unit,
     generalNote: String?,
     onGeneralNoteSaved: (String) -> Unit,
@@ -266,6 +270,7 @@ fun GymScreen(
         }
 
         HorizontalDivider()
+        var dayTypeMenuExpanded by remember { mutableStateOf(false) }
         var overflowExpanded by remember { mutableStateOf(false) }
         val newDayGradient = Brush.verticalGradient(
             colors = listOf(
@@ -297,43 +302,101 @@ fun GymScreen(
         } else {
             Icons.Default.Edit
         }
+        val selectedDayLabel = stringResource(dayTypeLabelRes(selectedDayType))
+        val newDayLabel = stringResource(R.string.new_day_template, selectedDayLabel)
         val generalNoteTint = MaterialTheme.colorScheme.onSurfaceVariant
-        val statusWidthWeight = 2f / 3f
+        val newDayWidthWeight = 1.28f
+        val statusWidthWeight = 0.54f
+        val bottomIconSize = 36.dp
+        val splitNewDayShape = RoundedCornerShape(24.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = onResetDay,
+            Surface(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(newDayGradient),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
-                ),
-                border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.35f)),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 4.dp,
-                    pressedElevation = 2.dp,
-                    focusedElevation = 6.dp,
-                    hoveredElevation = 5.dp,
-                    disabledElevation = 0.dp
-                )
+                    .weight(newDayWidthWeight)
+                    .height(48.dp),
+                shape = splitNewDayShape,
+                color = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shadowElevation = 4.dp,
+                tonalElevation = 1.dp,
+                border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.35f))
             ) {
-                Text(
-                    text = stringResource(R.string.new_day),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(splitNewDayShape)
+                        .background(newDayGradient),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clickable(onClick = onResetDay)
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = newDayLabel,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(44.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .fillMaxHeight()
+                                .padding(vertical = 9.dp)
+                                .width(1.dp)
+                                .background(Color.White.copy(alpha = 0.28f))
+                        )
+                        IconButton(
+                            modifier = Modifier.fillMaxSize(),
+                            onClick = { dayTypeMenuExpanded = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = stringResource(R.string.day_type_menu_action),
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = dayTypeMenuExpanded,
+                            onDismissRequest = { dayTypeMenuExpanded = false }
+                        ) {
+                            WorkoutDayType.values().forEach { dayType ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(dayTypeLabelRes(dayType)),
+                                            fontWeight = if (dayType == selectedDayType) {
+                                                FontWeight.SemiBold
+                                            } else {
+                                                FontWeight.Normal
+                                            }
+                                        )
+                                    },
+                                    onClick = {
+                                        dayTypeMenuExpanded = false
+                                        onDayTypeSelected(dayType)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
             Surface(
                 modifier = Modifier
@@ -413,7 +476,7 @@ fun GymScreen(
                 }
             }
             IconButton(
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(bottomIconSize),
                 onClick = { generalNoteDialogVisible = true }
             ) {
                 Icon(
@@ -424,7 +487,7 @@ fun GymScreen(
             }
             Box {
                 IconButton(
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(bottomIconSize),
                     onClick = { overflowExpanded = true }
                 ) {
                     Icon(
@@ -509,6 +572,11 @@ private fun ExerciseCard(
     onInfoClick: () -> Unit,
     onNoteClick: () -> Unit
 ) {
+    if (exercise.type == ExerciseType.PLACEHOLDER) {
+        PlaceholderExerciseCard(exercise = exercise)
+        return
+    }
+
     val isCompleted = exercise.totalSets > 0 && exercise.completedSets >= exercise.totalSets
     val isActivity = exercise.type == ExerciseType.ACTIVITY
     val isCooldown = exercise.type == ExerciseType.COOLDOWN
@@ -743,6 +811,50 @@ private fun ExerciseCard(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaceholderExerciseCard(exercise: ExerciseUiState) {
+    val shape = RoundedCornerShape(16.dp)
+    val surfaceBase = MaterialTheme.colorScheme.surface
+    val raisedTop = surfaceBase.blendWith(Color.White, 0.06f)
+    val raisedBottom = surfaceBase.blendWith(Color.Black, 0.12f)
+    val raisedBrush = Brush.verticalGradient(listOf(raisedTop, raisedBottom))
+    val outlineColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
+    val supportingColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, shape = shape, clip = false)
+            .clip(shape)
+            .background(raisedBrush)
+            .border(1.dp, outlineColor, shape)
+            .insetEdges(
+                lightColor = Color.White.copy(alpha = 0.1f),
+                darkColor = Color.Black.copy(alpha = 0.22f),
+                strokeWidth = 1.dp,
+                inverted = false
+            )
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = exercise.name,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            exercise.supportingText?.takeIf { it.isNotBlank() }?.let { supportingText ->
+                Text(
+                    text = supportingText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = supportingColor
+                )
             }
         }
     }
@@ -1319,6 +1431,8 @@ private fun GymScreenPreview() {
             onProgressTapped = { _ -> },
             onWeightSelected = { _, _ -> },
             onResetDay = {},
+            selectedDayType = WorkoutDayType.GENERAL,
+            onDayTypeSelected = { _ -> },
             onPersonalNoteSaved = { _, _ -> },
             generalNote = null,
             onGeneralNoteSaved = { _ -> },
@@ -1330,6 +1444,12 @@ private fun GymScreenPreview() {
             onExerciseAssetIssueDismissed = {}
         )
     }
+}
+
+private fun dayTypeLabelRes(dayType: WorkoutDayType): Int = when (dayType) {
+    WorkoutDayType.GENERAL -> R.string.day_type_general
+    WorkoutDayType.HANDS -> R.string.day_type_hands
+    WorkoutDayType.LEGS -> R.string.day_type_legs
 }
 
 private fun buildShareNotesSubject(context: Context): String {

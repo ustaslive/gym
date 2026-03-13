@@ -4,6 +4,15 @@
     <string name="weight_picker_title">Выбор веса</string>
     <string name="weight_picker_cancel">Отмена</string>
     <string name="new_day">Новый день</string>
+    <string name="new_day_template">Новый %1$s</string>
+    <string name="day_type_general">общий день</string>
+    <string name="day_type_hands">день рук</string>
+    <string name="day_type_legs">день ног</string>
+    <string name="day_type_menu_action">Выбрать тип дня</string>
+    <string name="day_placeholder_hands_title">День рук</string>
+    <string name="day_placeholder_legs_title">День ног</string>
+    <string name="day_placeholder_hands_text">Заглушка: сюда позже добавим отдельные упражнения для рук.</string>
+    <string name="day_placeholder_legs_text">Заглушка: сюда позже добавим отдельные упражнения для ног.</string>
     <string name="completed_badge">Выполнено</string>
     <string name="weight_label_template">%1$d кг</string>
     <string name="settings_dialog_title">Настройки для %1$s</string>

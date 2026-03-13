@@ -1,9 +1,16 @@
 package com.example.gymprogress
 
+enum class WorkoutDayType {
+    GENERAL,
+    HANDS,
+    LEGS
+}
+
 enum class ExerciseType {
     WEIGHTS,
     ACTIVITY,
-    COOLDOWN
+    COOLDOWN,
+    PLACEHOLDER
 }
 
 enum class ExerciseGroup(val order: Int) {
@@ -41,7 +48,8 @@ data class ExerciseUiState(
     val persistedWeight: Int? = null,
     val restSecondsRemaining: Int? = null,
     val isActive: Boolean = false,
-    val isUnlocked: Boolean = true
+    val isUnlocked: Boolean = true,
+    val supportingText: String? = null
 )
 
 internal fun ExerciseUiState.isCompleted(): Boolean =

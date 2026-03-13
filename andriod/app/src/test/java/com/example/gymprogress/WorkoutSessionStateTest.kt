@@ -17,7 +17,9 @@ class WorkoutSessionStateTest {
             exerciseOrder = listOf("b", "a"),
             activeExerciseId = "a",
             activeRestTimerExerciseId = "b",
-            restTimerEndEpochMillis = 12_345L
+            restTimerEndEpochMillis = 12_345L,
+            currentDayType = WorkoutDayType.HANDS,
+            selectedDayType = WorkoutDayType.LEGS
         )
 
         val restored = deserializeWorkoutSessionSnapshot(serializeWorkoutSessionSnapshot(snapshot))
@@ -59,6 +61,8 @@ class WorkoutSessionStateTest {
         assertEquals("b", restored.activeRestTimerExerciseId)
         assertEquals(2, restored.restTimerRemainingSeconds)
         assertEquals(2, restored.exercises.first().restSecondsRemaining)
+        assertEquals(WorkoutDayType.GENERAL, restored.currentDayType)
+        assertEquals(WorkoutDayType.GENERAL, restored.selectedDayType)
     }
 
     @Test
@@ -84,6 +88,22 @@ class WorkoutSessionStateTest {
         assertNull(restored.activeRestTimerExerciseId)
         assertNull(restored.restTimerRemainingSeconds)
         assertNull(restored.exercises.first().restSecondsRemaining)
+    }
+
+    @Test
+    fun deserializeWorkoutSessionSnapshotDefaultsDayTypesForLegacySnapshots() {
+        val legacySnapshot = """
+            {
+              "exerciseStates": [],
+              "exerciseOrder": ["a"],
+              "activeExerciseId": "a"
+            }
+        """.trimIndent()
+
+        val restored = deserializeWorkoutSessionSnapshot(legacySnapshot)
+
+        assertEquals(WorkoutDayType.GENERAL, restored.currentDayType)
+        assertEquals(WorkoutDayType.GENERAL, restored.selectedDayType)
     }
 
     private fun sampleExercise(

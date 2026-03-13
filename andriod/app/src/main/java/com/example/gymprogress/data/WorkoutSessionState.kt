@@ -2,6 +2,7 @@ package com.example.gymprogress
 
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.Locale
 
 internal data class WorkoutSessionExerciseState(
     val id: String,
@@ -14,14 +15,18 @@ internal data class WorkoutSessionSnapshot(
     val exerciseOrder: List<String>,
     val activeExerciseId: String?,
     val activeRestTimerExerciseId: String?,
-    val restTimerEndEpochMillis: Long?
+    val restTimerEndEpochMillis: Long?,
+    val currentDayType: WorkoutDayType = WorkoutDayType.GENERAL,
+    val selectedDayType: WorkoutDayType = currentDayType
 )
 
 internal data class RestoredWorkoutSession(
     val exercises: List<ExerciseUiState>,
     val activeExerciseId: String?,
     val activeRestTimerExerciseId: String?,
-    val restTimerRemainingSeconds: Int?
+    val restTimerRemainingSeconds: Int?,
+    val currentDayType: WorkoutDayType,
+    val selectedDayType: WorkoutDayType
 )
 
 internal fun serializeWorkoutSessionSnapshot(snapshot: WorkoutSessionSnapshot): String {
@@ -37,6 +42,8 @@ internal fun serializeWorkoutSessionSnapshot(snapshot: WorkoutSessionSnapshot): 
     }
     root.put("exerciseStates", exerciseStates)
     root.put("exerciseOrder", JSONArray(snapshot.exerciseOrder))
+    root.put("currentDayType", snapshot.currentDayType.name)
+    root.put("selectedDayType", snapshot.selectedDayType.name)
     snapshot.activeExerciseId?.let { root.put("activeExerciseId", it) }
     snapshot.activeRestTimerExerciseId?.let { root.put("activeRestTimerExerciseId", it) }
     snapshot.restTimerEndEpochMillis?.let { root.put("restTimerEndEpochMillis", it) }
@@ -60,13 +67,21 @@ internal fun deserializeWorkoutSessionSnapshot(raw: String): WorkoutSessionSnaps
         }
     }.orEmpty()
     val exerciseOrder = root.optJSONArray("exerciseOrder")?.toStringList().orEmpty()
+    val currentDayType = root.optString("currentDayType")
+        .toWorkoutDayTypeOrNull()
+        ?: WorkoutDayType.GENERAL
+    val selectedDayType = root.optString("selectedDayType")
+        .toWorkoutDayTypeOrNull()
+        ?: currentDayType
     return WorkoutSessionSnapshot(
         exerciseStates = exerciseStates,
         exerciseOrder = exerciseOrder,
         activeExerciseId = root.optString("activeExerciseId").takeIf { it.isNotBlank() },
         activeRestTimerExerciseId = root.optString("activeRestTimerExerciseId").takeIf { it.isNotBlank() },
         restTimerEndEpochMillis = root.takeIf { it.has("restTimerEndEpochMillis") }
-            ?.optLong("restTimerEndEpochMillis")
+            ?.optLong("restTimerEndEpochMillis"),
+        currentDayType = currentDayType,
+        selectedDayType = selectedDayType
     )
 }
 
@@ -81,7 +96,9 @@ internal fun restoreWorkoutSession(
             exercises = baseExercises,
             activeExerciseId = null,
             activeRestTimerExerciseId = null,
-            restTimerRemainingSeconds = null
+            restTimerRemainingSeconds = null,
+            currentDayType = WorkoutDayType.GENERAL,
+            selectedDayType = WorkoutDayType.GENERAL
         )
     }
     val savedStates = snapshot.exerciseStates.associateBy { it.id }
@@ -123,7 +140,9 @@ internal fun restoreWorkoutSession(
         exercises = exercisesWithActiveFlags,
         activeExerciseId = activeExerciseId,
         activeRestTimerExerciseId = activeRestTimerExerciseId.takeIf { restTimerRemainingSeconds != null },
-        restTimerRemainingSeconds = restTimerRemainingSeconds
+        restTimerRemainingSeconds = restTimerRemainingSeconds,
+        currentDayType = snapshot.currentDayType,
+        selectedDayType = snapshot.selectedDayType
     )
 }
 
@@ -135,3 +154,8 @@ private fun JSONArray.toStringList(): List<String> = buildList {
         }
     }
 }
+
+private fun String.toWorkoutDayTypeOrNull(): WorkoutDayType? =
+    takeIf { it.isNotBlank() }?.let { value ->
+        runCatching { WorkoutDayType.valueOf(value.uppercase(Locale.US)) }.getOrNull()
+    }
