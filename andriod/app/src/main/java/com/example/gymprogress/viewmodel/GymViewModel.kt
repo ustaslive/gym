@@ -45,14 +45,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     var newlyUnlockedGroupAnchorId by mutableStateOf<String?>(null)
         private set
 
-    var exerciseAssetIssueMessage by mutableStateOf<String?>(null)
-        private set
 
     init {
         generalNote = loadGeneralNote()
-        val loadResult = loadExercisesFromAssets(application)
-        exerciseAssetIssueMessage = loadResult.issueMessage
-        catalogExercises = loadResult.exercises
+        catalogExercises = builtInExercises()
         initialGroup = GROUP_SEQUENCE.firstOrNull { group -> catalogExercises.any { it.group == group } } ?: initialGroup
         val savedSession = loadWorkoutSession()
         currentDayType = savedSession?.currentDayType ?: WorkoutDayType.GENERAL
@@ -262,9 +258,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         newlyUnlockedGroupAnchorId = null
     }
 
-    fun dismissExerciseAssetIssue() {
-        exerciseAssetIssueMessage = null
-    }
 
     override fun onCleared() {
         super.onCleared()
@@ -861,11 +854,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             ExerciseGroup.CARDIO,
             ExerciseGroup.COOLDOWN
         )
-
-        internal fun parseExercisesFromJson(raw: String): List<ExerciseUiState> =
-            com.example.gymprogress.parseExercisesFromJson(raw)
-
-        internal fun fallbackExercises(): List<ExerciseUiState> =
-            com.example.gymprogress.fallbackExercises()
+        internal fun builtInExercises(): List<ExerciseUiState> =
+            com.example.gymprogress.builtInExercises()
     }
 }

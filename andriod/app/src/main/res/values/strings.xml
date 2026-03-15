@@ -33,9 +33,6 @@
     <string name="cooldown_details_title">Details for %1$s</string>
     <string name="cooldown_details_close">Close</string>
     <string name="cooldown_details_action">Show exercise details</string>
-    <string name="exercise_asset_issue_title">Exercise configuration issue</string>
-    <string name="exercise_asset_issue_message">Could not load exercises from %1$s. The app is using the built-in fallback exercise list.</string>
-    <string name="exercise_asset_issue_confirm">Continue</string>
     <string name="rest_timer_notification_channel_name">Rest timer sounds</string>
     <string name="rest_timer_notification_title">Rest timer active</string>
     <string name="rest_timer_notification_text">Countdown sounds stay active while the screen is locked.</string>

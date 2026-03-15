@@ -100,7 +100,6 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val generalNote = viewModel.generalNote
     val selectedDayType = viewModel.selectedDayType
     val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
-    val exerciseAssetIssueMessage = viewModel.exerciseAssetIssueMessage
     GymScreen(
         exercises = exercises,
         newlyUnlockedAnchorId = newlyUnlockedAnchorId,
@@ -117,9 +116,7 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         statusText = statusText,
         onStatusTapped = viewModel::stopActiveRestTimer,
         onFullReset = viewModel::performFullReset,
-        onShareNotes = viewModel::buildShareContent,
-        exerciseAssetIssueMessage = exerciseAssetIssueMessage,
-        onExerciseAssetIssueDismissed = viewModel::dismissExerciseAssetIssue
+        onShareNotes = viewModel::buildShareContent
     )
 }
 
@@ -140,9 +137,7 @@ fun GymScreen(
     statusText: String?,
     onStatusTapped: () -> Unit,
     onFullReset: () -> Unit,
-    onShareNotes: () -> ShareContent?,
-    exerciseAssetIssueMessage: String?,
-    onExerciseAssetIssueDismissed: () -> Unit
+    onShareNotes: () -> ShareContent?
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
@@ -216,20 +211,6 @@ fun GymScreen(
             }
         )
     }
-
-    if (!exerciseAssetIssueMessage.isNullOrBlank()) {
-        AlertDialog(
-            onDismissRequest = onExerciseAssetIssueDismissed,
-            title = { Text(text = stringResource(R.string.exercise_asset_issue_title)) },
-            text = { Text(text = exerciseAssetIssueMessage) },
-            confirmButton = {
-                TextButton(onClick = onExerciseAssetIssueDismissed) {
-                    Text(text = stringResource(R.string.exercise_asset_issue_confirm))
-                }
-            }
-        )
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1424,7 +1405,7 @@ private fun GeneralNoteDialog(
 private fun GymScreenPreview() {
     GymProgressTheme {
         GymScreen(
-            exercises = GymViewModel.fallbackExercises(),
+            exercises = GymViewModel.builtInExercises(),
             newlyUnlockedAnchorId = null,
             onNewGroupAnchorConsumed = {},
             onExerciseSelected = {},
@@ -1439,9 +1420,7 @@ private fun GymScreenPreview() {
             statusText = null,
             onStatusTapped = {},
             onFullReset = {},
-            onShareNotes = { null },
-            exerciseAssetIssueMessage = null,
-            onExerciseAssetIssueDismissed = {}
+            onShareNotes = { null }
         )
     }
 }
