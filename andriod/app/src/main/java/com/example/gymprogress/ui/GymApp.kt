@@ -571,12 +571,17 @@ private fun ExerciseCard(
     val activeGlowColor = ActiveGlowBlue
     val weightLabel = exercise.weightLabel
         ?.takeIf { it.isNotBlank() && exercise.weightOptions.size <= 1 }
+    val weightOptionLabelTemplate = exercise.weightOptionLabelTemplate?.takeIf { it.isNotBlank() }
     val weightText = if (isWeights) {
-        weightLabel ?: stringResource(R.string.weight_label_template, exercise.selectedWeight)
+        weightLabel
+            ?: weightOptionLabelTemplate?.let { template ->
+                String.format(Locale.getDefault(), template, exercise.selectedWeight)
+            }
+            ?: stringResource(R.string.weight_label_template, exercise.selectedWeight)
     } else {
         null
     }
-    val isWeightSelectable = isWeights && weightLabel == null
+    val isWeightSelectable = isWeights && exercise.weightOptions.size > 1
     val durationText = exercise.durationMinutes
         ?.takeIf { isActivity }
         ?.let { duration -> stringResource(R.string.activity_duration_minutes, duration) }
@@ -1129,7 +1134,10 @@ private fun WeightPickerDialog(
                                 .padding(vertical = 10.dp, horizontal = 12.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.weight_label_template, weight),
+                                text = exercise.weightOptionLabelTemplate
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?.let { template -> String.format(Locale.getDefault(), template, weight) }
+                                    ?: stringResource(R.string.weight_label_template, weight),
                                 style = textStyle,
                                 color = textColor
                             )

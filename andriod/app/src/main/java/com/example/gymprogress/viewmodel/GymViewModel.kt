@@ -49,6 +49,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     init {
         generalNote = loadGeneralNote()
         catalogExercises = builtInExercises()
+        cleanupPersistedWeights()
         initialGroup = GROUP_SEQUENCE.firstOrNull { group -> catalogExercises.any { it.group == group } } ?: initialGroup
         val savedSession = loadWorkoutSession()
         currentDayType = savedSession?.currentDayType ?: WorkoutDayType.GENERAL
@@ -146,11 +147,18 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 return
             }
             if (newWeight in exercise.weightOptions) {
+                val persistedWeight = newWeight.takeUnless { it == exercise.defaultWeight }
                 _exercises[index] = exercise.copy(
                     selectedWeight = newWeight,
-                    persistedWeight = newWeight
+                    persistedWeight = persistedWeight
                 )
-                weightsPrefs.edit().putInt(exerciseId, newWeight).apply()
+                val editor = weightsPrefs.edit()
+                if (persistedWeight == null) {
+                    editor.remove(exerciseId)
+                } else {
+                    editor.putInt(exerciseId, newWeight)
+                }
+                editor.apply()
                 markExerciseActive(exerciseId)
             }
         }
@@ -287,9 +295,10 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
 
         val labelOverride = exercise.weightLabel
             ?.takeIf { it.isNotBlank() && exercise.weightOptions.size <= 1 }
+        val labelTemplate = exercise.weightOptionLabelTemplate?.takeIf { it.isNotBlank() }
         val parts = listOfNotNull(
-            defaultWeight?.let { weight -> "default=${formatShareWeight(app, weight, labelOverride)}" },
-            selectedWeight?.let { weight -> "selected=${formatShareWeight(app, weight, labelOverride)}" }
+            defaultWeight?.let { weight -> "default=${formatShareWeight(app, weight, labelOverride, labelTemplate)}" },
+            selectedWeight?.let { weight -> "selected=${formatShareWeight(app, weight, labelOverride, labelTemplate)}" }
         )
         if (parts.isEmpty()) return null
         return parts.joinToString(prefix = "(", postfix = ")", separator = ",")
@@ -298,8 +307,16 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     private fun buildActivityShareMetadata(exercise: ExerciseUiState): String? =
         exercise.level?.takeIf { it > 0 }?.let { level -> "(level=$level)" }
 
-    private fun formatShareWeight(app: Application, weight: Int, labelOverride: String? = null): String =
-        (labelOverride ?: app.getString(R.string.weight_label_template, weight)).replace(" ", "")
+    private fun formatShareWeight(
+        app: Application,
+        weight: Int,
+        labelOverride: String? = null,
+        labelTemplate: String? = null
+    ): String = (
+        labelOverride
+            ?: labelTemplate?.let { template -> String.format(Locale.getDefault(), template, weight) }
+            ?: app.getString(R.string.weight_label_template, weight)
+        ).replace(" ", "")
 
     private fun escapeNoteToHtml(note: String): String =
         note.split('\n').joinToString("<br>") { line ->
@@ -376,7 +393,9 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         val savedWeights = loadSavedWeights()
         return templates.map { exercise ->
             val note = savedNotes[exercise.id]
-            val persistedWeight = savedWeights[exercise.id]?.takeIf { it in exercise.weightOptions }
+            val persistedWeight = savedWeights[exercise.id]?.takeIf {
+                it in exercise.weightOptions && it != exercise.defaultWeight
+            }
             exercise.copy(
                 completedSets = 0,
                 personalNote = note?.takeIf { it.isNotBlank() },
@@ -425,7 +444,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             )
         ),
         handsDayWeightExercise(
-            id = "chest_press",
+            id = "hands_chest_press",
             name = "Chest Press",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
             defaultWeight = 28,
@@ -434,130 +453,126 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "pec_deck",
+            id = "hands_pec_deck",
             name = "Pec Deck / Butterfly",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
             defaultWeight = 35,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
-
                 Спина плотно прижата к спинке. Движение плавное, в точке сведения рук сделай паузу на 1 секунду. Это изолирующее упражнение, ноги здесь отдыхают.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "dumbbell_chest_press",
+            id = "hands_dumbbell_chest_press",
             name = "Dumbbell Chest Press",
-            weightOptions = listOf(8, 10, 12, 14, 16, 18, 20, 22, 24),
-            defaultWeight = 14,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 7,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+                Ляг на горизонтальную скамью. Ступни поставь на край скамьи, чтобы убрать прогиб в пояснице и исключить помощь ногами. Возьми гантели, держи их над грудью, запястья прямые, гантели расположены вертикально над предплечьями.
 
-                Подготовка: ляг на горизонтальную скамью. Ступни поставь на край скамьи, а не на пол. Это снимает прогиб в пояснице, снижает риск для седалищного нерва и полностью исключает упор ногами.
-                Выполнение: жми гантели вверх, сводя их вместе в верхней точке. Опускай плавно.
+                Опускай гантели по сторонам груди под контролем. Затем выжимай вверх, сводя их над грудью, но не сталкивая. В верхней точке не блокируй локти и не расслабляй руки.
+
+                Следи, чтобы гантели не «гуляли» в стороны: крепко сжимай рукояти, держи запястья ровно и контролируй положение гантелей над плечами. Корпус остаётся неподвижным, движение идёт только в плечевых и локтевых суставах.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "incline_db_press",
+            id = "hands_incline_db_press",
             name = "Incline DB Press",
-            weightOptions = listOf(8, 10, 12, 14, 16, 18, 20, 22, 24),
-            defaultWeight = 12,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 7,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+                Техника:
+                Установи спинку скамьи под углом 30–45° к горизонтали. Сядь, затем ляг на спинку и плотно прижми к ней спину. Ноги стоят на полу устойчиво.
 
-                Подготовка: установи спинку скамьи под углом 30-45 градусов. Сядь, плотно прижми спину. Ноги просто стоят на полу без напряжения.
-                Выполнение: жми гантели вверх. Упражнение развивает верхнюю часть груди.
+                Держи гантели над верхней частью груди. Локти слегка разведены в стороны примерно на 30–60° от корпуса, предплечья направлены почти вертикально. Запястья держи прямыми.
+
+                Опускай гантели по сторонам верхней части груди под контролем. Затем выжимай их вверх по той же траектории. В верхней точке гантели находятся над плечами, локти почти выпрямлены без жёсткой блокировки. Держи гантели стабильно и не позволяй им расходиться в стороны.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "biceps_machine",
+            id = "hands_biceps_machine",
             name = "Biceps Machine",
-            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
-            defaultWeight = 14,
+            weightOptions = (1..12).toList(),
+            defaultWeight = 9,
+            weightOptionLabelTemplate = "%d",
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
-
                 Сядь, упрись грудью и локтями в подушку тренажера. Сгибай руки плавно, не забрасывая вес всем телом.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "dumbbell_biceps",
+            id = "hands_dumbbell_biceps",
             name = "Dumbbell Biceps",
-            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18, 20),
-            defaultWeight = 10,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 7,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+                Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь ровно и плотно прижми спину. Руки с гантелями опущены вниз по бокам корпуса.
 
-                Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов.
-                Сядь, плотно прижми спину. Руки с гантелями опущены вниз. Сгибай руки к плечам одновременно или поочередно. Ноги стоят на полу только для равновесия, упор в них не делай.
+                Выполнение: держи ладони развернутыми вперед и вверх, то есть обычным хватом на бицепс. Сгибай руки к плечам, поднимая гантели за счет локтей. Локти держи близко к корпусу и не уводи вперед. В верхней точке бицепс напряжен, затем плавно опускай гантели вниз под контролем.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "seated_hammer_curl",
+            id = "hands_seated_hammer_curl",
             name = "Seated Hammer Curl",
-            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18, 20),
-            defaultWeight = 10,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 6,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
-
                 Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.
                 Выполнение: держи гантели нейтральным хватом, ладони смотрят друг на друга. Сгибай руки к плечам. Упражнение развивает предплечья и мышцу под бицепсом.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "incline_db_biceps",
+            id = "hands_incline_db_biceps",
             name = "Incline DB Biceps",
-            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18),
-            defaultWeight = 8,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 5,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
-
-                Подготовка: установи скамью под углом 45-60 градусов. Сядь, откинься на спинку, руки с гантелями свободно свисают вниз.
-                Выполнение: сгибай руки одновременно. Из-за наклона корпуса бицепс сильнее растягивается. Ноги полностью исключены из работы.
+                Подготовка: установи скамью под углом 45-60 градусов к горизонтали. Сядь и откинься на спинку. Руки с гантелями свободно свисают вниз. Плечо каждой руки всё время направлено вертикально вниз и не уходит вперед.
+                Выполнение: сгибай руки именно в локтях, поднимая гантели вверх. Ладони направлены вперед и вверх, то есть используй обычный хват на бицепс. Не разворачивай плечи и не подавай локти вперед. В верхней точке бицепс напряжен, затем плавно опускай гантели вниз до полного контролируемого растяжения.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "triceps_machine",
+            id = "hands_triceps_machine",
             name = "Triceps Machine",
-            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
-            defaultWeight = 14,
+            weightOptions = listOf(20, 25, 30, 35, 40, 45, 50, 55, 60),
+            defaultWeight = 25,
+            weightOptionLabelTemplate = "2x%dкг",
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+                Отрегулируй сиденье так, чтобы в верхней позиции локти были немного позади корпуса, а плечи оставались опущенными. Возьмись за рукояти и зафиксируй ноги под валиком, спина прямая. В стартовой точке локти согнуты примерно под 90°, предплечья почти вертикальны.
 
-                Если в зале есть тренажер для трицепса сидя, где нужно давить ручки вниз или разгибать руки перед собой, используй его. Спина прижата, работает только задняя поверхность руки.
+                Разгибай руки вниз, выжимая рукояти за счёт работы трицепса. Локти держи близко к корпусу, корпусом не помогай и плечи не поднимай. Внизу почти полностью выпрями руки без жёсткой блокировки в локтях, затем плавно верни рукояти вверх под контролем.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "dumbbell_french_press",
+            id = "hands_dumbbell_french_press",
             name = "Dumbbell French Press",
-            weightOptions = listOf(6, 8, 10, 12, 14, 16, 18, 20, 22, 24),
-            defaultWeight = 12,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 6,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд между подходами. Вес подбирай так, чтобы последние 2 повторения давались тяжело, но без искажения техники.
+                Сядь на скамью без поднятой спинки, держи спину ровной. Возьми одну гантель двумя руками, обхвати ладонями верхний блин и подними её над головой.
 
-                Подготовка: используй скамью с вертикальной спинкой для фиксации корпуса.
-                Возьми одну гантель двумя руками, обхвати ладонями верхний блин. Подними гантель над головой. Медленно опускай ее за голову, сгибая локти, затем выпрямляй руки вверх. Локти держи ближе к голове и не разводи их сильно в стороны.
+                Медленно опускай гантель за голову, сгибая локти. Верхняя часть рук остаётся почти вертикальной и неподвижной, локти направлены вверх и не расходятся сильно в стороны. Опускай гантель достаточно глубоко, но контролируй траекторию, чтобы она не задевала голову.
+
+                Разгибай руки вверх до почти полного выпрямления и снова плавно опускай гантель. Двигай только предплечьями, корпус не раскачивай. Если появляется дискомфорт в спине, уменьши вес.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "lying_db_triceps",
+            id = "hands_lying_db_triceps",
             name = "Lying DB Triceps",
-            weightOptions = listOf(4, 6, 8, 10, 12, 14, 16, 18),
-            defaultWeight = 8,
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 4,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
+                Подготовка: ляг на горизонтальную скамью. Ступни поставь на скамью для защиты поясницы и отключения ног. Подними руки с гантелями вверх перед собой.
 
-                Подготовка: ляг на горизонтальную скамью. Ступни поставь на скамью для защиты поясницы и отключения ног.
-                Выполнение: подними руки с гантелями вверх перед собой. Сгибай локти, опуская гантели по бокам от головы, затем разгибай обратно. Локти зафиксированы.
+                Положение рук: верхняя часть руки должна быть почти вертикальной, но не обязательно строго под 90° к полу. Можно держать плечо с небольшим наклоном назад или немного в стороны, если так движение получается свободнее. Локти не разводи широко, но и не своди слишком узко. Подбери такую ширину положения рук, чтобы гантели свободно проходили по бокам головы и не задевали ничего по траектории.
+
+                Выполнение: сгибай руки в локтях, опуская гантели по бокам от головы. Движение происходит в локтях, корпус и плечи не раскачивай. Опускай гантели настолько глубоко, насколько можешь под контролем и без дискомфорта, затем разгибай руки обратно вверх почти до полного выпрямления.
             """.trimIndent()
         ),
         handsDayWeightExercise(
-            id = "seated_cable_triceps",
+            id = "hands_cable_triceps_pushdown",
             name = "Cable Triceps Pushdown",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
             defaultWeight = 14,
             settingsNote = """
-                3 подхода по 8-12 повторений. Отдых 45-60 секунд.
-
                 Подготовка: встань лицом к верхнему блоку. Ноги на ширине плеч или одна нога чуть впереди для устойчивости, колени слегка согнуты. Спина прямая, корпус немного наклонен вперед.
                 Выполнение: возьмись за рукоять (прямую или канатную) хватом сверху. Плотно прижми локти к бокам. Разгибай руки вниз до полного выпрямления. Плавно возвращай рукоять вверх примерно до уровня груди. Локти должны оставаться зафиксированными в одной точке на протяжении всего движения. Не делай рывков корпусом и ногами, движение происходит только в локтевом суставе.
             """.trimIndent()
@@ -600,6 +615,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         name: String,
         weightOptions: List<Int>,
         defaultWeight: Int,
+        weightOptionLabelTemplate: String? = null,
         settingsNote: String
     ): ExerciseUiState = ExerciseUiState(
         id = id,
@@ -609,6 +625,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         weightOptions = weightOptions,
         selectedWeight = defaultWeight,
         defaultWeight = defaultWeight,
+        weightOptionLabelTemplate = weightOptionLabelTemplate,
         restBetweenSeconds = 45,
         restFinalSeconds = 120,
         totalSets = 3,
@@ -687,6 +704,29 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         _exercises.clear()
         _exercises.addAll(resetExercises)
         persistWorkoutSessionState()
+    }
+
+    private fun cleanupPersistedWeights() {
+        val savedWeights = loadSavedWeights()
+        if (savedWeights.isEmpty()) return
+
+        val weightExercises = (catalogExercises + buildHandsDayTemplates())
+            .filter { it.type == ExerciseType.WEIGHTS }
+            .associateBy { it.id }
+        val editor = weightsPrefs.edit()
+        var changed = false
+
+        savedWeights.forEach { (exerciseId, savedWeight) ->
+            val exercise = weightExercises[exerciseId] ?: return@forEach
+            if (savedWeight == exercise.defaultWeight || savedWeight !in exercise.weightOptions) {
+                editor.remove(exerciseId)
+                changed = true
+            }
+        }
+
+        if (changed) {
+            editor.apply()
+        }
     }
 
     private fun loadSavedNotes(): Map<String, String> =

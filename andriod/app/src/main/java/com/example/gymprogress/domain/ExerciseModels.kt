@@ -37,6 +37,7 @@ data class ExerciseUiState(
     val selectedWeight: Int,
     val defaultWeight: Int,
     val weightLabel: String? = null,
+    val weightOptionLabelTemplate: String? = null,
     val restBetweenSeconds: Int,
     val restFinalSeconds: Int,
     val totalSets: Int,
