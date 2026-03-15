@@ -20,6 +20,7 @@
     <string name="note_dialog_placeholder">Добавьте свои заметки или подсказки</string>
     <string name="note_dialog_save">Закрыть</string>
     <string name="note_dialog_clear">Очистить заметку</string>
+    <string name="note_dialog_cursor_end">В конец</string>
     <string name="general_note_title">General note</string>
     <string name="general_note_action">Edit general note</string>
     <string name="secondary_reset_hint">Сброс</string>

@@ -71,16 +71,26 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymprogress.ui.theme.ActiveGlowBlue
 import com.example.gymprogress.ui.theme.GymProgressTheme
@@ -1288,6 +1298,17 @@ private fun CooldownDetailsDialog(
     )
 }
 
+private object VisibleSpacesTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val transformed = buildString(text.text.length) {
+            text.text.forEach { character ->
+                append(if (character == ' ') '·' else character)
+            }
+        }
+        return TransformedText(AnnotatedString(transformed), OffsetMapping.Identity)
+    }
+}
+
 @Composable
 private fun NoteEditorDialog(
     exercise: ExerciseUiState,
@@ -1295,32 +1316,57 @@ private fun NoteEditorDialog(
     onSave: (String) -> Unit
 ) {
     var draftNote by remember(exercise.id, exercise.personalNote) {
-        mutableStateOf(exercise.personalNote.orEmpty())
+        mutableStateOf(
+            TextFieldValue(
+                text = exercise.personalNote.orEmpty(),
+                selection = TextRange.Zero
+            )
+        )
     }
+    val focusRequester = remember { FocusRequester() }
+    val editorMaxHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.72f).coerceAtLeast(280.dp)
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth(0.96f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         confirmButton = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .clickable { draftNote = "" },
-                    contentAlignment = Alignment.Center
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = stringResource(R.string.note_dialog_clear),
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable {
+                                draftNote = TextFieldValue(text = "", selection = TextRange.Zero)
+                                focusRequester.requestFocus()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.note_dialog_clear),
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            draftNote = draftNote.copy(selection = TextRange(draftNote.text.length))
+                            focusRequester.requestFocus()
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.note_dialog_cursor_end))
+                    }
                 }
-                TextButton(onClick = { onSave(draftNote) }) {
+                TextButton(onClick = { onSave(draftNote.text) }) {
                     Text(text = stringResource(R.string.note_dialog_save))
                 }
             }
@@ -1329,7 +1375,7 @@ private fun NoteEditorDialog(
             Text(text = exercise.name)
         },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     value = draftNote,
                     onValueChange = { draftNote = it },
@@ -1340,9 +1386,14 @@ private fun NoteEditorDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 240.dp, max = editorMaxHeight)
+                        .focusRequester(focusRequester),
                     textStyle = MaterialTheme.typography.bodyMedium,
-                    maxLines = 4
+                    minLines = 10,
+                    maxLines = Int.MAX_VALUE,
+                    visualTransformation = VisibleSpacesTransformation
                 )
             }
         }
@@ -1355,31 +1406,58 @@ private fun GeneralNoteDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    var draftNote by remember(note) { mutableStateOf(note) }
+    var draftNote by remember(note) {
+        mutableStateOf(
+            TextFieldValue(
+                text = note,
+                selection = TextRange.Zero
+            )
+        )
+    }
+    val focusRequester = remember { FocusRequester() }
+    val editorMaxHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.72f).coerceAtLeast(280.dp)
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth(0.96f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         confirmButton = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .clickable { draftNote = "" },
-                    contentAlignment = Alignment.Center
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = stringResource(R.string.note_dialog_clear),
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable {
+                                draftNote = TextFieldValue(text = "", selection = TextRange.Zero)
+                                focusRequester.requestFocus()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.note_dialog_clear),
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            draftNote = draftNote.copy(selection = TextRange(draftNote.text.length))
+                            focusRequester.requestFocus()
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.note_dialog_cursor_end))
+                    }
                 }
-                TextButton(onClick = { onSave(draftNote) }) {
+                TextButton(onClick = { onSave(draftNote.text) }) {
                     Text(text = stringResource(R.string.note_dialog_save))
                 }
             }
@@ -1388,7 +1466,7 @@ private fun GeneralNoteDialog(
             Text(text = stringResource(R.string.general_note_title))
         },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     value = draftNote,
                     onValueChange = { draftNote = it },
@@ -1399,9 +1477,14 @@ private fun GeneralNoteDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 240.dp, max = editorMaxHeight)
+                        .focusRequester(focusRequester),
                     textStyle = MaterialTheme.typography.bodyMedium,
-                    maxLines = 4
+                    minLines = 10,
+                    maxLines = Int.MAX_VALUE,
+                    visualTransformation = VisibleSpacesTransformation
                 )
             }
         }
