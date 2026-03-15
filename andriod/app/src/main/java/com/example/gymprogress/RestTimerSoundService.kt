@@ -24,8 +24,9 @@ import kotlinx.coroutines.launch
 class RestTimerSoundService : Service() {
     private val serviceScope = CoroutineScope(Job() + Dispatchers.Default)
     private val powerManager by lazy { getSystemService(Context.POWER_SERVICE) as? PowerManager }
+    // Keep countdown sounds mixable with background media such as Spotify.
     private val toneGenerator: ToneGenerator? = runCatching {
-        ToneGenerator(AudioManager.STREAM_ALARM, 100)
+        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
     }.getOrNull()
 
     private var countdownJob: Job? = null
@@ -62,7 +63,7 @@ class RestTimerSoundService : Service() {
         val endElapsedRealtimeMs = SystemClock.elapsedRealtime() + durationSeconds.toLong() * 1_000L
         val job = serviceScope.launch {
             val currentJob = coroutineContext[Job]
-            var lastReportedRemaining = durationSeconds
+            var lastReportedRemaining = durationSeconds + 1
             try {
                 while (true) {
                     val nowElapsedRealtimeMs = SystemClock.elapsedRealtime()
