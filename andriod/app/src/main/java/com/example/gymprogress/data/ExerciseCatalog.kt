@@ -7,6 +7,13 @@ private const val USER_WEIGHT_KG = 89
 private const val USER_WEIGHT_LB = 196
 private const val USER_AGE = 55
 private const val USER_MAX_HEART_RATE = 140
+internal val PEC_DECK_SETTINGS_NOTE = """
+    Сядь так, чтобы рукояти были на уровне середины груди. Спину плотно прижми к спинке, грудь раскрой, плечи опусти вниз. Используй легкий вес, который позволяет выполнять движение плавно и сохранять полное сокращение в каждом повторении.
+
+    Медленно своди рукояти перед собой примерно за 3 секунды. В конечной точке удерживай их вместе 2-3 секунды и максимально напрягай грудные мышцы.
+
+    Затем так же медленно разводи руки обратно примерно за 3 секунды. Не бросай вес, не раскачивай корпус и сохраняй локти в фиксированном положении на протяжении всего подхода.
+""".trimIndent()
 
 internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
@@ -159,7 +166,8 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
         restFinalSeconds = DEFAULT_REST_FINAL_SECONDS,
         totalSets = 3,
         completedSets = 0,
-        hasSettings = false
+        hasSettings = true,
+        settingsNote = PEC_DECK_SETTINGS_NOTE
     ),
     ExerciseUiState(
         id = "bike",
