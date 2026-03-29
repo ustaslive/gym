@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -793,7 +792,7 @@ private fun ExerciseCard(
                     IconButton(onClick = onSettingsClick, enabled = hasSettingsNote) {
                         val iconAlpha = if (hasSettingsNote) 1f else 0.4f
                         Icon(
-                            imageVector = Icons.Default.Settings,
+                            imageVector = Icons.Default.Info,
                             contentDescription = null,
                             tint = iconTintBase.copy(alpha = iconAlpha)
                         )

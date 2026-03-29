@@ -417,6 +417,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_warmup_shoulder_circles",
             name = "Круги плечами",
             group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "30 секунд вперед.",
                 "30 секунд назад.",
@@ -427,6 +428,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_warmup_shoulder_pendulum",
             name = "Плечевой маятник",
             group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "Подними правое плечо вверх и одновременно опусти левое вниз.",
                 "Потом поменяй стороны.",
@@ -437,17 +439,61 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_warmup_wrist_circles",
             name = "Круги запястьями",
             group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "Сделай по 10 кругов в каждую сторону.",
                 "Локти держи расслабленными.",
                 "Подготовь кисти без резких движений."
             )
         ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_scissors",
+            name = "Ножницы",
+            group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Разведи обе прямые руки широко в стороны на уровне плеч, затем одновременно сведи их перед собой накрест.",
+                "Сделай 40 таких скрещиваний. При каждом движении чередуй руки: один раз правая рука идет поверх левой, следующий раз — левая поверх правой.",
+                "Двигайся динамично, без пауз."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_vertical_swings",
+            name = "Вертикальные махи",
+            group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Вытяни прямые руки перед собой. Подними правую руку вверх до уровня уха, а левую одновременно опусти вниз и чуть заведи за спину.",
+                "Сделай 40 махов (по 20 раз на каждую руку), меняя руки в динамичном темпе."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_wide_arm_circles",
+            name = "Широкие круги прямыми руками",
+            group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Опусти руки вниз по бокам.",
+                "Сделай 20 максимально широких кругов обеими руками вперед, затем 20 кругов назад.",
+                "Движение должно быть амплитудным, но без боли."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_warmup_dynamic_elbow_flexion",
+            name = "Динамические сгибания локтей",
+            group = ExerciseGroup.WARM_UP,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Прижми локти к талии, кисти сожми в легкие кулаки.",
+                "Сделай 40 энергичных сгибаний и разгибаний рук до конца."
+            )
+        ),
         handsDayWeightExercise(
             id = "hands_chest_press",
             name = "Chest Press",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-            defaultWeight = 28,
+            defaultWeight = 21,
+            restBetweenSeconds = 70,
             settingsNote = """
                 Отрегулируйте высоту сиденья на уровень 7 и убедитесь, что руки выстроены ровно.
             """.trimIndent()
@@ -456,7 +502,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_pec_deck",
             name = "Pec Deck / Butterfly",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-            defaultWeight = 35,
+            defaultWeight = 28,
+            restBetweenSeconds = 45,
             settingsNote = PEC_DECK_SETTINGS_NOTE
         ),
         handsDayWeightExercise(
@@ -464,6 +511,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Dumbbell Chest Press",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 7,
+            restBetweenSeconds = 70,
             settingsNote = """
                 Ляг на горизонтальную скамью и плотно прижми к ней спину. Ступни поставь на скамью, чтобы убрать прогиб в пояснице и исключить помощь ногами. Возьми легкие гантели и держи их перед грудью, постоянно прижимая друг к другу.
 
@@ -478,7 +526,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_incline_db_press",
             name = "Incline DB Press",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-            defaultWeight = 7,
+            defaultWeight = 5,
+            restBetweenSeconds = 70,
             settingsNote = """
                 Техника:
                 Установи спинку скамьи под углом 30–45° к горизонтали. Сядь, затем ляг на спинку и плотно прижми к ней спину. Ноги стоят на полу устойчиво.
@@ -489,10 +538,35 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             """.trimIndent()
         ),
         handsDayWeightExercise(
+            id = "hands_chest_supported_db_row",
+            name = "Chest-supported DB Row",
+            weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
+            defaultWeight = 5,
+            restBetweenSeconds = 45,
+            settingsNote = """
+                Установи спинку скамьи под углом 30–45°. Ляг на неё животом и грудью. Ноги свободно свисают по бокам без упора.
+
+                Тяни гантели к поясу, сводя лопатки вместе. Локти идут вдоль корпуса. Плавно опускай вес обратно до полного растяжения мышц спины.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
+            id = "hands_reverse_pec_deck",
+            name = "Reverse Pec Deck",
+            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
+            defaultWeight = 21,
+            restBetweenSeconds = 45,
+            settingsNote = """
+                Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.
+
+                Разводи рукояти назад за счет задней дельты и мышц спины, сводя лопатки. Плавно возвращай в исходное положение.
+            """.trimIndent()
+        ),
+        handsDayWeightExercise(
             id = "hands_biceps_machine",
             name = "Biceps Machine",
             weightOptions = (1..12).toList(),
             defaultWeight = 9,
+            restBetweenSeconds = 45,
             weightOptionLabelTemplate = "%d",
             settingsNote = """
                 Сядь, упрись грудью и локтями в подушку тренажера. Сгибай руки плавно, не забрасывая вес всем телом.
@@ -503,6 +577,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Dumbbell Biceps",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 7,
+            restBetweenSeconds = 45,
             settingsNote = """
                 Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь ровно и плотно прижми спину. Руки с гантелями опущены вниз по бокам корпуса.
 
@@ -514,6 +589,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Seated Hammer Curl",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 6,
+            restBetweenSeconds = 45,
             settingsNote = """
                 Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.
                 Выполнение: держи гантели нейтральным хватом, ладони смотрят друг на друга. Сгибай руки к плечам. Упражнение развивает предплечья и мышцу под бицепсом.
@@ -524,6 +600,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Incline DB Biceps",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 5,
+            restBetweenSeconds = 45,
             settingsNote = """
                 Подготовка: установи скамью под углом 45-60 градусов к горизонтали. Сядь и откинься на спинку. Руки с гантелями свободно свисают вниз. Плечо каждой руки всё время направлено вертикально вниз и не уходит вперед.
                 Выполнение: сгибай руки именно в локтях, поднимая гантели вверх. Ладони направлены вперед и вверх, то есть используй обычный хват на бицепс. Не разворачивай плечи и не подавай локти вперед. В верхней точке бицепс напряжен, затем плавно опускай гантели вниз до полного контролируемого растяжения.
@@ -534,6 +611,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Triceps Machine",
             weightOptions = listOf(20, 25, 30, 35, 40, 45, 50, 55, 60),
             defaultWeight = 25,
+            restBetweenSeconds = 45,
             weightOptionLabelTemplate = "2x%dкг",
             settingsNote = """
                 Отрегулируй сиденье так, чтобы в верхней позиции локти были немного позади корпуса, а плечи оставались опущенными. Возьмись за рукояти и зафиксируй ноги под валиком, спина прямая. В стартовой точке локти согнуты примерно под 90°, предплечья почти вертикальны.
@@ -546,6 +624,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Dumbbell French Press",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 6,
+            restBetweenSeconds = 45,
             settingsNote = """
                 Сядь на скамью без поднятой спинки, держи спину ровной. Возьми одну гантель двумя руками, обхвати ладонями верхний блин и подними её над головой.
 
@@ -558,7 +637,8 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_lying_db_triceps",
             name = "Lying DB Triceps",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-            defaultWeight = 4,
+            defaultWeight = 5,
+            restBetweenSeconds = 45,
             settingsNote = """
                 Подготовка: ляг на горизонтальную скамью. Ступни поставь на скамью для защиты поясницы и отключения ног. Подними руки с гантелями вверх перед собой.
 
@@ -567,20 +647,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 Выполнение: сгибай руки в локтях, опуская гантели по бокам от головы. Движение происходит в локтях, корпус и плечи не раскачивай. Опускай гантели настолько глубоко, насколько можешь под контролем и без дискомфорта, затем разгибай руки обратно вверх почти до полного выпрямления.
             """.trimIndent()
         ),
-        handsDayWeightExercise(
-            id = "hands_cable_triceps_pushdown",
-            name = "Cable Triceps Pushdown",
-            weightOptions = listOf(7, 14, 21, 28, 35, 42, 49),
-            defaultWeight = 14,
-            settingsNote = """
-                Подготовка: встань лицом к верхнему блоку. Ноги на ширине плеч или одна нога чуть впереди для устойчивости, колени слегка согнуты. Спина прямая, корпус немного наклонен вперед.
-                Выполнение: возьмись за рукоять (прямую или канатную) хватом сверху. Плотно прижми локти к бокам. Разгибай руки вниз до полного выпрямления. Плавно возвращай рукоять вверх примерно до уровня груди. Локти должны оставаться зафиксированными в одной точке на протяжении всего движения. Не делай рывков корпусом и ногами, движение происходит только в локтевом суставе.
-            """.trimIndent()
-        ),
         handsDayGuidedExercise(
             id = "hands_cooldown_chest_stretch",
             name = "Растяжка груди",
             group = ExerciseGroup.COOLDOWN,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "Встань боком к стене.",
                 "Прямую руку оставь на стене чуть позади линии корпуса.",
@@ -592,6 +663,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_cooldown_shoulder_stretch",
             name = "Растяжка плеч",
             group = ExerciseGroup.COOLDOWN,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "Прямую руку прижми к груди другой рукой.",
                 "Не поднимай плечо к уху.",
@@ -599,9 +671,32 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             )
         ),
         handsDayGuidedExercise(
+            id = "hands_cooldown_triceps_stretch",
+            name = "Растяжка трицепса",
+            group = ExerciseGroup.COOLDOWN,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Подними одну руку вверх, согни в локте и заведи ладонь за голову (между лопаток).",
+                "Другой рукой мягко потяни за локоть назад.",
+                "Удерживай на 20-30 медленных счетов на каждую руку."
+            )
+        ),
+        handsDayGuidedExercise(
+            id = "hands_cooldown_biceps_forearms_stretch",
+            name = "Растяжка бицепса и предплечий",
+            group = ExerciseGroup.COOLDOWN,
+            restBetweenSeconds = 0,
+            instructions = listOf(
+                "Сядь на скамью. Вытяни прямую руку перед собой ладонью вверх.",
+                "Другой рукой потяни пальцы вытянутой руки вниз и на себя до натяжения от запястья до локтя.",
+                "Удерживай на 20-30 медленных счетов на каждую руку."
+            )
+        ),
+        handsDayGuidedExercise(
             id = "hands_cooldown_wall_hang",
             name = "Вис у стенки",
             group = ExerciseGroup.COOLDOWN,
+            restBetweenSeconds = 0,
             instructions = listOf(
                 "Используй этот вариант только если он не вызывает дискомфорта в пояснице и не требует спрыгивания на ноги.",
                 "Плавно потянись и повиси 20-30 секунд.",
@@ -615,6 +710,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         name: String,
         weightOptions: List<Int>,
         defaultWeight: Int,
+        restBetweenSeconds: Int = 45,
         weightOptionLabelTemplate: String? = null,
         settingsNote: String
     ): ExerciseUiState = ExerciseUiState(
@@ -626,7 +722,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         selectedWeight = defaultWeight,
         defaultWeight = defaultWeight,
         weightOptionLabelTemplate = weightOptionLabelTemplate,
-        restBetweenSeconds = 45,
+        restBetweenSeconds = restBetweenSeconds,
         restFinalSeconds = 120,
         totalSets = 3,
         completedSets = 0,
@@ -638,6 +734,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         id: String,
         name: String,
         group: ExerciseGroup,
+        restBetweenSeconds: Int,
         instructions: List<String>
     ): ExerciseUiState = ExerciseUiState(
         id = id,
@@ -647,7 +744,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         weightOptions = emptyList(),
         selectedWeight = 0,
         defaultWeight = 0,
-        restBetweenSeconds = 0,
+        restBetweenSeconds = restBetweenSeconds,
         restFinalSeconds = 0,
         totalSets = 1,
         completedSets = 0,

@@ -18,6 +18,7 @@
         make it only for one selected/current exercise. leave
         other small as currently they are
 
+- [ ] сделать голосовой ввод заметок
 - [x] only on zaminka - if not select4ed as current, and checked - it appers afret latest selected+completed
         wrong/ must be after last active, below last active, right below it
 
