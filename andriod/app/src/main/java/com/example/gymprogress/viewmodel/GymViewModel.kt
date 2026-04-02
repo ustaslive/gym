@@ -484,7 +484,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             group = ExerciseGroup.WARM_UP,
             restBetweenSeconds = 0,
             instructions = listOf(
-                "Сядь на скамью. Прижми локти к талии, кисти сожми в легкие кулаки.",
+                "Сядь на скамью. Прижми локти к талии, разверни ладони вперед и сожми кисти в легкие кулаки.",
                 "Сделай 40 энергичных сгибаний и разгибаний рук до конца."
             )
         ),
@@ -541,12 +541,14 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_chest_supported_db_row",
             name = "Chest-supported DB Row",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-            defaultWeight = 5,
+            defaultWeight = 7,
             restBetweenSeconds = 45,
             settingsNote = """
                 Установи спинку скамьи под углом 30–45°. Ляг на неё животом и грудью. Ноги свободно свисают по бокам без упора.
 
-                Тяни гантели к поясу, сводя лопатки вместе. Локти идут вдоль корпуса. Плавно опускай вес обратно до полного растяжения мышц спины.
+                Тяни гантели назад к нижней части корпуса, уводя локти назад и немного вверх. В верхней точке своди лопатки вместе.
+                
+                Плавно опускай вес обратно до полного растяжения мышц спины.
             """.trimIndent()
         ),
         handsDayWeightExercise(
@@ -677,7 +679,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             restBetweenSeconds = 0,
             instructions = listOf(
                 "Сядь на скамью. Подними одну руку вверх, согни в локте и заведи ладонь за голову (между лопаток).",
-                "Другой рукой мягко потяни за локоть назад.",
+                "Другой рукой мягко потяни за локоть в сторону головы, усиливая растяжение.",
                 "Удерживай на 20-30 медленных счетов на каждую руку."
             )
         ),
