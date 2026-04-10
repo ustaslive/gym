@@ -2,8 +2,45 @@
 
 GRADLE := ./gradlew
 ADB := adb
+ADB_SERIAL ?=
 APPLICATION_ID := com.example.gymprogress
 DEBUG_APK := app/build/outputs/apk/debug/app-debug.apk
+
+define RESOLVE_ADB_SERIAL_SH
+devices="$$( $(ADB) devices | awk 'NR==1 {next} $$2=="device" {print $$1}' )"; \
+devices="$$(printf '%s\n' "$$devices" | sed '/^$$/d')"; \
+device_count="$$(printf '%s\n' "$$devices" | awk 'NF {count++} END {print count+0}')"; \
+if [ "$$device_count" -eq 0 ]; then \
+	echo "No ADB device detected."; \
+	exit 1; \
+fi; \
+serial=""; \
+if [ -n "$(ADB_SERIAL)" ]; then \
+	serial="$(ADB_SERIAL)"; \
+	if ! printf '%s\n' "$$devices" | grep -Fx -- "$$serial" >/dev/null; then \
+		echo "ADB_SERIAL '$$serial' is not connected."; \
+		echo "Connected devices:"; \
+		printf '%s\n' "$$devices" | sed 's/^/  - /'; \
+		exit 1; \
+	fi; \
+elif [ -n "$(ADB_HOST)" ]; then \
+	host_matches="$$(printf '%s\n' "$$devices" | awk 'index($$0, "$(ADB_HOST):")==1 {print $$0}')"; \
+	host_count="$$(printf '%s\n' "$$host_matches" | awk 'NF {count++} END {print count+0}')"; \
+	if [ "$$host_count" -eq 1 ]; then \
+		serial="$$host_matches"; \
+	fi; \
+fi; \
+if [ -z "$$serial" ]; then \
+	if [ "$$device_count" -eq 1 ]; then \
+		serial="$$devices"; \
+	else \
+		echo "Multiple ADB devices detected."; \
+		echo "Set ADB_SERIAL to one of:"; \
+		printf '%s\n' "$$devices" | sed 's/^/  - /'; \
+		exit 1; \
+	fi; \
+fi
+endef
 
 .PHONY: help check build install uninstall list connect
 
@@ -12,11 +49,11 @@ help:
 		"Available commands:" \
 		"  make help     Show this help message." \
 		"  make list     List ADB devices." \
-		"  make check    Verify that at least one ADB device is connected." \
+		"  make check    Verify that a target ADB device can be resolved." \
 		"  make connect  Connect to an ADB host using ADB_HOST and a prompted port." \
 		"  make build    Build the debug APK with Gradle." \
-		"  make install  Build the debug APK if needed and install it on the device." \
-		"  make uninstall Uninstall the app from the connected device." \
+		"  make install  Build the debug APK if needed and install it on the selected device." \
+		"  make uninstall Uninstall the app from the selected device." \
 		"" \
 		"Examples:" \
 		"  make help" \
@@ -25,11 +62,13 @@ help:
 		"  ADB_HOST=192.0.2.1 make connect" \
 		"  printf 'ADB_HOST=192.0.2.1\n' > .env && make connect" \
 		"  make build" \
-		"  make install" \
-		"  make uninstall"
+		"  ADB_HOST=192.0.2.1 make install" \
+		"  ADB_SERIAL=192.0.2.1:5555 make install" \
+		"  ADB_SERIAL=192.0.2.1:5555 make uninstall"
 
 check:
-	@$(ADB) devices | awk 'NR==1{next} /device$$/{found=1} END{if(found) print "ADB device connected."; else {print "No ADB device detected."; exit 1}}'
+	@$(RESOLVE_ADB_SERIAL_SH); \
+	echo "ADB device connected: $$serial"
 
 list:
 	@$(ADB) devices
@@ -47,16 +86,21 @@ connect:
 		echo "Port is required."; \
 		exit 1; \
 	fi; \
-	$(ADB) connect $(ADB_HOST):$$port
+	$(ADB) connect $(ADB_HOST):$$port; \
+	echo "Tip: if multiple devices are connected, run 'ADB_SERIAL=$(ADB_HOST):$$port make install'"
 
 build:
 	$(GRADLE) assembleDebug
 
-install: check
-	@if [ ! -f $(DEBUG_APK) ]; then \
+install:
+	@$(RESOLVE_ADB_SERIAL_SH); \
+	echo "Installing to $$serial"; \
+	if [ ! -f $(DEBUG_APK) ]; then \
 		$(MAKE) build; \
-	fi
-	$(ADB) install -r $(DEBUG_APK)
+	fi; \
+	$(ADB) -s "$$serial" install -r $(DEBUG_APK)
 
-uninstall: check
-	$(ADB) uninstall $(APPLICATION_ID)
+uninstall:
+	@$(RESOLVE_ADB_SERIAL_SH); \
+	echo "Uninstalling from $$serial"; \
+	$(ADB) -s "$$serial" uninstall $(APPLICATION_ID)

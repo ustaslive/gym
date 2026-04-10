@@ -9,6 +9,8 @@
 
 ### When Multiple Devices Are Connected
 - Run `adb devices` to list active device IDs (for example, `199.99.9.254:43059` and `adb-H6BEXGT8E6IN4PJJ-37FM5r._adb-tls-connect._tcp`).
+- Prefer `make install` or `make uninstall` with `ADB_SERIAL=<device-id>` to target the right device directly.
+- If `ADB_HOST` is set and only one connected device matches that host, `make install` and `make uninstall` will select it automatically.
 - Repeat the uninstall/install command with the `-s` flag pointing to the correct device ID, e.g. `adb -s adb-H6BEXGT8E6IN4PJJ-37FM5r._adb-tls-connect._tcp uninstall com.example.gymprogress`.
 
 ### If Wireless Install Is Blocked (Xiaomi)

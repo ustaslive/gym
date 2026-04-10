@@ -480,12 +480,11 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         ),
         handsDayGuidedExercise(
             id = "hands_warmup_dynamic_elbow_flexion",
-            name = "Динамические сгибания локтей",
+            name = "Разминка бицепса",
             group = ExerciseGroup.WARM_UP,
             restBetweenSeconds = 0,
             instructions = listOf(
-                "Сядь на скамью. Прижми локти к талии, разверни ладони вперед и сожми кисти в легкие кулаки.",
-                "Сделай 40 энергичных сгибаний и разгибаний рук до конца."
+                "Выполни 20 обычных сгибаний на бицепс в спокойном темпе с гантелями в 1-2 кг."
             )
         ),
         handsDayWeightExercise(
@@ -589,7 +588,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         ),
         handsDayWeightExercise(
             id = "hands_seated_hammer_curl",
-            name = "Seated Hammer Curl",
+            name = "Hammer Curl",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 6,
             restBetweenSeconds = 45,
@@ -627,7 +626,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             name = "Dumbbell French Press",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
             defaultWeight = 6,
-            restBetweenSeconds = 45,
+            restBetweenSeconds = 60,
             settingsNote = """
                 Сядь на скамью без поднятой спинки, держи спину ровной. Возьми одну гантель двумя руками, обхвати ладонями верхний блин и подними её над головой.
 
