@@ -10,6 +10,7 @@ services:
     command: sleep infinity
     volumes:
       - ..:/workspace:cached
+      - ./state/codex:/home/android/.codex
       - android-gradle-cache:/home/android/.gradle
       - ${HOME}/.ssh:/home/android/.ssh:cached
       - /var/run/docker.sock:/var/run/docker.sock

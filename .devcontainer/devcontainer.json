@@ -2,6 +2,11 @@
   "name": "gym",
   "dockerComposeFile": "docker-compose.yml",
   "service": "gym",
+  "initializeCommand": [
+    "/bin/sh",
+    "-c",
+    "mkdir -p .devcontainer/state/codex && chmod 700 .devcontainer/state/codex"
+  ],
   "workspaceFolder": "/workspace",
   "remoteUser": "android",
   "updateRemoteUserUID": false,

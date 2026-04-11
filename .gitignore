@@ -1,5 +1,6 @@
 CUSTOM.md
 .env
+.devcontainer/state/
 
 # Gradle cache and build outputs
 .gradle/
