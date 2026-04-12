@@ -484,7 +484,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             group = ExerciseGroup.WARM_UP,
             restBetweenSeconds = 0,
             instructions = listOf(
-                "Выполни 20 обычных сгибаний на бицепс в спокойном темпе с гантелями в 1-2 кг."
+                "Выполни 20 обычных сгибаний на бицепс в спокойном темпе с гантелями в 2 кг."
             )
         ),
         handsDayWeightExercise(
@@ -494,7 +494,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             defaultWeight = 21,
             restBetweenSeconds = 70,
             settingsNote = """
-                Отрегулируйте высоту сиденья на уровень 7 и убедитесь, что руки выстроены ровно.
+                Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно.
             """.trimIndent()
         ),
         handsDayWeightExercise(
@@ -525,7 +525,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_incline_db_press",
             name = "Incline DB Press",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-            defaultWeight = 5,
+            defaultWeight = 6,
             restBetweenSeconds = 70,
             settingsNote = """
                 Техника:
@@ -555,7 +555,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_reverse_pec_deck",
             name = "Reverse Pec Deck",
             weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-            defaultWeight = 21,
+            defaultWeight = 28,
             restBetweenSeconds = 45,
             settingsNote = """
                 Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.
@@ -601,7 +601,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             id = "hands_incline_db_biceps",
             name = "Incline DB Biceps",
             weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-            defaultWeight = 5,
+            defaultWeight = 6,
             restBetweenSeconds = 45,
             settingsNote = """
                 Подготовка: установи скамью под углом 45-60 градусов к горизонтали. Сядь и откинься на спинку. Руки с гантелями свободно свисают вниз. Плечо каждой руки всё время направлено вертикально вниз и не уходит вперед.
@@ -679,36 +679,6 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
                 4. Вернись в исходное положение в обратном порядке: сначала выпрями руки, затем снова наклони корпус вперед.
 
                 Ошибки: не сгибай и не разгибай колени, не округляй поясницу при наклоне вперед и не отклоняй спину слишком далеко назад в конце тяги.
-            """.trimIndent()
-        ),
-        ExerciseUiState(
-            id = "hands_seated_battle_ropes",
-            name = "Seated Battle Ropes",
-            type = ExerciseType.ACTIVITY,
-            group = ExerciseGroup.CARDIO,
-            mode = "battle_ropes",
-            durationMinutes = 8,
-            weightOptions = emptyList(),
-            selectedWeight = 0,
-            defaultWeight = 0,
-            restBetweenSeconds = 0,
-            restFinalSeconds = 120,
-            totalSets = 1,
-            completedSets = 0,
-            hasSettings = true,
-            settingsNote = """
-                Боевые канаты сидя. Это высокоинтенсивное кардио в формате HIIT. Выполнение сидя нужно для того, чтобы полностью исключить амортизацию коленями и перенос веса, которые часто происходят при работе с канатами стоя.
-
-                Нагрузка: интервальная работа. Например: 20 секунд максимальной работы, затем 40 секунд полного отдыха. Выполни 5-8 циклов.
-
-                Подготовка: поставь горизонтальную скамью или устойчивую тумбу лицом к креплению канатов. Сядь на край скамьи. Стопы плотно стоят на полу, колени согнуты под комфортным углом, ноги зафиксированы. Возьми концы канатов в обе руки нейтральным хватом: ладони смотрят друг на друга, большие пальцы направлены к себе.
-
-                Выполнение:
-                1. Подними грудь, напряги пресс, держи спину прямой.
-                2. Начинай делать быстрые поочередные взмахи руками вверх-вниз, пуская непрерывную волну по канатам до самого анкера.
-                3. Движение идет в основном от плечевого сустава и локтей. Амплитуда небольшая, но скорость максимальная.
-
-                Ошибки: не раскачивай корпус вперед-назад вслед за руками, не помогай себе ногами или тазом и не отрывай ягодицы от скамьи. Не задерживай дыхание.
             """.trimIndent()
         ),
         handsDayGuidedExercise(

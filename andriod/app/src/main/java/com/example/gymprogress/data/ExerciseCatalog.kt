@@ -137,7 +137,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
         totalSets = 3,
         completedSets = 0,
         hasSettings = true,
-        settingsNote = "Отрегулируйте высоту сиденья на уровень 7 и убедитесь, что руки выстроены ровно."
+        settingsNote = "Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно."
     ),
     ExerciseUiState(
         id = "row",
