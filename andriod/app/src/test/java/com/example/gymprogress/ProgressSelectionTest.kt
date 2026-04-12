@@ -6,10 +6,10 @@ import org.junit.Test
 
 class ProgressSelectionTest {
     @Test
-    fun cooldownExerciseAutoActivatesBeforeBeingCompleted() {
+    fun guidedExerciseAutoActivatesBeforeBeingCompleted() {
         val exercise = sampleExercise(
-            id = "cooldown",
-            type = ExerciseType.COOLDOWN,
+            id = "guided",
+            type = ExerciseType.GUIDED,
             totalSets = 1,
             completedSets = 0,
             isActive = false
@@ -19,10 +19,10 @@ class ProgressSelectionTest {
     }
 
     @Test
-    fun completedCooldownDoesNotAutoActivateAgain() {
+    fun completedGuidedExerciseDoesNotAutoActivateAgain() {
         val exercise = sampleExercise(
-            id = "cooldown_done",
-            type = ExerciseType.COOLDOWN,
+            id = "guided_done",
+            type = ExerciseType.GUIDED,
             totalSets = 1,
             completedSets = 1,
             isActive = false
@@ -32,10 +32,10 @@ class ProgressSelectionTest {
     }
 
     @Test
-    fun alreadyActiveCooldownDoesNotNeedExtraActivation() {
+    fun alreadyActiveGuidedExerciseDoesNotNeedExtraActivation() {
         val exercise = sampleExercise(
-            id = "cooldown_active",
-            type = ExerciseType.COOLDOWN,
+            id = "guided_active",
+            type = ExerciseType.GUIDED,
             totalSets = 1,
             completedSets = 0,
             isActive = true
@@ -45,7 +45,7 @@ class ProgressSelectionTest {
     }
 
     @Test
-    fun nonCooldownExerciseDoesNotAutoActivateOnProgressTap() {
+    fun nonGuidedExerciseDoesNotAutoActivateOnProgressTap() {
         val exercise = sampleExercise(
             id = "weights",
             type = ExerciseType.WEIGHTS,

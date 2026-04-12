@@ -9,7 +9,7 @@ enum class WorkoutDayType {
 enum class ExerciseType {
     WEIGHTS,
     ACTIVITY,
-    COOLDOWN,
+    GUIDED,
     PLACEHOLDER
 }
 
@@ -56,5 +56,8 @@ data class ExerciseUiState(
 internal fun ExerciseUiState.isCompleted(): Boolean =
     totalSets > 0 && completedSets >= totalSets
 
+internal fun ExerciseUiState.isGuided(): Boolean =
+    type == ExerciseType.GUIDED
+
 internal fun shouldActivateBeforeAdvancing(exercise: ExerciseUiState): Boolean =
-    exercise.type == ExerciseType.COOLDOWN && !exercise.isCompleted() && !exercise.isActive
+    exercise.isGuided() && !exercise.isCompleted() && !exercise.isActive

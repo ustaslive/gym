@@ -190,7 +190,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_chest_pillar",
         name = "Передняя дельта",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -213,7 +213,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_lats",
         name = "Supported hang",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -234,7 +234,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_shoulders",
         name = "Плечи",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -255,7 +255,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_neck",
         name = "Шея",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -276,7 +276,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_horizontal_leg",
         name = "Куб: гнуть нерв",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -298,7 +298,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_box_forward",
         name = "Куб: вперед",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -313,7 +313,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_box_swing",
         name = "Куб: качели",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -328,7 +328,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_bow",
         name = "Бантик",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -343,7 +343,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_butterfly_in",
         name = "Бабочка к себе",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -358,7 +358,7 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
     ExerciseUiState(
         id = "cooldown_butterfly_out",
         name = "Бабочка от себя",
-        type = ExerciseType.COOLDOWN,
+        type = ExerciseType.GUIDED,
         group = ExerciseGroup.COOLDOWN,
         weightOptions = emptyList(),
         selectedWeight = 0,
@@ -371,4 +371,3 @@ internal fun builtInExercises(): List<ExerciseUiState> = listOf(
         detailSections = listOf("Бабочка от себя.")
     )
 )
-

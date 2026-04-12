@@ -204,7 +204,7 @@ fun GymScreen(
     }
 
     if (detailsDialogExercise != null) {
-        CooldownDetailsDialog(
+        ExerciseDetailsDialog(
             exercise = detailsDialogExercise,
             onDismiss = { detailsDialogFor = null }
         )
@@ -569,9 +569,9 @@ private fun ExerciseCard(
 
     val isCompleted = exercise.totalSets > 0 && exercise.completedSets >= exercise.totalSets
     val isActivity = exercise.type == ExerciseType.ACTIVITY
-    val isCooldown = exercise.type == ExerciseType.COOLDOWN
+    val isGuided = exercise.isGuided()
     val isWeights = exercise.type == ExerciseType.WEIGHTS
-    val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank() && !isCooldown
+    val hasSettingsNote = exercise.hasSettings && !exercise.settingsNote.isNullOrBlank() && !isGuided
     val hasDetailSections = exercise.detailSections.isNotEmpty()
     val hasPersonalNote = !exercise.personalNote.isNullOrBlank()
     val isActive = exercise.isActive
@@ -728,8 +728,8 @@ private fun ExerciseCard(
         }
         val contentVerticalPadding = if (isActive && isWeights) 6.dp else 12.dp
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = contentVerticalPadding)) {
-            if (isCooldown) {
-                CooldownCardContent(
+            if (isGuided) {
+                GuidedExerciseCardContent(
                     exercise = exercise,
                     titleStyle = titleStyle,
                     contentColor = contentColor,
@@ -890,7 +890,7 @@ private fun ActivityCompletionRow(
 }
 
 @Composable
-private fun CooldownCardContent(
+private fun GuidedExerciseCardContent(
     exercise: ExerciseUiState,
     titleStyle: TextStyle,
     contentColor: Color,
@@ -1269,7 +1269,7 @@ private fun SettingsNoteDialog(
 }
 
 @Composable
-private fun CooldownDetailsDialog(
+private fun ExerciseDetailsDialog(
     exercise: ExerciseUiState,
     onDismiss: () -> Unit
 ) {
