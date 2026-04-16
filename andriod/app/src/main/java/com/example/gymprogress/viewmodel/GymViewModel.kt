@@ -8,41 +8,65 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 
-class GymViewModel(application: Application) : AndroidViewModel(application) {
+class GymViewModel internal constructor(
+    application: Application,
+    providedWorkoutRepository: WorkoutRepository? = null,
+    providedWorkoutSessionStore: WorkoutSessionStore? = null,
+    providedShareContentBuilder: WorkoutShareContentBuilder? = null,
+    providedDayStateFactory: WorkoutDayStateFactory? = null,
+    providedSessionStateManager: WorkoutSessionStateManager? = null,
+    providedExerciseStateReducer: WorkoutExerciseStateReducer? = null,
+    providedRestTimerStateReducer: WorkoutRestTimerStateReducer? = null,
+    providedRestTimerControllerFactory: RestTimerControllerFactory? = null
+) : AndroidViewModel(application) {
+    constructor(application: Application) : this(
+        application = application,
+        providedWorkoutRepository = null,
+        providedWorkoutSessionStore = null,
+        providedShareContentBuilder = null,
+        providedDayStateFactory = null,
+        providedSessionStateManager = null,
+        providedExerciseStateReducer = null,
+        providedRestTimerStateReducer = null,
+        providedRestTimerControllerFactory = null
+    )
+
     private val _exercises = mutableStateListOf<ExerciseUiState>()
     val exercises: List<ExerciseUiState> get() = _exercises.filter { it.isUnlocked }
 
-    private val workoutRepository = WorkoutRepository(application)
-    private val workoutSessionStore = WorkoutSessionStore(application)
-    private val shareContentBuilder = WorkoutShareContentBuilder(application)
+    private val workoutRepository = providedWorkoutRepository ?: WorkoutRepository(application)
+    private val shareContentBuilder = providedShareContentBuilder ?: WorkoutShareContentBuilder(application)
+    private val dayStateFactory = providedDayStateFactory ?: WorkoutDayStateFactory(
+        workoutRepository = workoutRepository,
+        groupSequence = GROUP_SEQUENCE
+    )
+    private val sessionStateManager = providedSessionStateManager ?: WorkoutSessionStateManager(
+        workoutSessionStore = providedWorkoutSessionStore ?: WorkoutSessionStore(application)
+    )
+    private val exerciseStateReducer = providedExerciseStateReducer ?: WorkoutExerciseStateReducer(
+        groupSequence = GROUP_SEQUENCE
+    )
+    private val restTimerStateReducer = providedRestTimerStateReducer ?: WorkoutRestTimerStateReducer()
+    private val restTimerControllerFactory = providedRestTimerControllerFactory ?: DefaultRestTimerControllerFactory
     private val restTimerController by lazy(LazyThreadSafetyMode.NONE) {
-        RestTimerController(
+        restTimerControllerFactory.create(
             application = application,
             coroutineScope = viewModelScope,
             onTimerUpdated = ::updateExerciseRest,
-            onTimerStateChanged = { exerciseId, endEpochMillis ->
-                activeStatusExerciseId = exerciseId
-                activeRestTimerEndEpochMillis = endEpochMillis
-                if (exerciseId == null) {
-                    statusText = null
-                }
-            },
+            onTimerStateChanged = ::updateRestTimerState,
             onPersistRequested = ::persistWorkoutSessionState
         )
     }
-    private val defaultOrder = mutableListOf<String>()
 
-    private var activeStatusExerciseId: String? = null
     private var activeExerciseId: String? = null
-    private var activeRestTimerEndEpochMillis: Long? = null
-    private var initialGroup: ExerciseGroup? = GROUP_SEQUENCE.firstOrNull()
+    private var restTimerUiState by mutableStateOf(RestTimerUiState())
     private var currentDayType by mutableStateOf(WorkoutDayType.GENERAL)
 
     var selectedDayType by mutableStateOf(WorkoutDayType.GENERAL)
         private set
 
-    var statusText by mutableStateOf<String?>(null)
-        private set
+    val statusText: String?
+        get() = restTimerUiState.statusText
 
     var generalNote by mutableStateOf<String?>(null)
         private set
@@ -50,36 +74,23 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     var newlyUnlockedGroupAnchorId by mutableStateOf<String?>(null)
         private set
 
-
     init {
+        val nowEpochMillis = System.currentTimeMillis()
         generalNote = workoutRepository.loadGeneralNote()
         workoutRepository.cleanupPersistedWeights()
-        initialGroup = GROUP_SEQUENCE.firstOrNull { group ->
-            workoutRepository
-                .templatesForDayType(WorkoutDayType.GENERAL)
-                .any { exercise -> exercise.group == group }
-        } ?: initialGroup
-        val savedSession = workoutSessionStore.load()
-        currentDayType = savedSession?.currentDayType ?: WorkoutDayType.GENERAL
-        selectedDayType = savedSession?.selectedDayType ?: currentDayType
-        val baseExercises = buildExercisesForDayType(currentDayType)
-        defaultOrder.clear()
-        defaultOrder.addAll(baseExercises.map { it.id })
-        val restoredSession = restoreWorkoutSession(
-            baseExercises = baseExercises,
-            snapshot = savedSession,
-            defaultOrder = defaultOrder,
-            nowEpochMillis = System.currentTimeMillis()
+        val restoreResult = sessionStateManager.restore(
+            dayStateFactory = dayStateFactory,
+            nowEpochMillis = nowEpochMillis
         )
+        val restoredSession = restoreResult.session
         currentDayType = restoredSession.currentDayType
         selectedDayType = restoredSession.selectedDayType
         activeExerciseId = restoredSession.activeExerciseId
-        activeStatusExerciseId = restoredSession.activeRestTimerExerciseId
-        activeRestTimerEndEpochMillis = restoredSession.restTimerRemainingSeconds
-            ?.let { remainingSeconds -> System.currentTimeMillis() + remainingSeconds.toLong() * 1_000L }
-        statusText = restoredSession.restTimerRemainingSeconds?.let { remaining ->
-            formatRestTime(remaining)
-        }
+        restTimerUiState = restTimerStateReducer.restore(
+            activeRestTimerExerciseId = restoredSession.activeRestTimerExerciseId,
+            restTimerRemainingSeconds = restoredSession.restTimerRemainingSeconds,
+            nowEpochMillis = nowEpochMillis
+        )
         _exercises.addAll(restoredSession.exercises)
         if (
             restoredSession.activeRestTimerExerciseId != null &&
@@ -91,59 +102,33 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
             if (restoredExercise != null) {
                 restTimerController.start(restoredExercise.id, restoredSession.restTimerRemainingSeconds)
             }
-        } else if (savedSession != null) {
+        } else if (restoreResult.hadSavedSnapshot) {
             persistWorkoutSessionState()
         }
     }
 
     fun advanceProgress(exerciseId: String) {
-        val index = _exercises.indexOfFirst { it.id == exerciseId }
-        if (index >= 0) {
-            var exercise = _exercises[index]
-            if (!exercise.isUnlocked || exercise.type == ExerciseType.PLACEHOLDER) {
-                return
-            }
-            if (shouldActivateBeforeAdvancing(exercise)) {
-                updateActiveSelection(exercise.id)
-                exercise = _exercises[index]
-            }
-            val total = exercise.totalSets.coerceAtLeast(1)
-            val wasCompleted = exercise.isCompleted()
-            val nextValue = if (exercise.completedSets >= total) 0 else exercise.completedSets + 1
-            val isCompleted = nextValue >= total
-            val activeId = activeStatusExerciseId
-            if (activeId != null && activeId != exercise.id) {
-                restTimerController.cancel(activeId)
-            }
-            restTimerController.cancel(exercise.id)
-            val updatedExercise = exercise.copy(
-                completedSets = nextValue,
-                restSecondsRemaining = null
-            )
-            _exercises[index] = updatedExercise
-            if (wasCompleted != isCompleted) {
-                repositionExercise(index, updatedExercise)
-                if (isCompleted) {
-                    maybeUnlockNextGroup()
-                }
-            }
-            if (!isCompleted) {
-                updateActiveSelection(updatedExercise.id)
-            }
-            if (nextValue == 0) {
-                persistWorkoutSessionState()
-                return
-            }
-            val duration = if (nextValue >= total) {
-                updatedExercise.restFinalSeconds
-            } else {
-                updatedExercise.restBetweenSeconds
-            }
-            if (duration > 0) {
-                restTimerController.start(updatedExercise.id, duration)
-            } else {
-                persistWorkoutSessionState()
-            }
+        val progressResult = exerciseStateReducer.advanceProgress(
+            exercises = _exercises.toList(),
+            exerciseId = exerciseId,
+            currentActiveExerciseId = activeExerciseId,
+            activeRestTimerExerciseId = restTimerUiState.activeExerciseId
+        )
+        if (!progressResult.changed) {
+            return
+        }
+
+        activeExerciseId = progressResult.activeExerciseId
+        newlyUnlockedGroupAnchorId = progressResult.newlyUnlockedGroupAnchorId
+        replaceExercises(progressResult.exercises)
+
+        progressResult.cancelledRestTimerExerciseIds.forEach(restTimerController::cancel)
+
+        val restDurationSeconds = progressResult.restDurationSeconds
+        if (restDurationSeconds != null) {
+            restTimerController.start(exerciseId, restDurationSeconds)
+        } else {
+            persistWorkoutSessionState()
         }
     }
 
@@ -210,7 +195,7 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun stopActiveRestTimer() {
-        val activeId = activeStatusExerciseId ?: return
+        val activeId = restTimerUiState.activeExerciseId ?: return
         restTimerController.cancel(activeId)
     }
 
@@ -222,7 +207,13 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         if (activeExerciseId == exerciseId && target.isActive) {
             return
         }
-        updateActiveSelection(exerciseId)
+        val currentExercises = _exercises.toList()
+        val selection = exerciseStateReducer.selectActive(
+            exercises = currentExercises,
+            requestedExerciseId = exerciseId
+        )
+        activeExerciseId = selection.activeExerciseId
+        replaceExercises(selection.exercises)
         persistWorkoutSessionState()
     }
 
@@ -236,151 +227,55 @@ class GymViewModel(application: Application) : AndroidViewModel(application) {
         restTimerController.clear()
     }
 
-    private fun isGroupUnlocked(group: ExerciseGroup): Boolean {
-        val groupExercises = _exercises.filter { it.group == group }
-        if (groupExercises.isEmpty()) {
-            return true
-        }
-        return groupExercises.any { it.isUnlocked }
-    }
-
-    private fun areGroupExercisesCompleted(group: ExerciseGroup): Boolean {
-        val groupExercises = _exercises.filter { it.group == group }
-        if (groupExercises.isEmpty()) {
-            return true
-        }
-        return groupExercises.all { it.isCompleted() }
-    }
-
-    private fun unlockGroup(group: ExerciseGroup): String? {
-        var firstUnlockedId: String? = null
-        _exercises.replaceAll { exercise ->
-            if (exercise.group == group && !exercise.isUnlocked) {
-                if (firstUnlockedId == null) {
-                    firstUnlockedId = exercise.id
-                }
-                exercise.copy(isUnlocked = true)
-            } else {
-                exercise
-            }
-        }
-        return firstUnlockedId
-    }
-
-    private fun maybeUnlockNextGroup() {
-        val activeGroups = GROUP_SEQUENCE.filter { group ->
-            _exercises.any { exercise -> exercise.group == group }
-        }
-        if (activeGroups.isEmpty()) return
-        for ((index, group) in activeGroups.withIndex()) {
-            if (isGroupUnlocked(group)) {
-                continue
-            }
-            val previousGroup = activeGroups.getOrNull(index - 1)
-            val canUnlock = previousGroup == null || areGroupExercisesCompleted(previousGroup)
-            if (canUnlock) {
-                val anchorId = unlockGroup(group)
-                if (anchorId != null) {
-                    newlyUnlockedGroupAnchorId = anchorId
-                }
-            }
-            return
-        }
-    }
-
-    private fun buildExercisesForDayType(dayType: WorkoutDayType): List<ExerciseUiState> =
-        workoutRepository.preparedExercisesForDayType(
-            dayType = dayType,
-            initialGroup = initialGroup
-        )
-
     private fun applyNewDayType(dayType: WorkoutDayType) {
         restTimerController.clear()
-        updateActiveSelection(null)
-        statusText = null
+        activeExerciseId = null
+        restTimerUiState = RestTimerUiState()
         newlyUnlockedGroupAnchorId = null
         currentDayType = dayType
-        val resetExercises = buildExercisesForDayType(dayType)
-        defaultOrder.clear()
-        defaultOrder.addAll(resetExercises.map { it.id })
-        _exercises.clear()
-        _exercises.addAll(resetExercises)
+        replaceExercises(dayStateFactory.build(dayType))
         persistWorkoutSessionState()
     }
 
-    private fun repositionExercise(currentIndex: Int, exercise: ExerciseUiState) {
-        if (currentIndex !in _exercises.indices) return
-        val removed = _exercises.removeAt(currentIndex)
-        val itemToInsert = if (removed.id == exercise.id) exercise else removed
-        val insertionIndex = _exercises.indexOfFirst { it.isCompleted() }
-            .let { if (it == -1) _exercises.size else it }
-        _exercises.add(insertionIndex, itemToInsert)
+    private fun updateRestTimerState(exerciseId: String?, endEpochMillis: Long?) {
+        restTimerUiState = restTimerStateReducer.onTimerStateChanged(
+            currentState = restTimerUiState,
+            exerciseId = exerciseId,
+            endEpochMillis = endEpochMillis
+        )
     }
 
     private fun updateExerciseRest(exerciseId: String, secondsRemaining: Int?) {
-        val index = _exercises.indexOfFirst { it.id == exerciseId }
+        val index = _exercises.indexOfFirst { exercise -> exercise.id == exerciseId }
         if (index >= 0) {
-            val current = _exercises[index]
-            if (current.restSecondsRemaining != secondsRemaining) {
-                _exercises[index] = current.copy(restSecondsRemaining = secondsRemaining)
+            val exercise = _exercises[index]
+            if (exercise.restSecondsRemaining != secondsRemaining) {
+                _exercises[index] = exercise.copy(restSecondsRemaining = secondsRemaining)
             }
         }
-        if (activeStatusExerciseId == exerciseId) {
-            statusText = secondsRemaining?.let { formatRestTime(it) }
-            if (secondsRemaining == null) {
-                activeStatusExerciseId = null
-            }
-        }
+        restTimerUiState = restTimerStateReducer.onTimerUpdated(
+            currentState = restTimerUiState,
+            exerciseId = exerciseId,
+            secondsRemaining = secondsRemaining
+        )
     }
 
-    private fun formatRestTime(seconds: Int): String {
-        val safe = seconds.coerceAtLeast(0)
-        val minutes = safe / 60
-        val secs = safe % 60
-        return String.format("%d:%02d", minutes, secs)
-    }
-
-    private fun updateActiveSelection(newActiveId: String?) {
-        val sanitizedId = newActiveId?.takeIf { id ->
-            _exercises.any { it.id == id && it.type != ExerciseType.PLACEHOLDER && !it.isCompleted() }
-        }
-        if (activeExerciseId == sanitizedId) {
-            val mismatchExists = _exercises.any { exercise ->
-                val shouldBeActive = sanitizedId != null && exercise.id == sanitizedId
-                exercise.isActive != shouldBeActive
-            }
-            if (!mismatchExists) {
-                return
-            }
-        }
-        activeExerciseId = sanitizedId
-        _exercises.replaceAll { exercise ->
-            val shouldBeActive = sanitizedId != null && exercise.id == sanitizedId
-            if (exercise.isActive == shouldBeActive) {
-                exercise
-            } else {
-                exercise.copy(isActive = shouldBeActive)
-            }
-        }
+    private fun replaceExercises(exercises: List<ExerciseUiState>) {
+        _exercises.clear()
+        _exercises.addAll(exercises)
     }
 
     private fun persistWorkoutSessionState() {
-        val snapshot = WorkoutSessionSnapshot(
-            exerciseStates = _exercises.map { exercise ->
-                WorkoutSessionExerciseState(
-                    id = exercise.id,
-                    completedSets = exercise.completedSets,
-                    isUnlocked = exercise.isUnlocked
-                )
-            },
-            exerciseOrder = _exercises.map { exercise -> exercise.id },
-            activeExerciseId = activeExerciseId,
-            activeRestTimerExerciseId = activeStatusExerciseId,
-            restTimerEndEpochMillis = activeRestTimerEndEpochMillis,
-            currentDayType = currentDayType,
-            selectedDayType = selectedDayType
+        sessionStateManager.persist(
+            state = WorkoutSessionPersistState(
+                exercises = _exercises.toList(),
+                activeExerciseId = activeExerciseId,
+                activeRestTimerExerciseId = restTimerUiState.activeExerciseId,
+                restTimerEndEpochMillis = restTimerUiState.endEpochMillis,
+                currentDayType = currentDayType,
+                selectedDayType = selectedDayType
+            )
         )
-        workoutSessionStore.save(snapshot)
     }
 
     companion object {

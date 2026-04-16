@@ -7,7 +7,7 @@ APPLICATION_ID := com.example.gymprogress
 DEBUG_APK := app/build/outputs/apk/debug/app-debug.apk
 
 define RESOLVE_ADB_SERIAL_SH
-devices="$$( $(ADB) devices | awk 'NR==1 {next} $$2=="device" {print $$1}' )"; \
+devices="$$( $(ADB) devices | awk 'NR==1 {next} $$NF=="device" {sub(/[[:space:]]+device$$/, "", $$0); print $$0}' )"; \
 devices="$$(printf '%s\n' "$$devices" | sed '/^$$/d')"; \
 device_count="$$(printf '%s\n' "$$devices" | awk 'NF {count++} END {print count+0}')"; \
 if [ "$$device_count" -eq 0 ]; then \
