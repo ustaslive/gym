@@ -88,6 +88,82 @@ class WorkoutExerciseStateReducerTest {
         assertNull(result.newlyUnlockedGroupAnchorId)
     }
 
+    @Test
+    fun advanceProgressCompletingExerciseReplacesRecommendationsWithRemainingMatches() {
+        val exercises = listOf(
+            sampleExercise(
+                id = "source",
+                totalSets = 1,
+                completedSets = 0,
+                isUnlocked = true,
+                isActive = true,
+                recommendedNextExerciseIds = listOf("next", "missing", "done")
+            ),
+            sampleExercise(
+                id = "old_recommended",
+                totalSets = 3,
+                completedSets = 0,
+                isUnlocked = true,
+                isRecommendedNext = true
+            ),
+            sampleExercise(
+                id = "next",
+                totalSets = 3,
+                completedSets = 0,
+                isUnlocked = true
+            ),
+            sampleExercise(
+                id = "done",
+                totalSets = 1,
+                completedSets = 1,
+                isUnlocked = true
+            )
+        )
+
+        val result = reducer.advanceProgress(
+            exercises = exercises,
+            exerciseId = "source",
+            currentActiveExerciseId = "source",
+            activeRestTimerExerciseId = null
+        )
+
+        assertTrue(result.exercises.first { exercise -> exercise.id == "source" }.isCompleted())
+        assertFalse(result.exercises.first { exercise -> exercise.id == "old_recommended" }.isRecommendedNext)
+        assertTrue(result.exercises.first { exercise -> exercise.id == "next" }.isRecommendedNext)
+        assertFalse(result.exercises.first { exercise -> exercise.id == "done" }.isRecommendedNext)
+    }
+
+    @Test
+    fun advanceProgressResettingCompletedExerciseClearsPreviousRecommendations() {
+        val exercises = listOf(
+            sampleExercise(
+                id = "source",
+                totalSets = 1,
+                completedSets = 1,
+                isUnlocked = true,
+                isActive = true,
+                recommendedNextExerciseIds = listOf("next")
+            ),
+            sampleExercise(
+                id = "next",
+                totalSets = 3,
+                completedSets = 0,
+                isUnlocked = true,
+                isRecommendedNext = true
+            )
+        )
+
+        val result = reducer.advanceProgress(
+            exercises = exercises,
+            exerciseId = "source",
+            currentActiveExerciseId = "source",
+            activeRestTimerExerciseId = null
+        )
+
+        assertFalse(result.exercises.first { exercise -> exercise.id == "source" }.isCompleted())
+        assertFalse(result.exercises.first { exercise -> exercise.id == "next" }.isRecommendedNext)
+    }
+
     private fun sampleExercise(
         id: String,
         group: ExerciseGroup = ExerciseGroup.MAIN,
@@ -95,7 +171,9 @@ class WorkoutExerciseStateReducerTest {
         completedSets: Int,
         restFinalSeconds: Int = 120,
         isUnlocked: Boolean,
-        isActive: Boolean = false
+        isActive: Boolean = false,
+        recommendedNextExerciseIds: List<String> = emptyList(),
+        isRecommendedNext: Boolean = false
     ): ExerciseUiState = ExerciseUiState(
         id = id,
         name = id.uppercase(),
@@ -110,6 +188,8 @@ class WorkoutExerciseStateReducerTest {
         completedSets = completedSets,
         hasSettings = false,
         isActive = isActive,
-        isUnlocked = isUnlocked
+        isUnlocked = isUnlocked,
+        recommendedNextExerciseIds = recommendedNextExerciseIds,
+        isRecommendedNext = isRecommendedNext
     )
 }

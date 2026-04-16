@@ -50,7 +50,9 @@ data class ExerciseUiState(
     val restSecondsRemaining: Int? = null,
     val isActive: Boolean = false,
     val isUnlocked: Boolean = true,
-    val supportingText: String? = null
+    val supportingText: String? = null,
+    val recommendedNextExerciseIds: List<String> = emptyList(),
+    val isRecommendedNext: Boolean = false
 )
 
 internal fun ExerciseUiState.isCompleted(): Boolean =

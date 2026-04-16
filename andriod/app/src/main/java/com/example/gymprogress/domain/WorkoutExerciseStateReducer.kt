@@ -101,6 +101,10 @@ internal class WorkoutExerciseStateReducer(
             .apply { this[currentIndex] = updatedExercise }
             .toList()
 
+        if (wasCompleted || isCompleted) {
+            workingExercises = clearRecommendedNextFlags(workingExercises)
+        }
+
         var newlyUnlockedGroupAnchorId: String? = null
         if (wasCompleted != isCompleted) {
             workingExercises = repositionExercise(
@@ -119,6 +123,11 @@ internal class WorkoutExerciseStateReducer(
             val selection = selectActive(workingExercises, updatedExercise.id)
             workingExercises = selection.exercises
             activeExerciseId = selection.activeExerciseId
+        } else {
+            workingExercises = applyRecommendedNextFlags(
+                exercises = workingExercises,
+                completedExercise = updatedExercise
+            )
         }
 
         return AdvanceProgressResult(
@@ -230,6 +239,40 @@ internal class WorkoutExerciseStateReducer(
             .let { index -> if (index == -1) reorderedExercises.size else index }
         reorderedExercises.add(insertionIndex, itemToInsert)
         return reorderedExercises
+    }
+
+    private fun clearRecommendedNextFlags(exercises: List<ExerciseUiState>): List<ExerciseUiState> {
+        if (exercises.none { exercise -> exercise.isRecommendedNext }) {
+            return exercises
+        }
+        return exercises.map { exercise ->
+            if (exercise.isRecommendedNext) {
+                exercise.copy(isRecommendedNext = false)
+            } else {
+                exercise
+            }
+        }
+    }
+
+    private fun applyRecommendedNextFlags(
+        exercises: List<ExerciseUiState>,
+        completedExercise: ExerciseUiState
+    ): List<ExerciseUiState> {
+        val recommendedIds = completedExercise.recommendedNextExerciseIds.toSet()
+        if (recommendedIds.isEmpty()) {
+            return exercises
+        }
+        return exercises.map { exercise ->
+            val shouldBeRecommended = exercise.isUnlocked &&
+                exercise.type != ExerciseType.PLACEHOLDER &&
+                !exercise.isCompleted() &&
+                exercise.id in recommendedIds
+            if (exercise.isRecommendedNext == shouldBeRecommended) {
+                exercise
+            } else {
+                exercise.copy(isRecommendedNext = shouldBeRecommended)
+            }
+        }
     }
 
     private data class GroupUnlockResult(

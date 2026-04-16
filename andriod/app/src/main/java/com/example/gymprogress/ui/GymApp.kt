@@ -95,6 +95,7 @@ import com.example.gymprogress.ui.theme.ActiveGlowBlue
 import com.example.gymprogress.ui.theme.GymProgressTheme
 import com.example.gymprogress.ui.theme.HighlightGreen
 import com.example.gymprogress.ui.theme.PrimaryGreen
+import com.example.gymprogress.ui.theme.RecommendedExerciseYellow
 import com.example.gymprogress.ui.theme.SecondaryGreen
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -606,6 +607,11 @@ private fun ExerciseCard(
         isActiveAndIncomplete -> activeGlowColor
         else -> baseContentColor
     }
+    val titleColor = when {
+        isCompleted -> contentColor
+        exercise.isRecommendedNext -> RecommendedExerciseYellow
+        else -> contentColor
+    }
     val iconTintBase = contentColor
     val noteIconTint = when {
         isCompleted -> contentColor.copy(alpha = 0.85f)
@@ -732,7 +738,7 @@ private fun ExerciseCard(
                 GuidedExerciseCardContent(
                     exercise = exercise,
                     titleStyle = titleStyle,
-                    contentColor = contentColor,
+                    titleColor = titleColor,
                     checkboxColor = chipTextColor,
                     isCompleted = isCompleted,
                     onSelect = onSelect,
@@ -756,7 +762,7 @@ private fun ExerciseCard(
                         Text(
                             text = exercise.name,
                             style = titleStyle,
-                            color = contentColor
+                            color = titleColor
                         )
                     }
                     if (isActivity) {
@@ -893,7 +899,7 @@ private fun ActivityCompletionRow(
 private fun GuidedExerciseCardContent(
     exercise: ExerciseUiState,
     titleStyle: TextStyle,
-    contentColor: Color,
+    titleColor: Color,
     checkboxColor: Color,
     isCompleted: Boolean,
     onSelect: () -> Unit,
@@ -916,7 +922,7 @@ private fun GuidedExerciseCardContent(
             Text(
                 text = exercise.name,
                 style = titleStyle,
-                color = contentColor
+                color = titleColor
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
