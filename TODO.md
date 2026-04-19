@@ -1,10 +1,12 @@
 
 ## [ ] Bugs
-- [x] when screen is locked, or another app is selected - the relax counter does not tick
-        .
 - [ ] refactoring
 
 ## [ ] Immediate goals
+- [x] добавить меню сброс всех заметок
+- [ ] ввод заметок голосом.
+        - интеграция с телеграм агентом.
+        - например в заметке чтобы кнопка послать запрос dude (бот)
 
 ### [ ] Android app for lemon gym exercises
 - [ ] see design/andriod.app.md
@@ -19,12 +21,7 @@
         other small as currently they are
 
 - [ ] сделать голосовой ввод заметок
-- [x] only on zaminka - if not select4ed as current, and checked - it appers afret latest selected+completed
-        wrong/ must be after last active, below last active, right below it
-
 - [ ] for active exercire the counter circle must be much bigger. circle almost all hight diameter. for easy touch experience
-
-- [x] in android dir - make help - shall return commands
 - [/] if missing add pair command
 - [/] let make remember last port and IP address and offer as defaults - can change
 
