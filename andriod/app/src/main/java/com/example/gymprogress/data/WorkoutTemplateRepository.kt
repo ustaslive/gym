@@ -182,7 +182,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         id = "hands_incline_db_press",
         name = "Incline DB Press",
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-        defaultWeight = 6,
+        defaultWeight = 7,
         restBetweenSeconds = 70,
         recommendedNextExerciseIds = handsChestNextExerciseIds,
         settingsNote = """
@@ -214,11 +214,13 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         id = "hands_reverse_pec_deck",
         name = "Reverse Pec Deck",
         weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
-        defaultWeight = 28,
+        defaultWeight = 35,
         restBetweenSeconds = 45,
         recommendedNextExerciseIds = handsBackNextExerciseIds,
         settingsNote = """
             Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.
+
+            Упирайся в рукояти ребрами кистей, где мизинец.
 
             Разводи рукояти назад за счет задней дельты и мышц спины, сводя лопатки. Плавно возвращай в исходное положение.
         """.trimIndent()
@@ -227,7 +229,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         id = "hands_biceps_machine",
         name = "Biceps Machine",
         weightOptions = (1..12).toList(),
-        defaultWeight = 9,
+        defaultWeight = 10,
         restBetweenSeconds = 45,
         weightOptionLabelTemplate = "%d",
         recommendedNextExerciseIds = handsBicepsNextExerciseIds,
@@ -239,7 +241,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         id = "hands_seated_hammer_curl",
         name = "Hammer Curl",
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-        defaultWeight = 7,
+        defaultWeight = 8,
         restBetweenSeconds = 45,
         recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """
@@ -251,7 +253,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         id = "hands_incline_db_biceps",
         name = "Incline DB Biceps",
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
-        defaultWeight = 6,
+        defaultWeight = 7,
         restBetweenSeconds = 45,
         recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """

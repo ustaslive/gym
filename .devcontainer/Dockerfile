@@ -100,6 +100,15 @@ RUN groupadd --gid "${USER_GID}" "${USER_NAME}" \
 RUN groupadd -g 998 docker || groupadd docker && \
     usermod -aG docker "${USER_NAME}"
 
+# Antigravity: required by agent/server install scripts
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    procps \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 33317
+
 
 USER ${USER_NAME}
 WORKDIR /workspace
