@@ -31,6 +31,15 @@
     <string name="share_notes_chooser_title">Отправить заметки</string>
     <string name="share_notes_empty">Нет заметок для отправки</string>
     <string name="share_notes_no_app">Нет приложений для отправки заметок</string>
+    <string name="clear_notes_action">Стереть заметки</string>
+    <string name="clear_notes_confirm_title">Стереть заметки</string>
+    <string name="clear_notes_confirm_text">Стереть все существующие заметки во всех днях, в том числе общие заметки?</string>
+    <string name="clear_notes_confirm_yes">Стереть</string>
+    <string name="clear_notes_confirm_no">Отмена</string>
+    <string name="voice_input_action">Голосовой ввод</string>
+    <string name="voice_input_listening">Говорите…</string>
+    <string name="voice_input_no_recognizer">Распознавание речи недоступно</string>
+    <string name="voice_input_permission_denied">Разрешите доступ к микрофону</string>
     <string name="cooldown_details_title">Details for %1$s</string>
     <string name="cooldown_details_close">Close</string>
     <string name="cooldown_details_action">Show exercise details</string>

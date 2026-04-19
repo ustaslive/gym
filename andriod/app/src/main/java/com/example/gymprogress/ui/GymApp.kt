@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.Html
 import android.widget.Toast
+import com.example.gymprogress.ui.VoiceInputButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -126,7 +127,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         statusText = statusText,
         onStatusTapped = viewModel::stopActiveRestTimer,
         onFullReset = viewModel::performFullReset,
-        onShareNotes = viewModel::buildShareContent
+        onShareNotes = viewModel::buildShareContent,
+        onClearNotes = viewModel::clearAllNotes
     )
 }
 
@@ -147,13 +149,15 @@ fun GymScreen(
     statusText: String?,
     onStatusTapped: () -> Unit,
     onFullReset: () -> Unit,
-    onShareNotes: () -> ShareContent?
+    onShareNotes: () -> ShareContent?,
+    onClearNotes: () -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
     var noteDialogFor by remember { mutableStateOf<String?>(null) }
     var detailsDialogFor by remember { mutableStateOf<String?>(null) }
     var generalNoteDialogVisible by remember { mutableStateOf(false) }
+    var clearNotesDialogVisible by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val dialogExercise = exercises.firstOrNull { it.id == weightDialogFor && it.type == ExerciseType.WEIGHTS }
     val settingsDialogExercise = exercises.firstOrNull {
@@ -192,6 +196,31 @@ fun GymScreen(
             onSave = { text ->
                 onGeneralNoteSaved(text)
                 generalNoteDialogVisible = false
+            }
+        )
+    }
+
+    if (clearNotesDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { clearNotesDialogVisible = false },
+            title = { Text(text = stringResource(R.string.clear_notes_confirm_title)) },
+            text = { Text(text = stringResource(R.string.clear_notes_confirm_text)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onClearNotes()
+                        clearNotesDialogVisible = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.clear_notes_confirm_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { clearNotesDialogVisible = false }
+                ) {
+                    Text(text = stringResource(R.string.clear_notes_confirm_no))
+                }
             }
         )
     }
@@ -538,6 +567,13 @@ fun GymScreen(
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.clear_notes_action)) },
+                        onClick = {
+                            overflowExpanded = false
+                            clearNotesDialogVisible = true
                         }
                     )
                     DropdownMenuItem(
@@ -1370,6 +1406,26 @@ private fun NoteEditorDialog(
                     ) {
                         Text(text = stringResource(R.string.note_dialog_cursor_end))
                     }
+                    VoiceInputButton(
+                        onTextRecognised = { spoken ->
+                            val cursorPos = draftNote.selection.start
+                            val before = draftNote.text.substring(0, cursorPos)
+                            val after = draftNote.text.substring(cursorPos)
+                            val needSpaceBefore = before.isNotEmpty() &&
+                                !before.last().isWhitespace()
+                            val needSpaceAfter = after.isNotEmpty() &&
+                                !after.first().isWhitespace()
+                            val prefix = if (needSpaceBefore) " " else ""
+                            val suffix = if (needSpaceAfter) " " else ""
+                            val insertion = prefix + spoken + suffix
+                            val newText = before + insertion + after
+                            val newCursor = cursorPos + insertion.length
+                            draftNote = TextFieldValue(
+                                text = newText,
+                                selection = TextRange(newCursor)
+                            )
+                        }
+                    )
                 }
                 TextButton(onClick = { onSave(draftNote.text) }) {
                     Text(text = stringResource(R.string.note_dialog_save))
@@ -1461,6 +1517,26 @@ private fun GeneralNoteDialog(
                     ) {
                         Text(text = stringResource(R.string.note_dialog_cursor_end))
                     }
+                    VoiceInputButton(
+                        onTextRecognised = { spoken ->
+                            val cursorPos = draftNote.selection.start
+                            val before = draftNote.text.substring(0, cursorPos)
+                            val after = draftNote.text.substring(cursorPos)
+                            val needSpaceBefore = before.isNotEmpty() &&
+                                !before.last().isWhitespace()
+                            val needSpaceAfter = after.isNotEmpty() &&
+                                !after.first().isWhitespace()
+                            val prefix = if (needSpaceBefore) " " else ""
+                            val suffix = if (needSpaceAfter) " " else ""
+                            val insertion = prefix + spoken + suffix
+                            val newText = before + insertion + after
+                            val newCursor = cursorPos + insertion.length
+                            draftNote = TextFieldValue(
+                                text = newText,
+                                selection = TextRange(newCursor)
+                            )
+                        }
+                    )
                 }
                 TextButton(onClick = { onSave(draftNote.text) }) {
                     Text(text = stringResource(R.string.note_dialog_save))
@@ -1516,7 +1592,8 @@ private fun GymScreenPreview() {
             statusText = null,
             onStatusTapped = {},
             onFullReset = {},
-            onShareNotes = { null }
+            onShareNotes = { null },
+            onClearNotes = {}
         )
     }
 }

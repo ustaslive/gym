@@ -73,6 +73,10 @@ internal class WorkoutRepository(application: Application) {
         weightsPrefs.edit().clear().apply()
     }
 
+    fun clearAllNotes() {
+        notesPrefs.edit().clear().apply()
+    }
+
     fun cleanupPersistedWeights() {
         val savedWeights = loadSavedWeights()
         if (savedWeights.isEmpty()) return

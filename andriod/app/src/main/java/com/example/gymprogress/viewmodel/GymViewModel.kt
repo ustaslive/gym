@@ -187,6 +187,16 @@ class GymViewModel internal constructor(
         generalNote = workoutRepository.saveGeneralNote(newNote)
     }
 
+    fun clearAllNotes() {
+        workoutRepository.clearAllNotes()
+        generalNote = null
+        val updatedExercises = _exercises.map {
+            it.copy(personalNote = null)
+        }
+        replaceExercises(updatedExercises)
+        persistWorkoutSessionState()
+    }
+
     fun buildShareContent(): ShareContent? {
         return shareContentBuilder.build(
             generalNote = generalNote,
