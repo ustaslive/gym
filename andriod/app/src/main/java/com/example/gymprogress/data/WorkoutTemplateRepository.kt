@@ -242,7 +242,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         name = "Hammer Curl",
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
         defaultWeight = 8,
-        restBetweenSeconds = 45,
+        restBetweenSeconds = 60,
         recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """
             Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.
@@ -340,9 +340,10 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         group = ExerciseGroup.COOLDOWN,
         restBetweenSeconds = 0,
         instructions = listOf(
-            "Прямую руку прижми к груди другой рукой.",
-            "Не поднимай плечо к уху.",
-            "Удерживай 20-30 секунд (5 вдохов-выдохов) на каждую сторону."
+            "Вытяни прямую руку перед собой параллельно полу.",
+            "Активно опусти плечевой сустав вниз и зафиксируй лопатку — не просто расслабь, а сознательно тяни плечо к полу.",
+            "Другой рукой притяни вытянутую руку к груди, строго сохраняя плечо в опущенном положении.",
+            "Удерживай 20-30 секунд (5 вдохов-выдохов) на каждую сторону до ощущения растяжения в задней дельте."
         )
     ),
     handsDayGuidedExercise(

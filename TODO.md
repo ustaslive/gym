@@ -1,40 +1,93 @@
+# current
+
+## Simple changes
+### Pec Deck / Butterfly(default=28кг,selected=35кг):
+        сделать подсветку если выбранный дефолтный цвет ой вес
+
+
+## General note:
+        Ты наверное ещё упражнение для стабилизации для того
+        чтобы ровно стоять но чтобы
+        коленочка не ло сделать день для укрепления спины пресса можно
+        отдельно взяли и отдельно даже дома ежедневного упражнения
+
+## По упражнениям
+
+###  Chest Press(default=21кг,selected=21кг):
+        здесь движение руки приходится рук вернее приходится вперёд а чуть-чуть вверх другие мышцы загру
+        попробовал на тренажёре с блинами по 15 кг на каждую руку и известен наверное больше 10
+        Ну кресло низкое больше десяти штри
+
+
+### Incline DB Press(default=7кг,selected=7кг):
+        мышцы плечей нужно включить в упражнения
+
+
+
+
+
+
+
+
+
+
+
 
 ## [ ] Bugs
-- [ ] refactoring
+[ ] refactoring
 
 ## [ ] Immediate goals
-- [x] добавить меню сброс всех заметок
-- [ ] ввод заметок голосом.
+[x] добавить меню сброс всех заметок
+[ ] ввод заметок голосом.
         - интеграция с телеграм агентом.
         - например в заметке чтобы кнопка послать запрос dude (бот)
 
 ### [ ] Android app for lemon gym exercises
-- [ ] see design/andriod.app.md
-- [ ] иконка моего приложения может быть согнутая мускулистая рука и бицепс чтобы был лимоном
-- [ ] железное дополнение - на перчатку, с кучей кнопок для управления приложением прямо с ладони.
+[ ] see design/andriod.app.md
+[ ] иконка моего приложения может быть согнутая мускулистая рука и бицепс чтобы был лимоном
+[ ] железное дополнение - на перчатку, с кучей кнопок для управления приложением прямо с ладони.
         возможно включая даже спотифай. 
-- [ ] what if not phisycal button to use but touchscreen ?glass
+[ ] what if not phisycal button to use but touchscreen ?glass
         and make phisycal holes to regions
-- [ ] when an exercise is selected as current, make the counter circle
+[ ] when an exercise is selected as current, make the counter circle
         as big as possible with numver inside also bigger.
         make it only for one selected/current exercise. leave
         other small as currently they are
 
-- [ ] сделать голосовой ввод заметок
-- [ ] for active exercire the counter circle must be much bigger. circle almost all hight diameter. for easy touch experience
-- [/] if missing add pair command
-- [/] let make remember last port and IP address and offer as defaults - can change
+[ ] сделать голосовой ввод заметок
+[ ] for active exercire the counter circle must be much bigger. circle almost all hight diameter. for easy touch experience
+[/] if missing add pair command
+[/] let make remember last port and IP address and offer as defaults - can change
 
-- [ ] Hands day
+[ ] Hands day
         [ ] develop set of exercises
         [ ] add alternative DAY 
         [ ] create alternative day for hands
 
-
+[ ] купить реальные часы которые соединяются с андроидом. 
+        первисный анализ что это может быть
+        - на ОС wearOS
+        - samsung ... 4/5
+        - google pixel старых версия. последняя 4. старые подешевле. вроде даже 3я версиятипа 115 евро
 
 ### [ ] Misc
-- [ ] прокинуть docker socket в контейнер
-- [ ] сделать приложение доступным на android play store - хотя,  не надо. больше времени будет уходить на него
-- [ ] для таймера пусть при переходе через ноль он продолжает отсчитывать в минус серым фонтом
-- [ ] 
+[ ] прокинуть docker socket в контейнер
+[ ] сделать приложение доступным на android play store - хотя,  не надо. больше времени будет уходить на него
+[ ] для таймера пусть при переходе через ноль он продолжает отсчитывать в минус серым фонтом
+[ ] - а может просто подумать о часах для андроида. может там уже есть какие полезные свойства. а я добавлю свое приложеие
+        - возможно ли приложение так и для часов?
+        - это будет универсальное приложение или под модель часов? надо сначала часы выбрать или как?  
+                надо ли подбирать часы прежде чем попукать
+        - с крупным экраном
+        - часы подешевле
+        - с тачскниром
+        - может есть которые не просто на запястье как обычные часы. а можно прилепить к перчатке?
 
+[ ] идея режима приложения, что конда начинаю упражнение, прекращается spotify и я на полную сосредоточен.
+        а когда помечаю что закончил - продолжается то что звучало в спотифае.
+        но так удобно если подкаст. а возможно с музыкой так не надо.
+        так что скорее это должен быть режим - прерывается ли спотифай на вермя упрвжнения.
+        [ ] но в принципе еще нужно узтаь - а возможно ли такое?
+
+[ ] заказать gpt нарисовать для каждого упражнения группы мышц, которые она затрагивает.
+        может быть даже потом прикрутить сюда к упражнению
