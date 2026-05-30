@@ -3,10 +3,13 @@ package com.example.gymprogress
 import android.app.Application
 import android.content.Context
 
-internal class WorkoutRepository(application: Application) {
+internal class WorkoutRepository(
+    private val application: Application,
+    private val exerciseBundleStore: SharedExerciseBundleStore = SharedExerciseBundleStore(application)
+) {
     private val notesPrefs = application.getSharedPreferences(NOTES_PREFS, Context.MODE_PRIVATE)
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
-    private val templateRepository = WorkoutTemplateRepository(application)
+    private var templateRepository = createTemplateRepository()
 
     fun sessionOptions(): List<WorkoutSessionOption> =
         templateRepository.sessionOptions()
@@ -19,6 +22,15 @@ internal class WorkoutRepository(application: Application) {
 
     fun templatesForSession(sessionId: String): List<ExerciseUiState> =
         templateRepository.templatesForSession(sessionId)
+
+    fun downloadAndReloadExerciseBundle(): ExerciseBundleImportResult {
+        val result = exerciseBundleStore.downloadAndCacheBundle()
+        if (result is ExerciseBundleImportResult.Success) {
+            templateRepository = createTemplateRepository()
+            cleanupPersistedWeights()
+        }
+        return result
+    }
 
     fun preparedExercisesForSession(
         sessionId: String,
@@ -117,6 +129,12 @@ internal class WorkoutRepository(application: Application) {
         weightsPrefs.all.mapNotNull { (key, value) ->
             (value as? Int)?.let { key to it }
         }.toMap()
+
+    private fun createTemplateRepository(): WorkoutTemplateRepository =
+        WorkoutTemplateRepository(
+            application = application,
+            exerciseBundleStore = exerciseBundleStore
+        )
 
     companion object {
         private const val NOTES_PREFS = "exercise_notes"

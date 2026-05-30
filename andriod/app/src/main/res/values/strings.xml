@@ -30,6 +30,12 @@
     <string name="share_notes_empty">Нет заметок для отправки</string>
     <string name="share_notes_no_app">Нет приложений для отправки заметок</string>
     <string name="clear_notes_action">Стереть заметки</string>
+    <string name="download_exercises_action">Скачать упражнения</string>
+    <string name="download_exercises_in_progress">Скачиваю упражнения…</string>
+    <string name="download_exercises_success">Упражнения обновлены: %1$d сессий</string>
+    <string name="download_exercises_download_failed">Не удалось скачать упражнения</string>
+    <string name="download_exercises_invalid">Скачанный файл упражнений невалиден</string>
+    <string name="download_exercises_save_failed">Не удалось сохранить упражнения</string>
     <string name="clear_notes_confirm_title">Стереть заметки</string>
     <string name="clear_notes_confirm_text">Стереть все существующие заметки во всех днях, в том числе общие заметки?</string>
     <string name="clear_notes_confirm_yes">Стереть</string>

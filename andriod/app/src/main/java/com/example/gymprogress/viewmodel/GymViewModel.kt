@@ -7,6 +7,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+data class ExerciseBundleDownloadMessage(
+    val id: Long,
+    val textResId: Int,
+    val formatArg: Int? = null
+)
 
 class GymViewModel internal constructor(
     application: Application,
@@ -62,10 +71,19 @@ class GymViewModel internal constructor(
     private var restTimerUiState by mutableStateOf(RestTimerUiState())
     private var currentSessionId by mutableStateOf(workoutRepository.defaultSessionId())
 
-    val sessionOptions: List<WorkoutSessionOption> = workoutRepository.sessionOptions()
+    var sessionOptions by mutableStateOf(workoutRepository.sessionOptions())
+        private set
 
     var selectedSessionId by mutableStateOf(currentSessionId)
         private set
+
+    var isExerciseBundleDownloadInProgress by mutableStateOf(false)
+        private set
+
+    var exerciseBundleDownloadMessage by mutableStateOf<ExerciseBundleDownloadMessage?>(null)
+        private set
+
+    private var exerciseBundleDownloadMessageId = 0L
 
     val statusText: String?
         get() = restTimerUiState.statusText
@@ -199,6 +217,33 @@ class GymViewModel internal constructor(
         persistWorkoutSessionState()
     }
 
+    fun downloadExerciseBundle() {
+        if (isExerciseBundleDownloadInProgress) {
+            return
+        }
+        isExerciseBundleDownloadInProgress = true
+        viewModelScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    workoutRepository.downloadAndReloadExerciseBundle()
+                }
+            }.getOrElse {
+                ExerciseBundleImportResult.Failure(ExerciseBundleImportFailureReason.DOWNLOAD_FAILED)
+            }
+            if (result is ExerciseBundleImportResult.Success) {
+                reloadAfterExerciseBundleUpdate()
+            }
+            isExerciseBundleDownloadInProgress = false
+            showExerciseBundleDownloadMessage(result)
+        }
+    }
+
+    fun consumeExerciseBundleDownloadMessage(messageId: Long) {
+        if (exerciseBundleDownloadMessage?.id == messageId) {
+            exerciseBundleDownloadMessage = null
+        }
+    }
+
     fun buildShareContent(): ShareContent? {
         return shareContentBuilder.build(
             generalNote = generalNote,
@@ -276,6 +321,38 @@ class GymViewModel internal constructor(
     private fun replaceExercises(exercises: List<ExerciseUiState>) {
         _exercises.clear()
         _exercises.addAll(exercises)
+    }
+
+    private fun reloadAfterExerciseBundleUpdate() {
+        sessionOptions = workoutRepository.sessionOptions()
+        val defaultSessionId = workoutRepository.defaultSessionId()
+        val nextCurrentSessionId = currentSessionId
+            .takeIf(workoutRepository::hasSession)
+            ?: selectedSessionId.takeIf(workoutRepository::hasSession)
+            ?: defaultSessionId
+        selectedSessionId = selectedSessionId
+            .takeIf(workoutRepository::hasSession)
+            ?: nextCurrentSessionId
+        applyNewSession(nextCurrentSessionId)
+    }
+
+    private fun showExerciseBundleDownloadMessage(result: ExerciseBundleImportResult) {
+        exerciseBundleDownloadMessageId += 1
+        exerciseBundleDownloadMessage = when (result) {
+            is ExerciseBundleImportResult.Success -> ExerciseBundleDownloadMessage(
+                id = exerciseBundleDownloadMessageId,
+                textResId = R.string.download_exercises_success,
+                formatArg = result.sessionCount
+            )
+            is ExerciseBundleImportResult.Failure -> ExerciseBundleDownloadMessage(
+                id = exerciseBundleDownloadMessageId,
+                textResId = when (result.reason) {
+                    ExerciseBundleImportFailureReason.DOWNLOAD_FAILED -> R.string.download_exercises_download_failed
+                    ExerciseBundleImportFailureReason.INVALID_DATA -> R.string.download_exercises_invalid
+                    ExerciseBundleImportFailureReason.SAVE_FAILED -> R.string.download_exercises_save_failed
+                }
+            )
+        }
     }
 
     private fun persistWorkoutSessionState() {

@@ -112,6 +112,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val sessionOptions = viewModel.sessionOptions
     val selectedSessionId = viewModel.selectedSessionId
     val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
+    val isExerciseBundleDownloadInProgress = viewModel.isExerciseBundleDownloadInProgress
+    val exerciseBundleDownloadMessage = viewModel.exerciseBundleDownloadMessage
     GymScreen(
         exercises = exercises,
         newlyUnlockedAnchorId = newlyUnlockedAnchorId,
@@ -130,7 +132,11 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onStatusTapped = viewModel::stopActiveRestTimer,
         onFullReset = viewModel::performFullReset,
         onShareNotes = viewModel::buildShareContent,
-        onClearNotes = viewModel::clearAllNotes
+        onClearNotes = viewModel::clearAllNotes,
+        isExerciseBundleDownloadInProgress = isExerciseBundleDownloadInProgress,
+        exerciseBundleDownloadMessage = exerciseBundleDownloadMessage,
+        onDownloadExercises = viewModel::downloadExerciseBundle,
+        onExerciseBundleDownloadMessageShown = viewModel::consumeExerciseBundleDownloadMessage
     )
 }
 
@@ -153,7 +159,11 @@ fun GymScreen(
     onStatusTapped: () -> Unit,
     onFullReset: () -> Unit,
     onShareNotes: () -> ShareContent?,
-    onClearNotes: () -> Unit
+    onClearNotes: () -> Unit,
+    isExerciseBundleDownloadInProgress: Boolean,
+    exerciseBundleDownloadMessage: ExerciseBundleDownloadMessage?,
+    onDownloadExercises: () -> Unit,
+    onExerciseBundleDownloadMessageShown: (Long) -> Unit
 ) {
     var weightDialogFor by remember { mutableStateOf<String?>(null) }
     var settingsDialogFor by remember { mutableStateOf<String?>(null) }
@@ -171,6 +181,15 @@ fun GymScreen(
         it.id == detailsDialogFor && it.detailSections.isNotEmpty()
     }
     val context = LocalContext.current
+
+    LaunchedEffect(exerciseBundleDownloadMessage) {
+        val message = exerciseBundleDownloadMessage ?: return@LaunchedEffect
+        val text = message.formatArg?.let { arg ->
+            context.getString(message.textResId, arg)
+        } ?: context.getString(message.textResId)
+        Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+        onExerciseBundleDownloadMessageShown(message.id)
+    }
 
     LaunchedEffect(newlyUnlockedAnchorId, exercises) {
         val targetId = newlyUnlockedAnchorId ?: return@LaunchedEffect
@@ -526,6 +545,24 @@ fun GymScreen(
                     expanded = overflowExpanded,
                     onDismissRequest = { overflowExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(
+                                    if (isExerciseBundleDownloadInProgress) {
+                                        R.string.download_exercises_in_progress
+                                    } else {
+                                        R.string.download_exercises_action
+                                    }
+                                )
+                            )
+                        },
+                        enabled = !isExerciseBundleDownloadInProgress,
+                        onClick = {
+                            overflowExpanded = false
+                            onDownloadExercises()
+                        }
+                    )
                     DropdownMenuItem(
                         text = { Text(text = stringResource(R.string.share_notes_action)) },
                         onClick = {
@@ -1605,7 +1642,11 @@ private fun GymScreenPreview() {
             onStatusTapped = {},
             onFullReset = {},
             onShareNotes = { null },
-            onClearNotes = {}
+            onClearNotes = {},
+            isExerciseBundleDownloadInProgress = false,
+            exerciseBundleDownloadMessage = null,
+            onDownloadExercises = {},
+            onExerciseBundleDownloadMessageShown = { _ -> }
         )
     }
 }

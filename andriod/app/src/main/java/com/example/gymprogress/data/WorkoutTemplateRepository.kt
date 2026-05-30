@@ -2,9 +2,12 @@ package com.example.gymprogress
 
 import android.app.Application
 
-internal class WorkoutTemplateRepository(private val application: Application) {
+internal class WorkoutTemplateRepository(
+    private val application: Application,
+    private val exerciseBundleStore: SharedExerciseBundleStore = SharedExerciseBundleStore(application)
+) {
     private val bundle by lazy(LazyThreadSafetyMode.NONE) {
-        SharedExerciseBundleStore(application).loadBundle()
+        exerciseBundleStore.loadBundle()
     }
     private val fallbackSessions by lazy(LazyThreadSafetyMode.NONE) {
         mapOf(
