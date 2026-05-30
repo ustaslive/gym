@@ -312,6 +312,23 @@
             min-width: 70px;
             text-align: center;
         }
+
+        .section-header {
+            margin: 24px 0 12px;
+            padding: 10px 2px 8px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            color: #333;
+            font-size: 1.25em;
+            font-weight: 700;
+        }
+
+        .section-description {
+            margin-top: 4px;
+            color: #666;
+            font-size: 0.8em;
+            font-weight: 400;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -332,6 +349,18 @@
     </div>
 
     <script>
+        const BUNDLE_FILE = 'data/exercise-bundle.json';
+        const legacySessionMap = {
+            gym: 'browser_gym',
+            palm: 'browser_palm',
+            nerv: 'browser_nerv',
+            examples_gym: 'browser_examples_gym'
+        };
+
+        let exerciseBundle = null;
+        let sessions = [];
+        let currentSession = null;
+
         // Exercise data structure
         let exercises = [];
 
@@ -446,6 +475,167 @@
             window.addEventListener('keydown', handler, true);
         })();
 
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function mergeExerciseDefinition(definition, overrides = {}) {
+            return {
+                ...definition,
+                ...overrides,
+                parameters: {
+                    ...(definition.parameters || {}),
+                    ...(overrides.parameters || {})
+                },
+                settings: {
+                    ...(definition.settings || {}),
+                    ...(overrides.settings || {})
+                },
+                instructions: {
+                    ...(definition.instructions || {}),
+                    ...(overrides.instructions || {})
+                },
+                presentation: {
+                    ...(definition.presentation || {}),
+                    ...(overrides.presentation || {})
+                }
+            };
+        }
+
+        function normalizeExercise(entry, section, definition) {
+            const parameters = definition.parameters || {};
+            const instructions = definition.instructions || {};
+            const settings = definition.settings || {};
+            const detailSections = instructions.detailSections || [];
+            const settingsNote = settings.setupNote ? `Setup:\n${settings.setupNote}` : '';
+            const detailsText = detailSections.length ? detailSections.join('\n') : '';
+            const descriptionParts = [definition.description, settingsNote, detailsText].filter(Boolean);
+            const exercise = {
+                id: entry.id,
+                exerciseId: entry.exerciseId,
+                title: definition.title,
+                type: definition.kind,
+                description: descriptionParts.join('\n\n'),
+                sectionId: section.id,
+                sectionTitle: section.title
+            };
+
+            switch (definition.kind) {
+                case 'timer':
+                    exercise.duration = parameters.durationSeconds;
+                    break;
+                case 'intervals':
+                    exercise.workTime = parameters.workSeconds;
+                    exercise.restTime = parameters.restSeconds;
+                    exercise.rounds = parameters.rounds;
+                    break;
+                case 'sequence':
+                    exercise.steps = (parameters.steps || []).map(step => ({
+                        label: step.label,
+                        time: step.durationSeconds
+                    }));
+                    break;
+                case 'repetitions':
+                    exercise.repetitions = parameters.repetitions;
+                    break;
+                case 'activity':
+                    exercise.durationMinutes = parameters.durationMinutes;
+                    exercise.level = parameters.level;
+                    exercise.mode = parameters.mode;
+                    break;
+                case 'weights':
+                    exercise.totalSets = parameters.totalSets;
+                    exercise.defaultWeight = parameters.defaultWeight;
+                    exercise.weightLabel = parameters.weightLabel;
+                    exercise.weightOptionLabelTemplate = parameters.weightOptionLabelTemplate;
+                    break;
+                case 'guided':
+                    exercise.totalSets = parameters.totalSets || 1;
+                    exercise.repetitions = parameters.repetitions;
+                    exercise.duration = parameters.durationSeconds;
+                    break;
+            }
+
+            return exercise;
+        }
+
+        function resolveSessionExercises(session, catalog) {
+            const resolved = [];
+            session.sections.forEach(section => {
+                section.exercises.forEach(entry => {
+                    const definition = catalog[entry.exerciseId];
+                    if (!definition) {
+                        console.warn(`Missing exercise definition: ${entry.exerciseId}`);
+                        return;
+                    }
+                    resolved.push(normalizeExercise(
+                        entry,
+                        section,
+                        mergeExerciseDefinition(definition, entry.overrides)
+                    ));
+                });
+            });
+            return resolved;
+        }
+
+        function selectInitialSession() {
+            const params = new URLSearchParams(window.location.search);
+            const sessionParam = params.get('session');
+            const typeParam = params.get('type');
+            const fileParam = params.get('file');
+            const isSafeId = (name) => /^[a-z][a-z0-9_]*$/.test(name);
+
+            if (sessionParam && isSafeId(sessionParam)) {
+                return sessionParam;
+            }
+            if (typeParam && legacySessionMap[typeParam]) {
+                return legacySessionMap[typeParam];
+            }
+            if (fileParam) {
+                const key = fileParam.replace(/\.json$/, '');
+                if (legacySessionMap[key]) {
+                    return legacySessionMap[key];
+                }
+            }
+            return 'browser_gym';
+        }
+
+        function loadSession(sessionId) {
+            const nextSession = sessions.find(session => session.id === sessionId) || sessions[0];
+            currentSession = nextSession;
+            exercises = resolveSessionExercises(currentSession, exerciseBundle.exerciseCatalog);
+            completedExercises = new Set();
+            currentActiveIndex = 0;
+            updateActiveExercise();
+            renderExercises();
+            document.title = `Daily Exercises — ${currentSession.title}`;
+        }
+
+        function populateSessionSelector(currentSessionId) {
+            const select = document.getElementById('plan-select');
+            select.innerHTML = sessions.map(session =>
+                `<option value="${escapeHtml(session.id)}">${escapeHtml(session.title)}</option>`
+            ).join('');
+            select.value = sessions.some(session => session.id === currentSessionId)
+                ? currentSessionId
+                : sessions[0].id;
+            select.addEventListener('change', () => {
+                const sessionId = select.value;
+                const url = new URL(window.location.href);
+                url.searchParams.delete('file');
+                url.searchParams.delete('type');
+                url.searchParams.set('session', sessionId);
+                window.history.replaceState({}, '', url.toString());
+                loadSession(sessionId);
+            });
+        }
+
         function completeExercise(exerciseId) {
             completedExercises.add(exerciseId);
             updateActiveExercise();
@@ -465,10 +655,10 @@
         function renderRepetitionExercise(exercise, isActive, isCompleted) {
             return `
                 <div class="exercise-controls">
-                    <button class="btn" onclick="completeExercise(${exercise.id})" ${!isActive || isCompleted ? 'disabled' : ''}>
-                        Done (${exercise.repetitions} times)
+                    <button class="btn" onclick="completeExercise('${exercise.id}')" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        Done (${escapeHtml(exercise.repetitions)} times)
                     </button>
-                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                    <button class="btn-skip" onclick="completeExercise('${exercise.id}')" ${isCompleted ? 'disabled' : ''}>
                         Skip
                     </button>
                 </div>
@@ -480,11 +670,11 @@
             return `
                 <div class="exercise-controls">
                     <div class="timer-display" id="${timerId}">${exercise.duration}s</div>
-                    <button class="btn" onclick="startTimer(${exercise.id}, ${exercise.duration})" 
+                    <button class="btn" onclick="startTimer('${exercise.id}', ${exercise.duration})"
                             id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
                         Start
                     </button>
-                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                    <button class="btn-skip" onclick="completeExercise('${exercise.id}')" ${isCompleted ? 'disabled' : ''}>
                         Skip
                     </button>
                 </div>
@@ -500,11 +690,11 @@
                     <div class="timer-display" id="${timerId}">--</div>
                     <div class="phase-info" id="${phaseId}">Ready to start</div>
                     <div class="repetition-counter" id="${roundId}">Round: 0/${exercise.rounds}</div>
-                    <button class="btn" onclick="startIntervals(${exercise.id})" 
+                    <button class="btn" onclick="startIntervals('${exercise.id}')"
                             id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
                         Start workout
                     </button>
-                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                    <button class="btn-skip" onclick="completeExercise('${exercise.id}')" ${isCompleted ? 'disabled' : ''}>
                         Skip
                     </button>
                 </div>
@@ -521,11 +711,34 @@
                 <div class="exercise-controls">
                     <div class="timer-display" id="${timerId}">--</div>
                     <div class="step-info" id="${stepId}">Ready to start</div>
-                    <button class="btn" onclick="startSequence(${exercise.id})"
+                    <button class="btn" onclick="startSequence('${exercise.id}')"
                             id="btn-${exercise.id}" ${!isActive || isCompleted ? 'disabled' : ''}>
                         Start
                     </button>
-                    <button class="btn-skip" onclick="completeExercise(${exercise.id})" ${isCompleted ? 'disabled' : ''}>
+                    <button class="btn-skip" onclick="completeExercise('${exercise.id}')" ${isCompleted ? 'disabled' : ''}>
+                        Skip
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderDoneExercise(exercise, isActive, isCompleted) {
+            let label = 'Done';
+            if (exercise.type === 'weights' && exercise.totalSets) {
+                const weight = exercise.weightLabel || exercise.defaultWeight;
+                label = `Done (${exercise.totalSets} sets${weight ? `, ${weight}` : ''})`;
+            } else if (exercise.type === 'activity' && exercise.durationMinutes) {
+                label = `Done (${exercise.durationMinutes} min${exercise.level !== undefined ? `, level ${exercise.level}` : ''})`;
+            } else if (exercise.type === 'guided' && exercise.repetitions) {
+                label = `Done (${exercise.repetitions} times)`;
+            }
+
+            return `
+                <div class="exercise-controls">
+                    <button class="btn" onclick="completeExercise('${exercise.id}')" ${!isActive || isCompleted ? 'disabled' : ''}>
+                        ${escapeHtml(label)}
+                    </button>
+                    <button class="btn-skip" onclick="completeExercise('${exercise.id}')" ${isCompleted ? 'disabled' : ''}>
                         Skip
                     </button>
                 </div>
@@ -534,6 +747,7 @@
 
         function renderExercises() {
             const container = document.getElementById('exercises-container');
+            let lastSectionId = null;
             container.innerHTML = exercises.map((exercise, index) => {
                 const isActive = index === currentActiveIndex;
                 const isCompleted = completedExercises.has(exercise.id);
@@ -558,16 +772,36 @@
                         typeLabel = 'Sequence';
                         controls = renderSequenceExercise(exercise, isActive, isCompleted);
                         break;
+                    case 'weights':
+                        typeLabel = 'Weights';
+                        controls = renderDoneExercise(exercise, isActive, isCompleted);
+                        break;
+                    case 'activity':
+                        typeLabel = 'Activity';
+                        controls = renderDoneExercise(exercise, isActive, isCompleted);
+                        break;
+                    case 'guided':
+                        typeLabel = 'Guided';
+                        controls = exercise.duration
+                            ? renderTimerExercise(exercise, isActive, isCompleted)
+                            : renderDoneExercise(exercise, isActive, isCompleted);
+                        break;
                 }
 
+                const sectionHeader = exercise.sectionId !== lastSectionId
+                    ? `<div class="section-header">${escapeHtml(exercise.sectionTitle)}</div>`
+                    : '';
+                lastSectionId = exercise.sectionId;
+
                 return `
+                    ${sectionHeader}
                     <div class="exercise-card ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
                         ${isCompleted ? '<div class="completed-badge">✓ Completed</div>' : ''}
                         <div class="exercise-header">
-                            <div class="exercise-title">${exercise.title}</div>
+                            <div class="exercise-title">${escapeHtml(exercise.title)}</div>
                             <div class="exercise-type">${typeLabel}</div>
                         </div>
-                        <div class="exercise-description">${exercise.description}</div>
+                        <div class="exercise-description">${escapeHtml(exercise.description)}</div>
                         ${controls}
                     </div>
                 `;
@@ -697,68 +931,19 @@
             }, 1000);
         }
 
-        // Initialize application
-        // Allow selecting data file via query params: ?file=palm.json or ?type=palm
-        function selectDataFile() {
-            const params = new URLSearchParams(window.location.search);
-            const fileParam = params.get('file');
-            const typeParam = params.get('type');
+        const initialSessionId = selectInitialSession();
 
-            // Simple sanitization to avoid path traversal and invalid names
-            const isSafeFile = (name) => /^[a-zA-Z0-9_-]+\.json$/.test(name);
-            const isSafeType = (name) => /^[a-zA-Z0-9_-]+$/.test(name);
-
-            if (fileParam && isSafeFile(fileParam)) {
-                return fileParam;
-            }
-            if (typeParam && isSafeType(typeParam)) {
-                return `${typeParam}.json`;
-            }
-            return 'gym.json';
-        }
-
-        // Plan mapping for selector and titles
-        const planNames = {
-            gym: 'General',
-            palm: 'Palms',
-            nerv: 'Sciatic Nerve'
-        };
-
-        function populatePlanSelector(currentKey) {
-            const select = document.getElementById('plan-select');
-            const keys = ['gym', 'palm', 'nerv'];
-            select.innerHTML = keys.map(k => `<option value="${k}">${planNames[k]}</option>`).join('');
-            if (!keys.includes(currentKey)) currentKey = 'gym';
-            select.value = currentKey;
-            select.addEventListener('change', () => {
-                const key = select.value;
-                const url = new URL(window.location.href);
-                url.searchParams.delete('file');
-                url.searchParams.set('type', key);
-                window.location.href = url.toString();
-            });
-        }
-
-        const dataFile = selectDataFile();
-        const currentPlanKey = (dataFile || 'gym.json').replace(/\.json$/, '');
-        populatePlanSelector(currentPlanKey);
-
-        fetch(dataFile)
+        fetch(BUNDLE_FILE)
             .then(r => r.json())
-            .then(data => {
-                exercises = data;
-                updateActiveExercise();
-                renderExercises();
+            .then(bundle => {
+                exerciseBundle = bundle;
+                sessions = bundle.sessions || [];
+                populateSessionSelector(initialSessionId);
+                loadSession(initialSessionId);
                 updateSessionDisplay();
                 document.getElementById('session-start-stop').addEventListener('click', toggleSessionTimer);
-                // Optional: reflect chosen plan in document title
-                try {
-                    const key = dataFile.replace(/\.json$/, '');
-                    const label = planNames[key] || 'General';
-                    document.title = `Daily Exercises — ${label}`;
-                } catch (_) {}
             })
-            .catch(err => console.error("Failed to load exercises", err));
+            .catch(err => console.error("Failed to load exercise bundle", err));
     </script>
 </body>
 </html>

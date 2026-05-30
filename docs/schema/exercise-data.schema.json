@@ -1,0 +1,746 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ustaslive.github.io/gym/schema/exercise-data.schema.json",
+  "title": "Lemon Exercise Data Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "metadata",
+    "exerciseCatalog",
+    "sessions"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "exerciseCatalog": {
+      "$ref": "#/$defs/exerciseCatalog"
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/session"
+      }
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "revision"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "revision": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "exerciseCatalog": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/exerciseDefinition"
+      }
+    },
+    "exerciseDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "kind"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "kind": {
+          "$ref": "#/$defs/exerciseKind"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/parameters"
+        },
+        "settings": {
+          "$ref": "#/$defs/settings"
+        },
+        "instructions": {
+          "$ref": "#/$defs/instructions"
+        },
+        "presentation": {
+          "$ref": "#/$defs/presentation"
+        },
+        "tags": {
+          "$ref": "#/$defs/stringList"
+        },
+        "equipment": {
+          "$ref": "#/$defs/stringList"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "weights"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/weightsParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "activity"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/activityParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "timer"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/timerParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "intervals"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/intervalsParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "repetitions"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/repetitionsParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "sequence"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/sequenceParameters"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "guided"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/guidedParameters"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "exerciseKind": {
+      "enum": [
+        "weights",
+        "activity",
+        "guided",
+        "repetitions",
+        "timer",
+        "intervals",
+        "sequence"
+      ]
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "parameterOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "durationMinutes": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "durationSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "level": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "weightOptions": {
+          "$ref": "#/$defs/weightOptions"
+        },
+        "defaultWeight": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "weightLabel": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "weightOptionLabelTemplate": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "totalSets": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restBetweenSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "restFinalSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "repetitions": {
+          "$ref": "#/$defs/repetitions"
+        },
+        "workSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rounds": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "steps": {
+          "$ref": "#/$defs/sequenceSteps"
+        }
+      }
+    },
+    "weightsParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weightOptions",
+        "defaultWeight",
+        "totalSets"
+      ],
+      "properties": {
+        "weightOptions": {
+          "$ref": "#/$defs/weightOptions"
+        },
+        "defaultWeight": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "weightLabel": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "weightOptionLabelTemplate": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "totalSets": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restBetweenSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "restFinalSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "activityParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "durationMinutes"
+      ],
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "durationMinutes": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "level": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "totalSets": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restFinalSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "guidedParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "durationSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "repetitions": {
+          "$ref": "#/$defs/repetitions"
+        },
+        "totalSets": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restBetweenSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "restFinalSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "timerParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "durationSeconds"
+      ],
+      "properties": {
+        "durationSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        }
+      }
+    },
+    "repetitionsParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repetitions"
+      ],
+      "properties": {
+        "repetitions": {
+          "$ref": "#/$defs/repetitions"
+        }
+      }
+    },
+    "intervalsParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workSeconds",
+        "restSeconds",
+        "rounds"
+      ],
+      "properties": {
+        "workSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "restSeconds": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rounds": {
+          "$ref": "#/$defs/positiveInteger"
+        }
+      }
+    },
+    "sequenceParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "steps"
+      ],
+      "properties": {
+        "steps": {
+          "$ref": "#/$defs/sequenceSteps"
+        }
+      }
+    },
+    "weightOptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonNegativeInteger"
+      }
+    },
+    "repetitions": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      ]
+    },
+    "sequenceSteps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/sequenceStep"
+      }
+    },
+    "sequenceStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "durationSeconds"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "durationSeconds": {
+          "$ref": "#/$defs/positiveInteger"
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "setupNote": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/settingField"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "settingField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "value"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "instructions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "detailSections": {
+          "$ref": "#/$defs/stringList"
+        },
+        "tips": {
+          "$ref": "#/$defs/stringList"
+        },
+        "commonMistakes": {
+          "$ref": "#/$defs/stringList"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "icon": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "accentColor": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "sections"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        },
+        "tags": {
+          "$ref": "#/$defs/stringList"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "exercises"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "exercises": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sessionExercise"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "sessionExercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "exerciseId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "exerciseId": {
+          "$ref": "#/$defs/id"
+        },
+        "recommendedNextExerciseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "overrides": {
+          "$ref": "#/$defs/sessionExerciseOverrides"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "sessionExerciseOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/parameterOverrides"
+        },
+        "settings": {
+          "$ref": "#/$defs/settings"
+        },
+        "instructions": {
+          "$ref": "#/$defs/instructions"
+        },
+        "presentation": {
+          "$ref": "#/$defs/presentation"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,2247 @@
+{
+  "$schema": "../schema/exercise-data.schema.json",
+  "schemaVersion": 1,
+  "metadata": {
+    "id": "lemon_exercises",
+    "title": "Lemon Exercise Data",
+    "description": "Shared exercise catalog and sessions extracted from the Android app and browser JSON plans.",
+    "revision": 1,
+    "locale": "en"
+  },
+  "exerciseCatalog": {
+    "elliptical": {
+      "title": "Elliptical",
+      "kind": "activity",
+      "parameters": {
+        "mode": "elliptical",
+        "durationMinutes": 5,
+        "level": 10,
+        "totalSets": 1,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 10."
+      }
+    },
+    "leg_press": {
+      "title": "Leg Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          23,
+          30,
+          37,
+          44,
+          51,
+          58,
+          65,
+          72,
+          79,
+          86,
+          93,
+          100
+        ],
+        "defaultWeight": 51,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Перед началом установите длину салазок на позицию 8."
+      }
+    },
+    "leg_extension": {
+      "title": "Leg Extension",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          12,
+          14,
+          19,
+          21,
+          26,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 21,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Спинку зафиксируйте в пазе 5, валик для ног поставьте в положение XL."
+      }
+    },
+    "leg_curl": {
+      "title": "Leg Curl",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 21,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Перед упражнением установите валик для ног в положение XL."
+      }
+    },
+    "leg_abductor": {
+      "title": "Hip abductor",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63
+        ],
+        "defaultWeight": 63,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Установите начальную ширину в положение 1."
+      }
+    },
+    "shoulder_press": {
+      "title": "Shoulder Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 21,
+        "totalSets": 3,
+        "restBetweenSeconds": 60,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Отрегулируйте высоту сиденья на уровень 8."
+      }
+    },
+    "lat_pulldown": {
+      "title": "Lat Pulldown",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49
+        ],
+        "defaultWeight": 49,
+        "totalSets": 3,
+        "restBetweenSeconds": 60,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Перед тягой установите высоту сиденья на уровень 5."
+      }
+    },
+    "chest_press": {
+      "title": "Chest Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 28,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно."
+      }
+    },
+    "row": {
+      "title": "Row",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          60
+        ],
+        "defaultWeight": 60,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120,
+        "weightLabel": "2x30кг"
+      }
+    },
+    "pec_deck": {
+      "title": "Pec Deck / Butterfly",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 35,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Сядь так, чтобы рукояти были на уровне середины груди. Спину плотно прижми к спинке, грудь раскрой, плечи опусти вниз. Используй легкий вес, который позволяет выполнять движение плавно и сохранять полное сокращение в каждом повторении.\n\nМедленно своди рукояти перед собой примерно за 3 секунды. В конечной точке удерживай их вместе 2-3 секунды и максимально напрягай грудные мышцы.\n\nЗатем так же медленно разводи руки обратно примерно за 3 секунды. Не бросай вес, не раскачивай корпус и сохраняй локти в фиксированном положении на протяжении всего подхода."
+      }
+    },
+    "bike": {
+      "title": "Exercise Bike",
+      "kind": "activity",
+      "parameters": {
+        "mode": "bike",
+        "durationMinutes": 15,
+        "level": 18,
+        "totalSets": 1,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Вес: 89 кг (196 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 18. Высота сиденья: 20."
+      }
+    },
+    "cooldown_chest_pillar": {
+      "title": "Передняя дельта",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Растяжка груди у стены. Встань боком к стене.",
+          "Пример: правая сторона тела рядом со стеной. Правая рука прямая, ладонь лежит на стене чуть позади линии корпуса (на 10–20°).",
+          "Главное: корпус боком, рука сбоку-назад фиксирована на стене.",
+          "Рука остаётся на месте, а корпус разворачиваешь в противоположную сторону — например, влево, если правая рука на стене.",
+          "Поворачивай только туловище до ощущения растяжения в груди. По сути грудная клетка «отходит» от зафиксированной руки.",
+          "Признак правильного выполнения: рука вытянута назад и лежит на стене, а ты вращаешь грудь от руки, чувствуя растяжение спереди плеча/груди.",
+          "Сколько держать: 20–30 секунд, 1–2 раза на каждую сторону."
+        ]
+      }
+    },
+    "cooldown_lats": {
+      "title": "Supported hang",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Широчайшие / бок корпуса у рамы.",
+          "Шведская стенка, лицом к ней. Возьмись двумя руками за планку на уровне лица, уводи таз назад и вниз, вытягиваясь под собственным весом.",
+          "Создай ощущение зависания на руках, растягивая корпус назад, а не падая вниз.",
+          "Варианты: 20–30 секунд в среднем положении, затем при желании по 15–20 секунд с акцентом на каждую сторону.",
+          "Повторить 1–2 круга."
+        ]
+      }
+    },
+    "cooldown_shoulders": {
+      "title": "Плечи",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Задняя поверхность плеча / Cross-body shoulder stretch.",
+          "Встань ровно, лицом куда угодно — положение не критично.",
+          "Подними правую руку вперед на уровне груди. Заведи ее поперек груди. Левой рукой возьми правую выше локтя и мягко прижми к себе.",
+          "Тянет заднюю дельту и верх спины.",
+          "Сколько: по 20–30 секунд на каждую руку, 1–2 повтора."
+        ]
+      }
+    },
+    "cooldown_neck": {
+      "title": "Шея",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Шея / верх трапеций.",
+          "Встань боком к стене и прижми одно плечо и руку к поверхности.",
+          "Если прижата правая рука: опусти ее вниз, держи прижатой. Левой рукой через голову мягко наклони голову влево и немного вперед.",
+          "Потянет верх плеча и бок шеи.",
+          "Сколько: по 15–20 секунд на каждую сторону."
+        ]
+      }
+    },
+    "cooldown_horizontal_leg": {
+      "title": "Куб: гнуть нерв",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "На высоком кубе/подоконнике до середины бедра.",
+          "Для чего: отпустить наружную сторону бедра и ягодицу, разгрузить поясницу и седалищный нерв.",
+          "Как: поставь правую стопу целиком на высокий стол/подоконник на уровне пояса или выше. Колено согнуто. Свободной рукой мягко дави на правое колено вниз и чуть внутрь, чтобы голень легла на поверхность. Стопа не отрывается. Корпус длинный.",
+          "Сколько: по 2 подхода 20–30 секунд на каждую сторону.",
+          "Подсказки: дави ладонью по бедру сразу над коленом, а не по чашечке. Если не ложится — подложи полотенце под колено.",
+          "Где тянет: бок бедра и ягодица поднятой ноги, может слегка тянуть бок корпуса."
+        ]
+      }
+    },
+    "cooldown_box_forward": {
+      "title": "Куб: вперед",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "ДАВЛЕНИЕ ВПЕРЕД."
+        ]
+      }
+    },
+    "cooldown_box_swing": {
+      "title": "Куб: качели",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "КАЧЕЛИ КОЛЕНА."
+        ]
+      }
+    },
+    "cooldown_bow": {
+      "title": "Бантик",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Бантик."
+        ]
+      }
+    },
+    "cooldown_butterfly_in": {
+      "title": "Бабочка к себе",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Бабочка к себе."
+        ]
+      }
+    },
+    "cooldown_butterfly_out": {
+      "title": "Бабочка от себя",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Бабочка от себя."
+        ]
+      }
+    },
+    "hands_warmup_shoulder_circles": {
+      "title": "Круги плечами",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сделай 15 кругов вперед.",
+          "Сделай 15 кругов назад.",
+          "Двигайся мягко, без рывков и без боли."
+        ]
+      }
+    },
+    "hands_warmup_shoulder_pendulum": {
+      "title": "Плечевой маятник",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Подними правое плечо вверх и одновременно опусти левое вниз.",
+          "Потом поменяй стороны.",
+          "Сделай 20 чередований в спокойном темпе."
+        ]
+      }
+    },
+    "hands_warmup_wrist_circles": {
+      "title": "Круги запястьями",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сделай по 10 кругов в каждую сторону.",
+          "Локти держи расслабленными.",
+          "Подготовь кисти без резких движений."
+        ]
+      }
+    },
+    "hands_warmup_scissors": {
+      "title": "Ножницы",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сядь на скамью. Разведи обе прямые руки широко в стороны на уровне плеч, затем одновременно сведи их перед собой накрест.",
+          "Сделай 40 таких скрещиваний. При каждом движении чередуй руки: один раз правая рука идет поверх левой, следующий раз — левая поверх правой.",
+          "Двигайся динамично, без пауз."
+        ]
+      }
+    },
+    "hands_warmup_vertical_swings": {
+      "title": "Вертикальные махи",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сядь на скамью. Вытяни прямые руки перед собой. Подними правую руку вверх до уровня уха, а левую одновременно опусти вниз и чуть заведи за спину.",
+          "Сделай 40 махов (по 20 раз на каждую руку), меняя руки в динамичном темпе."
+        ]
+      }
+    },
+    "hands_warmup_dynamic_elbow_flexion": {
+      "title": "Разминка бицепса",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Выполни 20 обычных сгибаний на бицепс в спокойном темпе с гантелями в 2 кг."
+        ]
+      }
+    },
+    "hands_chest_press": {
+      "title": "Chest Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 21,
+        "totalSets": 3,
+        "restBetweenSeconds": 70,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно."
+      }
+    },
+    "hands_pec_deck": {
+      "title": "Pec Deck / Butterfly",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 28,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Сядь так, чтобы рукояти были на уровне середины груди. Спину плотно прижми к спинке, грудь раскрой, плечи опусти вниз. Используй легкий вес, который позволяет выполнять движение плавно и сохранять полное сокращение в каждом повторении.\n\nМедленно своди рукояти перед собой примерно за 3 секунды. В конечной точке удерживай их вместе 2-3 секунды и максимально напрягай грудные мышцы.\n\nЗатем так же медленно разводи руки обратно примерно за 3 секунды. Не бросай вес, не раскачивай корпус и сохраняй локти в фиксированном положении на протяжении всего подхода."
+      }
+    },
+    "hands_incline_db_press": {
+      "title": "Incline DB Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 7,
+        "totalSets": 3,
+        "restBetweenSeconds": 70,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Техника:\nУстанови спинку скамьи под углом 30–45° к горизонтали. Сядь, затем ляг на спинку и плотно прижми к ней спину. Ноги стоят на полу устойчиво.\n\nДержи гантели над верхней частью груди. Локти слегка разведены в стороны примерно на 30–60° от корпуса, предплечья направлены почти вертикально. Запястья держи прямыми.\n\nОпускай гантели по сторонам верхней части груди под контролем. Затем выжимай их вверх по той же траектории. В верхней точке гантели находятся над плечами, локти почти выпрямлены без жёсткой блокировки. Держи гантели стабильно и не позволяй им расходиться в стороны."
+      }
+    },
+    "hands_seated_row": {
+      "title": "Seated Row",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          60
+        ],
+        "defaultWeight": 60,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120,
+        "weightLabel": "2x30кг"
+      }
+    },
+    "hands_reverse_pec_deck": {
+      "title": "Reverse Pec Deck",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70,
+          77,
+          84,
+          91
+        ],
+        "defaultWeight": 35,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.\n\nУпирайся в рукояти ребрами кистей, где мизинец.\n\nРазводи рукояти назад за счет задней дельты и мышц спины, сводя лопатки. Плавно возвращай в исходное положение."
+      }
+    },
+    "hands_biceps_machine": {
+      "title": "Biceps Machine",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "defaultWeight": 10,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120,
+        "weightOptionLabelTemplate": "%d"
+      },
+      "settings": {
+        "setupNote": "Сядь, упрись грудью и локтями в подушку тренажера. Сгибай руки плавно, не забрасывая вес всем телом."
+      }
+    },
+    "hands_seated_hammer_curl": {
+      "title": "Hammer Curl",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 8,
+        "totalSets": 3,
+        "restBetweenSeconds": 60,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.\nВыполнение: держи гантели нейтральным хватом, ладони смотрят друг на друга. Сгибай руки к плечам. Упражнение развивает предплечья и мышцу под бицепсом."
+      }
+    },
+    "hands_incline_db_biceps": {
+      "title": "Incline DB Biceps",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 7,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Подготовка: установи скамью под углом 45-60 градусов к горизонтали. Сядь и откинься на спинку. Руки с гантелями свободно свисают вниз. Плечо каждой руки всё время направлено вертикально вниз и не уходит вперед.\nВыполнение: сгибай руки именно в локтях, поднимая гантели вверх. Ладони направлены вперед и вверх, то есть используй обычный хват на бицепс. Не разворачивай плечи и не подавай локти вперед. В верхней точке бицепс напряжен, затем плавно опускай гантели вниз до полного контролируемого растяжения."
+      }
+    },
+    "hands_triceps_machine": {
+      "title": "Triceps Machine",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60
+        ],
+        "defaultWeight": 25,
+        "totalSets": 3,
+        "restBetweenSeconds": 60,
+        "restFinalSeconds": 120,
+        "weightOptionLabelTemplate": "2x%dкг"
+      },
+      "settings": {
+        "setupNote": "Отрегулируй сиденье так, чтобы в верхней позиции локти были немного позади корпуса, а плечи оставались опущенными. Возьмись за рукояти и зафиксируй ноги под валиком, спина прямая. В стартовой точке локти согнуты примерно под 90°, предплечья почти вертикальны.\n\nРазгибай руки вниз, выжимая рукояти за счёт работы трицепса. Локти держи близко к корпусу, корпусом не помогай и плечи не поднимай. Внизу почти полностью выпрями руки без жёсткой блокировки в локтях, затем плавно верни рукояти вверх под контролем."
+      }
+    },
+    "hands_dumbbell_french_press": {
+      "title": "Dumbbell French Press",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 6,
+        "totalSets": 3,
+        "restBetweenSeconds": 60,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Сядь на скамью без поднятой спинки, держи спину ровной. Возьми одну гантель двумя руками, обхвати ладонями верхний блин и подними её над головой.\n\nМедленно опускай гантель за голову, сгибая локти. Верхняя часть рук остаётся почти вертикальной и неподвижной, локти направлены вверх и не расходятся сильно в стороны. Опускай гантель достаточно глубоко, но контролируй траекторию, чтобы она не задевала голову.\n\nРазгибай руки вверх до почти полного выпрямления и снова плавно опускай гантель. Двигай только предплечьями, корпус не раскачивай. Если появляется дискомфорт в спине, уменьши вес."
+      }
+    },
+    "hands_upper_body_only_rowing": {
+      "title": "Upper Body Only Rowing",
+      "kind": "activity",
+      "parameters": {
+        "mode": "rowing",
+        "durationMinutes": 15,
+        "level": 3,
+        "totalSets": 1,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Гребной тренажер без включения ног. Это упражнение дает монотонную кардио-нагрузку в целевой зоне пульса без движения в коленных суставах.\n\nНагрузка: сопротивление 3-4. Время: 10-15 минут или до достижения нужного объема кардио. Целевая зона пульса: 130-140 bpm.\n\nПодготовка: сядь на сиденье тренажера и зафиксируй стопы в ремешках. Выпрями ноги так, чтобы коленям было комфортно. Можно оставить их слегка согнутыми, если полное выпрямление провоцирует заклинивание. Зафиксируй ноги: на протяжении всего упражнения сиденье не должно ездить по рельсе.\n\nВыполнение:\n1. Слегка наклони корпус вперед от бедра, держи спину прямой, а руки вытянутыми к маховику.\n2. Начни тягу: сначала немного отклони корпус назад до угла примерно 100-110 градусов.\n3. Затем мощно, но плавно потяни рукоять к низу груди или к животу, сводя лопатки вместе.\n4. Вернись в исходное положение в обратном порядке: сначала выпрями руки, затем снова наклони корпус вперед.\n\nОшибки: не сгибай и не разгибай колени, не округляй поясницу при наклоне вперед и не отклоняй спину слишком далеко назад в конце тяги."
+      }
+    },
+    "hands_cooldown_chest_stretch": {
+      "title": "Растяжка груди",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Встань боком к стене.",
+          "Прямую руку оставь на стене чуть позади линии корпуса.",
+          "Плавно разворачивай грудную клетку от руки до ощущения растяжения.",
+          "Удерживай 20-30 секунд (5 вдохов-выдохов) на каждую сторону."
+        ]
+      }
+    },
+    "hands_cooldown_shoulder_stretch": {
+      "title": "Растяжка плеч",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Вытяни прямую руку перед собой параллельно полу.",
+          "Активно опусти плечевой сустав вниз и зафиксируй лопатку — не просто расслабь, а сознательно тяни плечо к полу.",
+          "Другой рукой притяни вытянутую руку к груди, строго сохраняя плечо в опущенном положении.",
+          "Удерживай 20-30 секунд (5 вдохов-выдохов) на каждую сторону до ощущения растяжения в задней дельте."
+        ]
+      }
+    },
+    "hands_cooldown_triceps_stretch": {
+      "title": "Растяжка трицепса",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сядь на скамью. Подними одну руку вверх, согни в локте и заведи ладонь за голову (между лопаток).",
+          "Другой рукой мягко потяни за локоть в сторону головы, усиливая растяжение.",
+          "Удерживай на 20-30 медленных счетов на каждую руку."
+        ]
+      }
+    },
+    "hands_cooldown_biceps_forearms_stretch": {
+      "title": "Растяжка бицепса и предплечий",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Сядь на скамью. Вытяни прямую руку перед собой ладонью вверх.",
+          "Другой рукой потяни пальцы вытянутой руки вниз и на себя до натяжения от запястья до локтя.",
+          "Удерживай на 20-30 медленных счетов на каждую руку."
+        ]
+      }
+    },
+    "hands_cooldown_wall_hang": {
+      "title": "Вис у стенки",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Используй этот вариант только если он не вызывает дискомфорта в пояснице и не требует спрыгивания на ноги.",
+          "Плавно потянись и повиси 20-30 секунд (5 вдохов-выдохов).",
+          "Прекрати сразу, если появляется неприятное ощущение в пояснице или седалищном нерве."
+        ]
+      }
+    },
+    "browser_gym_001": {
+      "title": "Marching in place, 1 min",
+      "kind": "timer",
+      "description": "- Start: stand straight, arms at sides.  \n   - Movement: march in place with small steps.  \n   - Breathing: natural.",
+      "parameters": {
+        "durationSeconds": 60
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_002": {
+      "title": "Shoulder circles",
+      "kind": "sequence",
+      "description": "- Start: stand straight, arms at sides.\n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).",
+      "parameters": {
+        "steps": [
+          {
+            "label": "Forward rotation",
+            "durationSeconds": 45
+          },
+          {
+            "label": "Backward rotation",
+            "durationSeconds": 45
+          }
+        ]
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_003": {
+      "title": "Head circles",
+      "kind": "repetitions",
+      "description": "- Start: stand straight, arms at sides\n- Movement: tilt head forward, chin to chest → full circle in ≈ 10 s.\n- Repeat 5 circles clockwise, then 5 counterclockwise.",
+      "parameters": {
+        "repetitions": "5+5"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_004": {
+      "title": "Chest stretch with resistance band behind back",
+      "kind": "intervals",
+      "description": "- Start: stand straight, feet hip-width apart. Hold black resistance band behind back with straight arms at hip level, palms facing body.\n- 20-30 s: slowly raise straight arms back and up until slight chest stretch. Hold at end position.\n- 10-15 s: rest.\n- Repeat 2 more times.\n- Common mistakes: don't arch lower back, don't raise shoulders to ears.",
+      "parameters": {
+        "workSeconds": 20,
+        "restSeconds": 10,
+        "rounds": 3
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_005": {
+      "title": "Prayer position - wrist stretch",
+      "kind": "repetitions",
+      "description": "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times.",
+      "parameters": {
+        "repetitions": 10
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_006": {
+      "title": "Wrist circles",
+      "kind": "repetitions",
+      "description": "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_007": {
+      "title": "Thumb circles",
+      "kind": "repetitions",
+      "description": "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_008": {
+      "title": "Standing cat-cow",
+      "kind": "repetitions",
+      "description": "- Start: knees slightly bent, hands on hips, body leaning forward ≈ 30°.\n- Exhale: round back in an arch.\n- Inhale: arch lower back, chest forward.",
+      "parameters": {
+        "repetitions": 10
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_009": {
+      "title": "Torso twists, hands on shoulders",
+      "kind": "repetitions",
+      "description": "- Start: feet hip-width apart, hands on shoulders, elbows out.\n- Movement: chest to left → center → right.\n- Repeat 20 times",
+      "parameters": {
+        "repetitions": 20
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_010": {
+      "title": "Hip circles standing",
+      "kind": "repetitions",
+      "description": "- Start position: stand straight, feet hip-width apart, hands lightly on hips.\n- Movement:\n    - Slowly shift hips forward and slightly right, then back and left — draw full circle with hips.\n    - Do 8 circles clockwise, then 8 counterclockwise.\n- Breathing: steady, no holds.\n- Common mistakes: don't bend knees; keep torso and shoulders still; rotation only from hip area.",
+      "parameters": {
+        "repetitions": "8+8"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_011": {
+      "title": "Knee circle swings",
+      "kind": "repetitions",
+      "description": "- Support with hand on wall, torso straight.\n- Draw circle with knee: up → side → down → other side - 5 times.\n- Clockwise and counterclockwise for each hip.\n- Common mistakes: don't lean torso, keep core engaged.",
+      "parameters": {
+        "repetitions": "5+5 + 5+5"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_012": {
+      "title": "Leg abduction with resistance band",
+      "kind": "repetitions",
+      "description": "- Start: resistance band above knees, stand slightly bent.\n- Movement: straight leg out to side until band tension, return slowly.\n- 10 reps for each leg.\n- Common mistakes: don't turn foot, movement strictly to side.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_013": {
+      "title": "Step up on 29cm box",
+      "kind": "repetitions",
+      "description": "- Start: facing box, feet parallel.\n- Movement: right foot on box → stand up/straighten → place left foot next to right → step down in reverse order.\n- 8 step-ups each leg\n- Common mistakes: heel of standing leg always on box.",
+      "parameters": {
+        "repetitions": "8+8"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_014": {
+      "title": "Mini squat to box touch",
+      "kind": "repetitions",
+      "description": "- Start position: stand straight, feet hip-width apart, toes pointing forward\n- Box behind.\n- Bend knees and hips, buttocks slightly touch box → up.\n- Repeat 8 times.\n- Common mistakes: knees not past toes; weight on heels.",
+      "parameters": {
+        "repetitions": 8
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_015": {
+      "title": "Heel-toe roll + calf raise",
+      "kind": "repetitions",
+      "description": "- Rise on toes → lower through heel, slightly lifting toes.  \n- 15 times.\n- Can hold wall for support.",
+      "parameters": {
+        "repetitions": 15
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_016": {
+      "title": "SITTING: Ankle circles",
+      "kind": "repetitions",
+      "description": "- Start: sit on edge of chair, back straight, hands on hips.\n- Legs extended forward, heels touching floor.\n- Movement: simultaneously rotate both feet at ankles \n- 10 circles inward, 10 circles outward.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_017": {
+      "title": "SITTING: Knee extension",
+      "kind": "repetitions",
+      "description": "- Start: sit on edge of chair, back straight.\n- On inhale, straighten leg to hip level, hold 1 s.\n- On exhale, slowly lower to ~90° angle.\n- 10 times each leg.\n- Common mistakes: don't \"drop\" leg, no jerking.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_018": {
+      "title": "SITTING: Calf muscle stretch",
+      "kind": "timer",
+      "description": "- Legs extended forward, heels on floor.\n- Pull toes toward you, hold 15 s.",
+      "parameters": {
+        "durationSeconds": 15
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_gym_019": {
+      "title": "SITTING: Breathing",
+      "kind": "repetitions",
+      "description": "- 3 deep breaths: arms out-up – inhale, down – exhale",
+      "parameters": {
+        "repetitions": 3
+      },
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    "browser_palm_001": {
+      "title": "Wrist shaking (warm-up)",
+      "kind": "timer",
+      "description": "- Sit or stand tall, shoulders relaxed.\n- Gently shake wrists as if flicking water off fingers.\n- Movement only at wrists; keep arms relaxed.",
+      "parameters": {
+        "durationSeconds": 15
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_002": {
+      "title": "Wrist circles",
+      "kind": "repetitions",
+      "description": "- Elbows at sides, bent 90°. Hands in front at lower rib level.\n- Slowly draw large circles at the wrists.\n- Keep fingers relaxed; do not rotate the forearms.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_003": {
+      "title": "Prayer position - wrist stretch",
+      "kind": "repetitions",
+      "description": "- Palms together in front of chest, elbows out.\n- Without separating palms, lower hands toward abdomen until a light stretch.\n- Briefly hold in the bottom position (≈3-5 s), then rise back up.",
+      "parameters": {
+        "repetitions": "8-10"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_004": {
+      "title": "Wrist extensor stretch (arm straight)",
+      "kind": "intervals",
+      "description": "- Arm straight at shoulder height, elbow extended, palm down.\n- With the other hand, gently pull fingers up toward you to flex the wrist.\n- Feel stretch along the back of forearm/wrist. Alternate hands each round.",
+      "parameters": {
+        "workSeconds": 15,
+        "restSeconds": 10,
+        "rounds": 6
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_005": {
+      "title": "Fist flexion/extension (thumb out/in)",
+      "kind": "repetitions",
+      "description": "- Arm forward or forearm on table.\n- Close a fist with thumb outside → open → close with thumb inside → open.\n- Moderate effort, smooth control; reduce range if painful.",
+      "parameters": {
+        "repetitions": "5-10"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_006": {
+      "title": "Finger spread (interdigital stretch)",
+      "kind": "repetitions",
+      "description": "- Hand straight (in air or on table).\n- Actively spread fingers as wide as possible → bring back together.\n- Move only the fingers; keep the rest of the arm relaxed.",
+      "parameters": {
+        "repetitions": "10-15"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_007": {
+      "title": "Finger lifts on table",
+      "kind": "repetitions",
+      "description": "- Palm flat on table, fingers straight; wrist stays down.\n- Lift one finger at a time as high as possible, then lower.\n- After singles, try lifting all fingers together briefly.",
+      "parameters": {
+        "repetitions": "≈5 each finger"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_008": {
+      "title": "Side-to-side with raised finger",
+      "kind": "repetitions",
+      "description": "- From the table position, slightly raise one finger.\n- Move it gently left-right like a small pendulum, then switch finger.\n- Can be done without table support if easier.",
+      "parameters": {
+        "repetitions": "5-8 each finger"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_009": {
+      "title": "Finger-to-thumb ‘O’ taps",
+      "kind": "repetitions",
+      "description": "- Hand in front of you, wrist neutral.\n- Touch thumb to index → middle → ring → little finger, forming an ‘O’ each time.\n- Keep other fingers relaxed/extended as possible.",
+      "parameters": {
+        "repetitions": "2-3 rounds each hand"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_010": {
+      "title": "Thumb flexion to palm",
+      "kind": "repetitions",
+      "description": "- Palm up. Abduct thumb away from palm.\n- Flex thumb across palm toward base of little finger → return and abduct.\n- Pause 1-2 s in the end range if comfortable.",
+      "parameters": {
+        "repetitions": "5-8 each hand"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_011": {
+      "title": "Thumb abduction with elastic band",
+      "kind": "repetitions",
+      "description": "- Place an elastic band around all fingers including thumb near nail folds.\n- Abduct (move away) the thumb against resistance, then return with control.\n- Keep wrist/hand quiet; move only the thumb.",
+      "parameters": {
+        "repetitions": "10-15 each hand"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_012": {
+      "title": "Thumb stretch (passive)",
+      "kind": "sequence",
+      "description": "- With other hand, gently stretch thumb: abduction/outward → across-palm.\n- Smooth pressure, no pain; feel stretch near thumb base and palm.",
+      "parameters": {
+        "steps": [
+          {
+            "label": "Abduction/outward stretch",
+            "durationSeconds": 15
+          },
+          {
+            "label": "Across-palm stretch",
+            "durationSeconds": 15
+          }
+        ]
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_013": {
+      "title": "Hook fist (distal/middle phalanges)",
+      "kind": "repetitions",
+      "description": "- Hand facing you.\n- Flex only middle and end joints, keeping the big knuckles straight → return.\n- Move slowly with control; no joint pain.",
+      "parameters": {
+        "repetitions": "10-15"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_014": {
+      "title": "Soft ball squeeze",
+      "kind": "repetitions",
+      "description": "- Hold a soft stress/therapy ball.\n- Squeeze firmly with all fingers and thumb for 1-2 s → release.\n- Do 2-3 sets per day if comfortable.",
+      "parameters": {
+        "repetitions": "10-15"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_015": {
+      "title": "Finger extension with rubber band",
+      "kind": "repetitions",
+      "description": "- Place a sturdy rubber band around the fingertips of all five fingers.\n- Spread fingers against the band → return slowly.\n- Add a second band if resistance is too light.",
+      "parameters": {
+        "repetitions": "10-12"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_016": {
+      "title": "Towel wringing (alternating twists)",
+      "kind": "repetitions",
+      "description": "- Hold a rolled towel with both hands.\n- Twist hands in opposite directions as if wringing water, then reverse.\n- Moderate effort; relax briefly between full twist cycles.",
+      "parameters": {
+        "repetitions": 10
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_017": {
+      "title": "Crumple cloth or paper",
+      "kind": "repetitions",
+      "description": "- Place a piece of cloth or paper on a table.\n- Scrunch it into a tight ball using one hand → spread it out and repeat.\n- Focus on full grasp and maximal crumple each time.",
+      "parameters": {
+        "repetitions": "5-6 each hand"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_palm_018": {
+      "title": "Thumb circles",
+      "kind": "repetitions",
+      "description": "- Elbows at sides, bent 90°.\n- Draw circles with the thumb: clockwise → counterclockwise.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    "browser_nerv_001": {
+      "title": "Вращение тазом стоя",
+      "kind": "repetitions",
+      "description": "Стоя, стопы на ширине плеч, руки на тазовых костях. Переносите вес по кругу, рисуя тазом максимальный комфортный круг: 8 раз по часовой стрелке и 8 против, удерживая плечи и грудную клетку неподвижными.",
+      "parameters": {
+        "repetitions": "8+8"
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_002": {
+      "title": "Круги согнутыми коленями",
+      "kind": "repetitions",
+      "description": "Опираясь рукой о стену или спинку стула, поднимайте бедро до параллели и рисуйте согнутым коленом круг: 5 раз по часовой стрелке и 5 раз против. Повторите другой ногой, удерживая корпус неподвижным.",
+      "parameters": {
+        "repetitions": "5+5"
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_003": {
+      "title": "Отведение ноги в сторону стоя",
+      "kind": "repetitions",
+      "description": "Стоя боком к устойчивой опоре и удерживая корпус вертикальным, без резинки отводите прямую ногу максимально далеко в сторону и медленно возвращайте. Не разворачивайте носок и не наклоняйте корпус.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_004": {
+      "title": "Баланс на блоке — глаза открыты",
+      "kind": "timer",
+      "description": "Стоя на устойчивом блоке, стопы на ширине бедер, тело вертикально. Удерживайте равновесие с открытыми глазами 30 секунд; повторите при необходимости, сохраняя контроль и мягкое колено.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_005": {
+      "title": "На высокой основе: горизонтальная голень и мягкое качание",
+      "kind": "sequence",
+      "description": "Правая нога упирается в устойчивую поверхность на уровне середины бедра, колено согнуто. Сначала удерживайте голень горизонтально, затем мягко опускайте колено и выполняйте лёгкие качания. Каждое движение — 20-30 секунд одной ногой, потом повтор другой.",
+      "parameters": {
+        "steps": [
+          {
+            "label": "Правая: голень горизонтально, лёгкое надавливание",
+            "durationSeconds": 25
+          },
+          {
+            "label": "Левая: голень горизонтально, лёгкое надавливание",
+            "durationSeconds": 25
+          },
+          {
+            "label": "Правая: мягкое опускание и маленькие качания колена",
+            "durationSeconds": 25
+          },
+          {
+            "label": "Левая: мягкое опускание и маленькие качания колена",
+            "durationSeconds": 25
+          }
+        ]
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_006": {
+      "title": "Лёжа: диагональный тянущий ход",
+      "kind": "timer",
+      "description": "Лёжа на спине, тянитесь рукой по диагонали к бедру вытянутой ноги; делайте 5-8 повторов каждой стороны, сохраняя мягкую стабилизацию таза.",
+      "parameters": {
+        "durationSeconds": 45
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_007": {
+      "title": "Лёжа: качание обеими коленями",
+      "kind": "timer",
+      "description": "Согните колени и качайте их из стороны в сторону, удерживая таз ровным и активируя кор. Сделайте 8-12 качаний, возвращаясь в центр между повторениями.",
+      "parameters": {
+        "durationSeconds": 45
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_008": {
+      "title": "Лёжа: одно колено внутрь",
+      "kind": "timer",
+      "description": "Согнутое колено тяните к центру туловища, удерживая бедро на полу и не допуская боли. Сделайте 6-10 повторов каждой ноги, чередуя стороны.",
+      "parameters": {
+        "durationSeconds": 45
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_009": {
+      "title": "Лёжа: растяжка согнутых коленей в стороны",
+      "kind": "timer",
+      "description": "Лёжа на спине, ноги согнуты, стопы сомкнуты. Мягко разводите колени в стороны, растягивая внутреннюю поверхность бедер и сохраняя поясницу на полу. 30 секунд, дыхание ровное, легкое напряжение.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_010": {
+      "title": "Бантик",
+      "kind": "timer",
+      "description": "Сидя, одна нога (верхняя) полностью кладётся коленом на другую, как при перекрещивании в позе. Просуньте руки под верхней ногой и обхватите кистями нижнюю под коленом, мягко тяните её на себя. Удерживайте 20-30 секунд на каждую сторону, избегая усилий и сохраняя дыхание ровным.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_011": {
+      "title": "Лёжа: бабочка к себе",
+      "kind": "timer",
+      "description": "Лёжа на спине, одна нога остаётся на полу, другая ставится внешней частью стопы на колено опорной ноги, образуя полый треугольник. Руками за колено ноги «крыла» мягко тяните его к себе, как при бантике, ощущая мягкое тянущее напряжение в бедре. 20-30 секунд на каждую сторону, без давления на чашечку, дыхание ровное.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_012": {
+      "title": "Лёжа: бабочка — от себя",
+      "kind": "timer",
+      "description": "Лёжа на спине, верхняя нога ставится внешней частью ступни на колено другой, образуя полый треугольник. Под нижнюю часть колена ноги «крыла» подставьте йога-кирпич и отталкивайте ногу от себя, мягко открывая внутреннюю поверхность бедра, не давя на коленную чашечку. 20-30 секунд, 1-2 подхода с ровным дыханием.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_013": {
+      "title": "Лёжа: носки внутрь-наружу",
+      "kind": "timer",
+      "description": "Лёжа на спине, двигайте носки внутрь и наружу в комфортном диапазоне, следя, чтобы бедра оставались на полу. Выполняйте 10-15 повторов с контролем.",
+      "parameters": {
+        "durationSeconds": 45
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_014": {
+      "title": "Лёжа: вращения ступнями",
+      "kind": "repetitions",
+      "description": "Лёжа на спине с вытянутыми ногами, стопы слегка приподняты. Выполняйте круговые движения ступнями: по 10 кругов внутрь и наружу каждой ногой, сохраняя расслабленные колени и ровное дыхание.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_015": {
+      "title": "Планка",
+      "kind": "timer",
+      "description": "Примите упор лёжа на предплечьях, тело в одной линии, поясница нейтральная. Удерживайте 30 секунд без провисания, дышите ровно.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_nerv_016": {
+      "title": "Dead hangs",
+      "kind": "timer",
+      "description": "Вис на перекладине с расслабленным хватом, плечи слегка активны. Выполните 3 подхода по 15 секунд, отдых 30-45 секунд между подходами.",
+      "parameters": {
+        "durationSeconds": 15
+      },
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    "browser_examples_gym_001": {
+      "title": "Light jogging on the spot",
+      "kind": "timer",
+      "description": "Run in place with relaxed arms.",
+      "parameters": {
+        "durationSeconds": 30
+      },
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    },
+    "browser_examples_gym_002": {
+      "title": "Plank with rest",
+      "kind": "intervals",
+      "description": "Hold plank then rest briefly.",
+      "parameters": {
+        "workSeconds": 20,
+        "restSeconds": 10,
+        "rounds": 3
+      },
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    },
+    "browser_examples_gym_003": {
+      "title": "Push-ups",
+      "kind": "repetitions",
+      "description": "Standard push-ups from floor.",
+      "parameters": {
+        "repetitions": 10
+      },
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    },
+    "browser_examples_gym_004": {
+      "title": "Lunges",
+      "kind": "repetitions",
+      "description": "Alternate legs.",
+      "parameters": {
+        "repetitions": "10+10"
+      },
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    },
+    "browser_examples_gym_005": {
+      "title": "Warmup sequence example",
+      "kind": "sequence",
+      "description": "Demonstration of sequence type with two steps",
+      "parameters": {
+        "steps": [
+          {
+            "label": "Arms up",
+            "durationSeconds": 5
+          },
+          {
+            "label": "Arms down",
+            "durationSeconds": 5
+          }
+        ]
+      },
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "android_general",
+      "title": "Android General",
+      "description": "General session extracted from Android built-in exercises.",
+      "sections": [
+        {
+          "id": "warmup",
+          "title": "Warmup",
+          "exercises": [
+            {
+              "id": "elliptical",
+              "exerciseId": "elliptical"
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "leg_press",
+              "exerciseId": "leg_press"
+            },
+            {
+              "id": "leg_extension",
+              "exerciseId": "leg_extension"
+            },
+            {
+              "id": "leg_curl",
+              "exerciseId": "leg_curl"
+            },
+            {
+              "id": "leg_abductor",
+              "exerciseId": "leg_abductor"
+            },
+            {
+              "id": "shoulder_press",
+              "exerciseId": "shoulder_press"
+            },
+            {
+              "id": "lat_pulldown",
+              "exerciseId": "lat_pulldown"
+            },
+            {
+              "id": "chest_press",
+              "exerciseId": "chest_press"
+            },
+            {
+              "id": "row",
+              "exerciseId": "row"
+            },
+            {
+              "id": "pec_deck",
+              "exerciseId": "pec_deck"
+            }
+          ]
+        },
+        {
+          "id": "cardio",
+          "title": "Cardio",
+          "exercises": [
+            {
+              "id": "bike",
+              "exerciseId": "bike"
+            }
+          ]
+        },
+        {
+          "id": "cooldown",
+          "title": "Cooldown",
+          "exercises": [
+            {
+              "id": "cooldown_chest_pillar",
+              "exerciseId": "cooldown_chest_pillar"
+            },
+            {
+              "id": "cooldown_lats",
+              "exerciseId": "cooldown_lats"
+            },
+            {
+              "id": "cooldown_shoulders",
+              "exerciseId": "cooldown_shoulders"
+            },
+            {
+              "id": "cooldown_neck",
+              "exerciseId": "cooldown_neck"
+            },
+            {
+              "id": "cooldown_horizontal_leg",
+              "exerciseId": "cooldown_horizontal_leg"
+            },
+            {
+              "id": "cooldown_box_forward",
+              "exerciseId": "cooldown_box_forward"
+            },
+            {
+              "id": "cooldown_box_swing",
+              "exerciseId": "cooldown_box_swing"
+            },
+            {
+              "id": "cooldown_bow",
+              "exerciseId": "cooldown_bow"
+            },
+            {
+              "id": "cooldown_butterfly_in",
+              "exerciseId": "cooldown_butterfly_in"
+            },
+            {
+              "id": "cooldown_butterfly_out",
+              "exerciseId": "cooldown_butterfly_out"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "android"
+      ]
+    },
+    {
+      "id": "android_hands",
+      "title": "Android Hands",
+      "description": "Hands session extracted from Android built-in templates.",
+      "sections": [
+        {
+          "id": "warmup",
+          "title": "Warmup",
+          "exercises": [
+            {
+              "id": "hands_warmup_shoulder_circles",
+              "exerciseId": "hands_warmup_shoulder_circles"
+            },
+            {
+              "id": "hands_warmup_shoulder_pendulum",
+              "exerciseId": "hands_warmup_shoulder_pendulum"
+            },
+            {
+              "id": "hands_warmup_wrist_circles",
+              "exerciseId": "hands_warmup_wrist_circles"
+            },
+            {
+              "id": "hands_warmup_scissors",
+              "exerciseId": "hands_warmup_scissors"
+            },
+            {
+              "id": "hands_warmup_vertical_swings",
+              "exerciseId": "hands_warmup_vertical_swings"
+            },
+            {
+              "id": "hands_warmup_dynamic_elbow_flexion",
+              "exerciseId": "hands_warmup_dynamic_elbow_flexion"
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "hands_chest_press",
+              "exerciseId": "hands_chest_press",
+              "recommendedNextExerciseIds": [
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_pec_deck",
+              "exerciseId": "hands_pec_deck",
+              "recommendedNextExerciseIds": [
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_incline_db_press",
+              "exerciseId": "hands_incline_db_press",
+              "recommendedNextExerciseIds": [
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_seated_row",
+              "exerciseId": "hands_seated_row",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_reverse_pec_deck",
+              "exerciseId": "hands_reverse_pec_deck",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_biceps_machine",
+              "exerciseId": "hands_biceps_machine",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_seated_hammer_curl",
+              "exerciseId": "hands_seated_hammer_curl",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_incline_db_biceps",
+              "exerciseId": "hands_incline_db_biceps",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_triceps_machine",
+                "hands_dumbbell_french_press"
+              ]
+            },
+            {
+              "id": "hands_triceps_machine",
+              "exerciseId": "hands_triceps_machine",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps"
+              ]
+            },
+            {
+              "id": "hands_dumbbell_french_press",
+              "exerciseId": "hands_dumbbell_french_press",
+              "recommendedNextExerciseIds": [
+                "hands_chest_press",
+                "hands_pec_deck",
+                "hands_incline_db_press",
+                "hands_seated_row",
+                "hands_reverse_pec_deck",
+                "hands_biceps_machine",
+                "hands_seated_hammer_curl",
+                "hands_incline_db_biceps"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cardio",
+          "title": "Cardio",
+          "exercises": [
+            {
+              "id": "hands_upper_body_only_rowing",
+              "exerciseId": "hands_upper_body_only_rowing"
+            }
+          ]
+        },
+        {
+          "id": "cooldown",
+          "title": "Cooldown",
+          "exercises": [
+            {
+              "id": "hands_cooldown_chest_stretch",
+              "exerciseId": "hands_cooldown_chest_stretch"
+            },
+            {
+              "id": "hands_cooldown_shoulder_stretch",
+              "exerciseId": "hands_cooldown_shoulder_stretch"
+            },
+            {
+              "id": "hands_cooldown_triceps_stretch",
+              "exerciseId": "hands_cooldown_triceps_stretch"
+            },
+            {
+              "id": "hands_cooldown_biceps_forearms_stretch",
+              "exerciseId": "hands_cooldown_biceps_forearms_stretch"
+            },
+            {
+              "id": "hands_cooldown_wall_hang",
+              "exerciseId": "hands_cooldown_wall_hang"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "android"
+      ]
+    },
+    {
+      "id": "browser_gym",
+      "title": "Browser General",
+      "description": "Session migrated from docs/gym.json.",
+      "sections": [
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "browser_gym_001",
+              "exerciseId": "browser_gym_001"
+            },
+            {
+              "id": "browser_gym_002",
+              "exerciseId": "browser_gym_002"
+            },
+            {
+              "id": "browser_gym_003",
+              "exerciseId": "browser_gym_003"
+            },
+            {
+              "id": "browser_gym_004",
+              "exerciseId": "browser_gym_004"
+            },
+            {
+              "id": "browser_gym_005",
+              "exerciseId": "browser_gym_005"
+            },
+            {
+              "id": "browser_gym_006",
+              "exerciseId": "browser_gym_006"
+            },
+            {
+              "id": "browser_gym_007",
+              "exerciseId": "browser_gym_007"
+            },
+            {
+              "id": "browser_gym_008",
+              "exerciseId": "browser_gym_008"
+            },
+            {
+              "id": "browser_gym_009",
+              "exerciseId": "browser_gym_009"
+            },
+            {
+              "id": "browser_gym_010",
+              "exerciseId": "browser_gym_010"
+            },
+            {
+              "id": "browser_gym_011",
+              "exerciseId": "browser_gym_011"
+            },
+            {
+              "id": "browser_gym_012",
+              "exerciseId": "browser_gym_012"
+            },
+            {
+              "id": "browser_gym_013",
+              "exerciseId": "browser_gym_013"
+            },
+            {
+              "id": "browser_gym_014",
+              "exerciseId": "browser_gym_014"
+            },
+            {
+              "id": "browser_gym_015",
+              "exerciseId": "browser_gym_015"
+            },
+            {
+              "id": "browser_gym_016",
+              "exerciseId": "browser_gym_016"
+            },
+            {
+              "id": "browser_gym_017",
+              "exerciseId": "browser_gym_017"
+            },
+            {
+              "id": "browser_gym_018",
+              "exerciseId": "browser_gym_018"
+            },
+            {
+              "id": "browser_gym_019",
+              "exerciseId": "browser_gym_019"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "browser",
+        "gym"
+      ]
+    },
+    {
+      "id": "browser_palm",
+      "title": "Browser Palms",
+      "description": "Session migrated from docs/palm.json.",
+      "sections": [
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "browser_palm_001",
+              "exerciseId": "browser_palm_001"
+            },
+            {
+              "id": "browser_palm_002",
+              "exerciseId": "browser_palm_002"
+            },
+            {
+              "id": "browser_palm_003",
+              "exerciseId": "browser_palm_003"
+            },
+            {
+              "id": "browser_palm_004",
+              "exerciseId": "browser_palm_004"
+            },
+            {
+              "id": "browser_palm_005",
+              "exerciseId": "browser_palm_005"
+            },
+            {
+              "id": "browser_palm_006",
+              "exerciseId": "browser_palm_006"
+            },
+            {
+              "id": "browser_palm_007",
+              "exerciseId": "browser_palm_007"
+            },
+            {
+              "id": "browser_palm_008",
+              "exerciseId": "browser_palm_008"
+            },
+            {
+              "id": "browser_palm_009",
+              "exerciseId": "browser_palm_009"
+            },
+            {
+              "id": "browser_palm_010",
+              "exerciseId": "browser_palm_010"
+            },
+            {
+              "id": "browser_palm_011",
+              "exerciseId": "browser_palm_011"
+            },
+            {
+              "id": "browser_palm_012",
+              "exerciseId": "browser_palm_012"
+            },
+            {
+              "id": "browser_palm_013",
+              "exerciseId": "browser_palm_013"
+            },
+            {
+              "id": "browser_palm_014",
+              "exerciseId": "browser_palm_014"
+            },
+            {
+              "id": "browser_palm_015",
+              "exerciseId": "browser_palm_015"
+            },
+            {
+              "id": "browser_palm_016",
+              "exerciseId": "browser_palm_016"
+            },
+            {
+              "id": "browser_palm_017",
+              "exerciseId": "browser_palm_017"
+            },
+            {
+              "id": "browser_palm_018",
+              "exerciseId": "browser_palm_018"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "browser",
+        "palm"
+      ]
+    },
+    {
+      "id": "browser_nerv",
+      "title": "Browser Sciatic Nerve",
+      "description": "Session migrated from docs/nerv.json.",
+      "sections": [
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "browser_nerv_001",
+              "exerciseId": "browser_nerv_001"
+            },
+            {
+              "id": "browser_nerv_002",
+              "exerciseId": "browser_nerv_002"
+            },
+            {
+              "id": "browser_nerv_003",
+              "exerciseId": "browser_nerv_003"
+            },
+            {
+              "id": "browser_nerv_004",
+              "exerciseId": "browser_nerv_004"
+            },
+            {
+              "id": "browser_nerv_005",
+              "exerciseId": "browser_nerv_005"
+            },
+            {
+              "id": "browser_nerv_006",
+              "exerciseId": "browser_nerv_006"
+            },
+            {
+              "id": "browser_nerv_007",
+              "exerciseId": "browser_nerv_007"
+            },
+            {
+              "id": "browser_nerv_008",
+              "exerciseId": "browser_nerv_008"
+            },
+            {
+              "id": "browser_nerv_009",
+              "exerciseId": "browser_nerv_009"
+            },
+            {
+              "id": "browser_nerv_010",
+              "exerciseId": "browser_nerv_010"
+            },
+            {
+              "id": "browser_nerv_011",
+              "exerciseId": "browser_nerv_011"
+            },
+            {
+              "id": "browser_nerv_012",
+              "exerciseId": "browser_nerv_012"
+            },
+            {
+              "id": "browser_nerv_013",
+              "exerciseId": "browser_nerv_013"
+            },
+            {
+              "id": "browser_nerv_014",
+              "exerciseId": "browser_nerv_014"
+            },
+            {
+              "id": "browser_nerv_015",
+              "exerciseId": "browser_nerv_015"
+            },
+            {
+              "id": "browser_nerv_016",
+              "exerciseId": "browser_nerv_016"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "browser",
+        "nerv"
+      ]
+    },
+    {
+      "id": "browser_examples_gym",
+      "title": "Browser Examples",
+      "description": "Session migrated from docs/examples_gym.json.",
+      "sections": [
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "browser_examples_gym_001",
+              "exerciseId": "browser_examples_gym_001"
+            },
+            {
+              "id": "browser_examples_gym_002",
+              "exerciseId": "browser_examples_gym_002"
+            },
+            {
+              "id": "browser_examples_gym_003",
+              "exerciseId": "browser_examples_gym_003"
+            },
+            {
+              "id": "browser_examples_gym_004",
+              "exerciseId": "browser_examples_gym_004"
+            },
+            {
+              "id": "browser_examples_gym_005",
+              "exerciseId": "browser_examples_gym_005"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "browser",
+        "examples_gym"
+      ]
+    }
+  ]
+}
