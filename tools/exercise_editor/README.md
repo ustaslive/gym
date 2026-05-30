@@ -21,3 +21,4 @@ http://127.0.0.1:8787/
 - Writes the file atomically.
 - Creates a backup in `docs/data/backups/` before each successful save.
 - Supports session, section, exercise-entry, catalog-item, and raw JSON editing.
+- Catalog items include `Main muscle groups`, used by clients to suggest or highlight good next exercises.

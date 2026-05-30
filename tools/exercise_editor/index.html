@@ -438,6 +438,13 @@
         .map(part => parseInteger(part));
     }
 
+    function parseTextList(value) {
+      return String(value)
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean);
+    }
+
     function parseTextLines(value) {
       return String(value)
         .split('\n')
@@ -853,6 +860,10 @@
         <div class="hint">${escapeHtml(kindHelp[item.kind] || '')}</div>
         <label>Title<input id="catalog-title" value="${escapeHtml(item.title)}"></label>
         <label>Description<textarea id="catalog-description" rows="${autoRows(item.description, 2, 6)}">${escapeHtml(item.description || '')}</textarea></label>
+        <label>Main muscle groups
+          <input id="catalog-muscle-groups" value="${escapeHtml(formatList(item.muscleGroups))}" placeholder="chest, triceps, front_delts">
+          <span class="hint">Comma-separated keywords used by clients to suggest exercises after the last completed one.</span>
+        </label>
         ${renderParametersEditor(item)}
         ${renderSettingsEditor(item)}
         ${renderInstructionsEditor(item)}
@@ -869,6 +880,16 @@
       });
       $('#catalog-title').addEventListener('input', event => { item.title = event.target.value; markDirty(); renderCatalogList(); });
       $('#catalog-description').addEventListener('input', event => { item.description = event.target.value; markDirty(); });
+      $('#catalog-muscle-groups').addEventListener('change', event => {
+        const groups = parseTextList(event.target.value);
+        if (groups.length) {
+          item.muscleGroups = groups;
+        } else {
+          delete item.muscleGroups;
+        }
+        markDirty();
+        renderCatalogList();
+      });
       wireParametersEditor(item);
       wireSettingsEditor(item);
       wireInstructionsEditor(item);

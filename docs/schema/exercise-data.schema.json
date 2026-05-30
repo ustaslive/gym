@@ -125,6 +125,9 @@
         "tags": {
           "$ref": "#/$defs/stringList"
         },
+        "muscleGroups": {
+          "$ref": "#/$defs/stringList"
+        },
         "equipment": {
           "$ref": "#/$defs/stringList"
         },

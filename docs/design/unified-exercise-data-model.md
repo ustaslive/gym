@@ -244,6 +244,8 @@ Each kind has explicit parameter rules in `docs/schema/exercise-data.schema.json
   Optional UI hints.
 - `tags`
   Optional classification tags.
+- `muscleGroups`
+  Optional list of the main muscle groups loaded by the exercise. Android can use this to recommend or highlight remaining exercises after the last completed exercise.
 - `equipment`
   Optional equipment labels.
 - `extensions`
@@ -410,6 +412,7 @@ Additional semantic validation is still required by the editor and clients:
 - valid `exerciseId` references into `exerciseCatalog`
 - valid `recommendedNextExerciseIds` references within the same session
 - `defaultWeight` is present in `weightOptions`
+- recommended next-exercise logic may use `muscleGroups` from catalog exercises and optional `recommendedNextExerciseIds` from session entries
 
 These checks are intentionally listed outside JSON Schema because they require cross-object validation.
 
