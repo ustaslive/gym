@@ -1697,7 +1697,7 @@
   "sessions": [
     {
       "id": "android_general",
-      "title": "Android General",
+      "title": "общий день (mob)",
       "description": "General session extracted from Android built-in exercises.",
       "sections": [
         {
@@ -1815,7 +1815,7 @@
     },
     {
       "id": "android_hands",
-      "title": "Android Hands",
+      "title": "день рук (mob)",
       "description": "Hands session extracted from Android built-in templates.",
       "sections": [
         {
@@ -2031,7 +2031,7 @@
     },
     {
       "id": "browser_gym",
-      "title": "Browser General",
+      "title": "общий день (web)",
       "description": "Session migrated from docs/gym.json.",
       "sections": [
         {
@@ -2124,7 +2124,7 @@
     },
     {
       "id": "browser_palm",
-      "title": "Browser Palms",
+      "title": "кисти (web)",
       "description": "Session migrated from docs/palm.json.",
       "sections": [
         {
@@ -2213,7 +2213,7 @@
     },
     {
       "id": "browser_nerv",
-      "title": "Browser Sciatic Nerve",
+      "title": "седалищный нерв (web)",
       "description": "Session migrated from docs/nerv.json.",
       "sections": [
         {
@@ -2294,7 +2294,7 @@
     },
     {
       "id": "browser_examples_gym",
-      "title": "Browser Examples",
+      "title": "примеры (web)",
       "description": "Session migrated from docs/examples_gym.json.",
       "sections": [
         {

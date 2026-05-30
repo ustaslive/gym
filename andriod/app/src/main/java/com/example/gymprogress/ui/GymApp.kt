@@ -329,7 +329,7 @@ fun GymScreen(
             .firstOrNull { session -> session.id == selectedSessionId }
             ?.title
             ?: selectedSessionId
-        val newDayLabel = stringResource(R.string.new_day_template, selectedSessionLabel)
+        val sessionActionLabel = selectedSessionLabel
         val generalNoteTint = MaterialTheme.colorScheme.onSurfaceVariant
         val newDayWidthWeight = 1.28f
         val statusWidthWeight = 0.54f
@@ -369,7 +369,7 @@ fun GymScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = newDayLabel,
+                            text = sessionActionLabel,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )

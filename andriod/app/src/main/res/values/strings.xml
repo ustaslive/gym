@@ -3,8 +3,6 @@
     <string name="app_name">Lemon</string>
     <string name="weight_picker_title">Выбор веса</string>
     <string name="weight_picker_cancel">Отмена</string>
-    <string name="new_day">Новый день</string>
-    <string name="new_day_template">Новый %1$s</string>
     <string name="day_type_general">общий день</string>
     <string name="day_type_hands">день рук</string>
     <string name="day_type_legs">день ног</string>
