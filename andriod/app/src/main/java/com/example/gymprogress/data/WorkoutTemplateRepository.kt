@@ -3,19 +3,55 @@ package com.example.gymprogress
 import android.app.Application
 
 internal class WorkoutTemplateRepository(private val application: Application) {
-    private val generalTemplates by lazy(LazyThreadSafetyMode.NONE) { builtInExercises() }
-    private val handsTemplates by lazy(LazyThreadSafetyMode.NONE) { handsDayTemplates() }
+    private val bundle by lazy(LazyThreadSafetyMode.NONE) {
+        SharedExerciseBundleStore(application).loadBundle()
+    }
+    private val fallbackSessions by lazy(LazyThreadSafetyMode.NONE) {
+        mapOf(
+            LegacyWorkoutSessionIds.GENERAL to builtInExercises(),
+            LegacyWorkoutSessionIds.HANDS to handsDayTemplates(),
+            LegacyWorkoutSessionIds.LEGS to listOf(placeholderExercise(WorkoutDayType.LEGS))
+        )
+    }
+    private val templatesBySessionId by lazy(LazyThreadSafetyMode.NONE) {
+        bundle.templatesBySessionId.ifEmpty { fallbackSessions }
+    }
+    private val sessionOptionsCache by lazy(LazyThreadSafetyMode.NONE) {
+        bundle.sessionOptions.ifEmpty {
+            listOf(
+                WorkoutSessionOption(
+                    id = LegacyWorkoutSessionIds.GENERAL,
+                    title = application.getString(R.string.day_type_general)
+                ),
+                WorkoutSessionOption(
+                    id = LegacyWorkoutSessionIds.HANDS,
+                    title = application.getString(R.string.day_type_hands)
+                ),
+                WorkoutSessionOption(
+                    id = LegacyWorkoutSessionIds.LEGS,
+                    title = application.getString(R.string.day_type_legs)
+                )
+            )
+        }
+    }
     private val weightTemplatesByIdCache by lazy(LazyThreadSafetyMode.NONE) {
-        (generalTemplates + handsTemplates)
+        templatesBySessionId.values.flatten()
             .filter { exercise -> exercise.type == ExerciseType.WEIGHTS }
             .associateBy { exercise -> exercise.id }
     }
 
-    fun templatesForDayType(dayType: WorkoutDayType): List<ExerciseUiState> = when (dayType) {
-        WorkoutDayType.GENERAL -> generalTemplates
-        WorkoutDayType.HANDS -> handsTemplates
-        WorkoutDayType.LEGS -> listOf(placeholderExercise(dayType))
-    }
+    fun sessionOptions(): List<WorkoutSessionOption> = sessionOptionsCache
+
+    fun defaultSessionId(): String = sessionOptionsCache.firstOrNull()?.id ?: LegacyWorkoutSessionIds.GENERAL
+
+    fun hasSession(sessionId: String): Boolean =
+        templatesBySessionId.containsKey(sessionId) || fallbackSessions.containsKey(sessionId)
+
+    fun templatesForSession(sessionId: String): List<ExerciseUiState> =
+        templatesBySessionId[sessionId]
+            ?: fallbackSessions[sessionId]
+            ?: templatesBySessionId[defaultSessionId()]
+            ?: emptyList()
 
     fun weightTemplatesById(): Map<String, ExerciseUiState> = weightTemplatesByIdCache
 
@@ -50,6 +86,7 @@ internal class WorkoutTemplateRepository(private val application: Application) {
             supportingText = application.getString(messageRes)
         )
     }
+
 }
 
 private val handsChestNextExerciseIds = listOf(

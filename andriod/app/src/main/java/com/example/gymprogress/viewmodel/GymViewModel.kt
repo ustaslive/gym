@@ -60,9 +60,11 @@ class GymViewModel internal constructor(
 
     private var activeExerciseId: String? = null
     private var restTimerUiState by mutableStateOf(RestTimerUiState())
-    private var currentDayType by mutableStateOf(WorkoutDayType.GENERAL)
+    private var currentSessionId by mutableStateOf(workoutRepository.defaultSessionId())
 
-    var selectedDayType by mutableStateOf(WorkoutDayType.GENERAL)
+    val sessionOptions: List<WorkoutSessionOption> = workoutRepository.sessionOptions()
+
+    var selectedSessionId by mutableStateOf(currentSessionId)
         private set
 
     val statusText: String?
@@ -83,8 +85,8 @@ class GymViewModel internal constructor(
             nowEpochMillis = nowEpochMillis
         )
         val restoredSession = restoreResult.session
-        currentDayType = restoredSession.currentDayType
-        selectedDayType = restoredSession.selectedDayType
+        currentSessionId = restoredSession.currentSessionId
+        selectedSessionId = restoredSession.selectedSessionId
         activeExerciseId = restoredSession.activeExerciseId
         restTimerUiState = restTimerStateReducer.restore(
             activeRestTimerExerciseId = restoredSession.activeRestTimerExerciseId,
@@ -154,22 +156,22 @@ class GymViewModel internal constructor(
         }
     }
 
-    fun selectDayType(dayType: WorkoutDayType) {
-        if (selectedDayType == dayType) {
+    fun selectSession(sessionId: String) {
+        if (selectedSessionId == sessionId || !dayStateFactory.hasSession(sessionId)) {
             return
         }
-        selectedDayType = dayType
+        selectedSessionId = sessionId
         persistWorkoutSessionState()
     }
 
     fun resetAllSets() {
-        applyNewDayType(selectedDayType)
+        applyNewSession(selectedSessionId)
     }
 
     fun performFullReset() {
         workoutRepository.clearUserData()
         generalNote = null
-        applyNewDayType(currentDayType)
+        applyNewSession(currentSessionId)
     }
 
     fun updatePersonalNote(exerciseId: String, newNote: String) {
@@ -237,13 +239,14 @@ class GymViewModel internal constructor(
         restTimerController.clear()
     }
 
-    private fun applyNewDayType(dayType: WorkoutDayType) {
+    private fun applyNewSession(sessionId: String) {
+        val nextSessionId = sessionId.takeIf(dayStateFactory::hasSession) ?: workoutRepository.defaultSessionId()
         restTimerController.clear()
         activeExerciseId = null
         restTimerUiState = RestTimerUiState()
         newlyUnlockedGroupAnchorId = null
-        currentDayType = dayType
-        replaceExercises(dayStateFactory.build(dayType))
+        currentSessionId = nextSessionId
+        replaceExercises(dayStateFactory.build(nextSessionId))
         persistWorkoutSessionState()
     }
 
@@ -282,8 +285,8 @@ class GymViewModel internal constructor(
                 activeExerciseId = activeExerciseId,
                 activeRestTimerExerciseId = restTimerUiState.activeExerciseId,
                 restTimerEndEpochMillis = restTimerUiState.endEpochMillis,
-                currentDayType = currentDayType,
-                selectedDayType = selectedDayType
+                currentSessionId = currentSessionId,
+                selectedSessionId = selectedSessionId
             )
         )
     }

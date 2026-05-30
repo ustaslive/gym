@@ -4,16 +4,20 @@ internal class WorkoutDayStateFactory(
     private val workoutRepository: WorkoutRepository,
     private val groupSequence: List<ExerciseGroup>
 ) {
-    private val initialGroup by lazy(LazyThreadSafetyMode.NONE) {
-        val generalTemplates = workoutRepository.templatesForDayType(WorkoutDayType.GENERAL)
-        groupSequence.firstOrNull { group ->
-            generalTemplates.any { exercise -> exercise.group == group }
+    fun defaultSessionId(): String = workoutRepository.defaultSessionId()
+
+    fun hasSession(sessionId: String): Boolean = workoutRepository.hasSession(sessionId)
+
+    fun build(sessionId: String): List<ExerciseUiState> =
+        workoutRepository.preparedExercisesForSession(
+            sessionId = sessionId,
+            initialGroup = initialGroupForSession(sessionId)
+        )
+
+    private fun initialGroupForSession(sessionId: String): ExerciseGroup? {
+        val templates = workoutRepository.templatesForSession(sessionId)
+        return groupSequence.firstOrNull { group ->
+            templates.any { exercise -> exercise.group == group }
         } ?: groupSequence.firstOrNull()
     }
-
-    fun build(dayType: WorkoutDayType): List<ExerciseUiState> =
-        workoutRepository.preparedExercisesForDayType(
-            dayType = dayType,
-            initialGroup = initialGroup
-        )
 }

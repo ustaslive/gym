@@ -3,6 +3,14 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val generatedExerciseAssetsDir = layout.buildDirectory.dir("generated/assets/exerciseBundle")
+val syncExerciseBundle by tasks.registering(Copy::class) {
+    from(rootProject.layout.projectDirectory.dir("../docs/data")) {
+        include("exercise-bundle.json")
+    }
+    into(generatedExerciseAssetsDir)
+}
+
 android {
     namespace = "com.example.gymprogress"
     compileSdk = 34
@@ -41,6 +49,11 @@ android {
     buildFeatures {
         compose = true
     }
+    sourceSets {
+        getByName("main") {
+            assets.srcDir(generatedExerciseAssetsDir)
+        }
+    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.9"
     }
@@ -49,6 +62,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+tasks.matching { task -> task.name.startsWith("merge") && task.name.endsWith("Assets") }.configureEach {
+    dependsOn(syncExerciseBundle)
 }
 
 dependencies {

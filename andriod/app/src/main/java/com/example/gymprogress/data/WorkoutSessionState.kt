@@ -16,8 +16,8 @@ internal data class WorkoutSessionSnapshot(
     val activeExerciseId: String?,
     val activeRestTimerExerciseId: String?,
     val restTimerEndEpochMillis: Long?,
-    val currentDayType: WorkoutDayType = WorkoutDayType.GENERAL,
-    val selectedDayType: WorkoutDayType = currentDayType
+    val currentSessionId: String = LegacyWorkoutSessionIds.GENERAL,
+    val selectedSessionId: String = currentSessionId
 )
 
 internal data class RestoredWorkoutSession(
@@ -25,8 +25,8 @@ internal data class RestoredWorkoutSession(
     val activeExerciseId: String?,
     val activeRestTimerExerciseId: String?,
     val restTimerRemainingSeconds: Int?,
-    val currentDayType: WorkoutDayType,
-    val selectedDayType: WorkoutDayType
+    val currentSessionId: String,
+    val selectedSessionId: String
 )
 
 internal fun serializeWorkoutSessionSnapshot(snapshot: WorkoutSessionSnapshot): String {
@@ -42,8 +42,8 @@ internal fun serializeWorkoutSessionSnapshot(snapshot: WorkoutSessionSnapshot): 
     }
     root.put("exerciseStates", exerciseStates)
     root.put("exerciseOrder", JSONArray(snapshot.exerciseOrder))
-    root.put("currentDayType", snapshot.currentDayType.name)
-    root.put("selectedDayType", snapshot.selectedDayType.name)
+    root.put("currentSessionId", snapshot.currentSessionId)
+    root.put("selectedSessionId", snapshot.selectedSessionId)
     snapshot.activeExerciseId?.let { root.put("activeExerciseId", it) }
     snapshot.activeRestTimerExerciseId?.let { root.put("activeRestTimerExerciseId", it) }
     snapshot.restTimerEndEpochMillis?.let { root.put("restTimerEndEpochMillis", it) }
@@ -67,12 +67,16 @@ internal fun deserializeWorkoutSessionSnapshot(raw: String): WorkoutSessionSnaps
         }
     }.orEmpty()
     val exerciseOrder = root.optJSONArray("exerciseOrder")?.toStringList().orEmpty()
-    val currentDayType = root.optString("currentDayType")
-        .toWorkoutDayTypeOrNull()
-        ?: WorkoutDayType.GENERAL
-    val selectedDayType = root.optString("selectedDayType")
-        .toWorkoutDayTypeOrNull()
-        ?: currentDayType
+    val currentSessionId = root.optString("currentSessionId").takeIf { it.isNotBlank() }
+        ?: root.optString("currentDayType")
+            .toWorkoutDayTypeOrNull()
+            ?.toLegacySessionId()
+        ?: LegacyWorkoutSessionIds.GENERAL
+    val selectedSessionId = root.optString("selectedSessionId").takeIf { it.isNotBlank() }
+        ?: root.optString("selectedDayType")
+            .toWorkoutDayTypeOrNull()
+            ?.toLegacySessionId()
+        ?: currentSessionId
     return WorkoutSessionSnapshot(
         exerciseStates = exerciseStates,
         exerciseOrder = exerciseOrder,
@@ -80,8 +84,8 @@ internal fun deserializeWorkoutSessionSnapshot(raw: String): WorkoutSessionSnaps
         activeRestTimerExerciseId = root.optString("activeRestTimerExerciseId").takeIf { it.isNotBlank() },
         restTimerEndEpochMillis = root.takeIf { it.has("restTimerEndEpochMillis") }
             ?.optLong("restTimerEndEpochMillis"),
-        currentDayType = currentDayType,
-        selectedDayType = selectedDayType
+        currentSessionId = currentSessionId,
+        selectedSessionId = selectedSessionId
     )
 }
 
@@ -89,7 +93,9 @@ internal fun restoreWorkoutSession(
     baseExercises: List<ExerciseUiState>,
     snapshot: WorkoutSessionSnapshot?,
     defaultOrder: List<String>,
-    nowEpochMillis: Long
+    nowEpochMillis: Long,
+    currentSessionId: String = snapshot?.currentSessionId ?: LegacyWorkoutSessionIds.GENERAL,
+    selectedSessionId: String = snapshot?.selectedSessionId ?: currentSessionId
 ): RestoredWorkoutSession {
     if (snapshot == null) {
         return RestoredWorkoutSession(
@@ -97,8 +103,8 @@ internal fun restoreWorkoutSession(
             activeExerciseId = null,
             activeRestTimerExerciseId = null,
             restTimerRemainingSeconds = null,
-            currentDayType = WorkoutDayType.GENERAL,
-            selectedDayType = WorkoutDayType.GENERAL
+            currentSessionId = currentSessionId,
+            selectedSessionId = selectedSessionId
         )
     }
     val savedStates = snapshot.exerciseStates.associateBy { it.id }
@@ -141,8 +147,8 @@ internal fun restoreWorkoutSession(
         activeExerciseId = activeExerciseId,
         activeRestTimerExerciseId = activeRestTimerExerciseId.takeIf { restTimerRemainingSeconds != null },
         restTimerRemainingSeconds = restTimerRemainingSeconds,
-        currentDayType = snapshot.currentDayType,
-        selectedDayType = snapshot.selectedDayType
+        currentSessionId = currentSessionId,
+        selectedSessionId = selectedSessionId
     )
 }
 

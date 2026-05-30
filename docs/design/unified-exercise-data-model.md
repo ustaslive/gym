@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 6 local editor created before Android adaptation.
+Phase 4 Android client adapted.
 
 This document defines the first canonical data model for shared exercise data.
 The model is intended for both the Android app in `andriod/` and the browser app in `docs/gym.html`.
@@ -519,9 +519,17 @@ Implemented behavior:
 
 ### Phase 4: Adapt Android client
 
-- Load exercise/session definitions from the shared bundle.
-- Map JSON data into Android domain models.
-- Preserve Android user-state persistence separately.
+Completed by the Android bundle parser and repository wiring.
+
+Implemented behavior:
+
+- Gradle copies the canonical `docs/data/exercise-bundle.json` into generated Android assets during build.
+- The APK contains `assets/exercise-bundle.json`.
+- Android loads `android_general` and `android_hands` session definitions from the shared bundle.
+- JSON catalog/session data is mapped into `ExerciseUiState`.
+- Existing `WorkoutDayType` UI remains in place for this phase.
+- Existing user-state persistence for notes, weights, progress, active exercise, and timers remains separate.
+- Kotlin hardcoded templates remain as fallback if the bundled data cannot be loaded.
 
 ### Phase 5: Support updates without reinstall
 

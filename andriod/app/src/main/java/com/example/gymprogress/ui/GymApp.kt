@@ -109,7 +109,8 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
     val exercises = viewModel.exercises
     val statusText = viewModel.statusText
     val generalNote = viewModel.generalNote
-    val selectedDayType = viewModel.selectedDayType
+    val sessionOptions = viewModel.sessionOptions
+    val selectedSessionId = viewModel.selectedSessionId
     val newlyUnlockedAnchorId = viewModel.newlyUnlockedGroupAnchorId
     GymScreen(
         exercises = exercises,
@@ -119,8 +120,9 @@ fun GymApp(viewModel: GymViewModel = viewModel()) {
         onProgressTapped = viewModel::advanceProgress,
         onWeightSelected = viewModel::updateWeight,
         onResetDay = viewModel::resetAllSets,
-        selectedDayType = selectedDayType,
-        onDayTypeSelected = viewModel::selectDayType,
+        sessionOptions = sessionOptions,
+        selectedSessionId = selectedSessionId,
+        onSessionSelected = viewModel::selectSession,
         onPersonalNoteSaved = viewModel::updatePersonalNote,
         generalNote = generalNote,
         onGeneralNoteSaved = viewModel::updateGeneralNote,
@@ -141,8 +143,9 @@ fun GymScreen(
     onProgressTapped: (String) -> Unit,
     onWeightSelected: (String, Int) -> Unit,
     onResetDay: () -> Unit,
-    selectedDayType: WorkoutDayType,
-    onDayTypeSelected: (WorkoutDayType) -> Unit,
+    sessionOptions: List<WorkoutSessionOption>,
+    selectedSessionId: String,
+    onSessionSelected: (String) -> Unit,
     onPersonalNoteSaved: (String, String) -> Unit,
     generalNote: String?,
     onGeneralNoteSaved: (String) -> Unit,
@@ -290,7 +293,7 @@ fun GymScreen(
         }
 
         HorizontalDivider()
-        var dayTypeMenuExpanded by remember { mutableStateOf(false) }
+        var sessionMenuExpanded by remember { mutableStateOf(false) }
         var overflowExpanded by remember { mutableStateOf(false) }
         val newDayGradient = Brush.verticalGradient(
             colors = listOf(
@@ -322,8 +325,11 @@ fun GymScreen(
         } else {
             Icons.Default.Edit
         }
-        val selectedDayLabel = stringResource(dayTypeLabelRes(selectedDayType))
-        val newDayLabel = stringResource(R.string.new_day_template, selectedDayLabel)
+        val selectedSessionLabel = sessionOptions
+            .firstOrNull { session -> session.id == selectedSessionId }
+            ?.title
+            ?: selectedSessionId
+        val newDayLabel = stringResource(R.string.new_day_template, selectedSessionLabel)
         val generalNoteTint = MaterialTheme.colorScheme.onSurfaceVariant
         val newDayWidthWeight = 1.28f
         val statusWidthWeight = 0.54f
@@ -384,7 +390,7 @@ fun GymScreen(
                         )
                         IconButton(
                             modifier = Modifier.fillMaxSize(),
-                            onClick = { dayTypeMenuExpanded = true }
+                            onClick = { sessionMenuExpanded = true }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
@@ -393,15 +399,15 @@ fun GymScreen(
                             )
                         }
                         DropdownMenu(
-                            expanded = dayTypeMenuExpanded,
-                            onDismissRequest = { dayTypeMenuExpanded = false }
+                            expanded = sessionMenuExpanded,
+                            onDismissRequest = { sessionMenuExpanded = false }
                         ) {
-                            WorkoutDayType.values().forEach { dayType ->
+                            sessionOptions.forEach { session ->
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = stringResource(dayTypeLabelRes(dayType)),
-                                            fontWeight = if (dayType == selectedDayType) {
+                                            text = session.title,
+                                            fontWeight = if (session.id == selectedSessionId) {
                                                 FontWeight.SemiBold
                                             } else {
                                                 FontWeight.Normal
@@ -409,8 +415,8 @@ fun GymScreen(
                                         )
                                     },
                                     onClick = {
-                                        dayTypeMenuExpanded = false
-                                        onDayTypeSelected(dayType)
+                                        sessionMenuExpanded = false
+                                        onSessionSelected(session.id)
                                     }
                                 )
                             }
@@ -1584,8 +1590,14 @@ private fun GymScreenPreview() {
             onProgressTapped = { _ -> },
             onWeightSelected = { _, _ -> },
             onResetDay = {},
-            selectedDayType = WorkoutDayType.GENERAL,
-            onDayTypeSelected = { _ -> },
+            sessionOptions = listOf(
+                WorkoutSessionOption(
+                    id = LegacyWorkoutSessionIds.GENERAL,
+                    title = "General"
+                )
+            ),
+            selectedSessionId = LegacyWorkoutSessionIds.GENERAL,
+            onSessionSelected = { _ -> },
             onPersonalNoteSaved = { _, _ -> },
             generalNote = null,
             onGeneralNoteSaved = { _ -> },
@@ -1596,12 +1608,6 @@ private fun GymScreenPreview() {
             onClearNotes = {}
         )
     }
-}
-
-private fun dayTypeLabelRes(dayType: WorkoutDayType): Int = when (dayType) {
-    WorkoutDayType.GENERAL -> R.string.day_type_general
-    WorkoutDayType.HANDS -> R.string.day_type_hands
-    WorkoutDayType.LEGS -> R.string.day_type_legs
 }
 
 private fun buildShareNotesSubject(context: Context): String {

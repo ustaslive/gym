@@ -8,14 +8,23 @@ internal class WorkoutRepository(application: Application) {
     private val weightsPrefs = application.getSharedPreferences(WEIGHTS_PREFS, Context.MODE_PRIVATE)
     private val templateRepository = WorkoutTemplateRepository(application)
 
-    fun templatesForDayType(dayType: WorkoutDayType): List<ExerciseUiState> =
-        templateRepository.templatesForDayType(dayType)
+    fun sessionOptions(): List<WorkoutSessionOption> =
+        templateRepository.sessionOptions()
 
-    fun preparedExercisesForDayType(
-        dayType: WorkoutDayType,
+    fun defaultSessionId(): String =
+        templateRepository.defaultSessionId()
+
+    fun hasSession(sessionId: String): Boolean =
+        templateRepository.hasSession(sessionId)
+
+    fun templatesForSession(sessionId: String): List<ExerciseUiState> =
+        templateRepository.templatesForSession(sessionId)
+
+    fun preparedExercisesForSession(
+        sessionId: String,
         initialGroup: ExerciseGroup?
     ): List<ExerciseUiState> {
-        val templates = templateRepository.templatesForDayType(dayType)
+        val templates = templateRepository.templatesForSession(sessionId)
         if (templates.any { exercise -> exercise.type == ExerciseType.PLACEHOLDER }) {
             return templates
         }

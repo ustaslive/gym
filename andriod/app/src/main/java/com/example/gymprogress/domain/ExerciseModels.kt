@@ -6,6 +6,18 @@ enum class WorkoutDayType {
     LEGS
 }
 
+internal object LegacyWorkoutSessionIds {
+    const val GENERAL = "android_general"
+    const val HANDS = "android_hands"
+    const val LEGS = "android_legs"
+}
+
+internal fun WorkoutDayType.toLegacySessionId(): String = when (this) {
+    WorkoutDayType.GENERAL -> LegacyWorkoutSessionIds.GENERAL
+    WorkoutDayType.HANDS -> LegacyWorkoutSessionIds.HANDS
+    WorkoutDayType.LEGS -> LegacyWorkoutSessionIds.LEGS
+}
+
 enum class ExerciseType {
     WEIGHTS,
     ACTIVITY,
@@ -23,6 +35,11 @@ enum class ExerciseGroup(val order: Int) {
 data class ShareContent(
     val plainText: String,
     val htmlText: String
+)
+
+data class WorkoutSessionOption(
+    val id: String,
+    val title: String
 )
 
 data class ExerciseUiState(
@@ -51,6 +68,7 @@ data class ExerciseUiState(
     val isActive: Boolean = false,
     val isUnlocked: Boolean = true,
     val supportingText: String? = null,
+    val muscleGroups: List<String> = emptyList(),
     val recommendedNextExerciseIds: List<String> = emptyList(),
     val isRecommendedNext: Boolean = false
 )

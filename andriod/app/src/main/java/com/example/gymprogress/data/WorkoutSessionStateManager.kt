@@ -10,8 +10,8 @@ internal data class WorkoutSessionPersistState(
     val activeExerciseId: String?,
     val activeRestTimerExerciseId: String?,
     val restTimerEndEpochMillis: Long?,
-    val currentDayType: WorkoutDayType,
-    val selectedDayType: WorkoutDayType
+    val currentSessionId: String,
+    val selectedSessionId: String
 )
 
 internal class WorkoutSessionStateManager(
@@ -22,13 +22,21 @@ internal class WorkoutSessionStateManager(
         nowEpochMillis: Long
     ): WorkoutSessionRestoreResult {
         val savedSnapshot = workoutSessionStore.load()
-        val currentDayType = savedSnapshot?.currentDayType ?: WorkoutDayType.GENERAL
-        val baseExercises = dayStateFactory.build(currentDayType)
+        val defaultSessionId = dayStateFactory.defaultSessionId()
+        val currentSessionId = savedSnapshot?.currentSessionId
+            ?.takeIf(dayStateFactory::hasSession)
+            ?: defaultSessionId
+        val selectedSessionId = savedSnapshot?.selectedSessionId
+            ?.takeIf(dayStateFactory::hasSession)
+            ?: currentSessionId
+        val baseExercises = dayStateFactory.build(currentSessionId)
         val restoredSession = restoreWorkoutSession(
             baseExercises = baseExercises,
             snapshot = savedSnapshot,
             defaultOrder = baseExercises.map { exercise -> exercise.id },
-            nowEpochMillis = nowEpochMillis
+            nowEpochMillis = nowEpochMillis,
+            currentSessionId = currentSessionId,
+            selectedSessionId = selectedSessionId
         )
         return WorkoutSessionRestoreResult(
             session = restoredSession,
@@ -49,8 +57,8 @@ internal class WorkoutSessionStateManager(
             activeExerciseId = state.activeExerciseId,
             activeRestTimerExerciseId = state.activeRestTimerExerciseId,
             restTimerEndEpochMillis = state.restTimerEndEpochMillis,
-            currentDayType = state.currentDayType,
-            selectedDayType = state.selectedDayType
+            currentSessionId = state.currentSessionId,
+            selectedSessionId = state.selectedSessionId
         )
         workoutSessionStore.save(snapshot)
     }

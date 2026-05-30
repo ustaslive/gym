@@ -18,8 +18,8 @@ class WorkoutSessionStateTest {
             activeExerciseId = "a",
             activeRestTimerExerciseId = "b",
             restTimerEndEpochMillis = 12_345L,
-            currentDayType = WorkoutDayType.HANDS,
-            selectedDayType = WorkoutDayType.LEGS
+            currentSessionId = "android_hands",
+            selectedSessionId = "custom_session"
         )
 
         val restored = deserializeWorkoutSessionSnapshot(serializeWorkoutSessionSnapshot(snapshot))
@@ -61,8 +61,8 @@ class WorkoutSessionStateTest {
         assertEquals("b", restored.activeRestTimerExerciseId)
         assertEquals(2, restored.restTimerRemainingSeconds)
         assertEquals(2, restored.exercises.first().restSecondsRemaining)
-        assertEquals(WorkoutDayType.GENERAL, restored.currentDayType)
-        assertEquals(WorkoutDayType.GENERAL, restored.selectedDayType)
+        assertEquals(LegacyWorkoutSessionIds.GENERAL, restored.currentSessionId)
+        assertEquals(LegacyWorkoutSessionIds.GENERAL, restored.selectedSessionId)
     }
 
     @Test
@@ -91,7 +91,7 @@ class WorkoutSessionStateTest {
     }
 
     @Test
-    fun deserializeWorkoutSessionSnapshotDefaultsDayTypesForLegacySnapshots() {
+    fun deserializeWorkoutSessionSnapshotDefaultsSessionIdsForLegacySnapshots() {
         val legacySnapshot = """
             {
               "exerciseStates": [],
@@ -102,8 +102,25 @@ class WorkoutSessionStateTest {
 
         val restored = deserializeWorkoutSessionSnapshot(legacySnapshot)
 
-        assertEquals(WorkoutDayType.GENERAL, restored.currentDayType)
-        assertEquals(WorkoutDayType.GENERAL, restored.selectedDayType)
+        assertEquals(LegacyWorkoutSessionIds.GENERAL, restored.currentSessionId)
+        assertEquals(LegacyWorkoutSessionIds.GENERAL, restored.selectedSessionId)
+    }
+
+    @Test
+    fun deserializeWorkoutSessionSnapshotMigratesLegacyDayTypesToSessionIds() {
+        val legacySnapshot = """
+            {
+              "exerciseStates": [],
+              "exerciseOrder": [],
+              "currentDayType": "HANDS",
+              "selectedDayType": "LEGS"
+            }
+        """.trimIndent()
+
+        val restored = deserializeWorkoutSessionSnapshot(legacySnapshot)
+
+        assertEquals(LegacyWorkoutSessionIds.HANDS, restored.currentSessionId)
+        assertEquals(LegacyWorkoutSessionIds.LEGS, restored.selectedSessionId)
     }
 
     private fun sampleExercise(
