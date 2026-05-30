@@ -27,6 +27,24 @@
         "legs"
       ]
     },
+    "elliptical_no_arms": {
+      "title": "Elliptical (Без рук)",
+      "kind": "activity",
+      "parameters": {
+        "mode": "elliptical",
+        "durationMinutes": 5,
+        "level": 10,
+        "totalSets": 1,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Держитесь за неподвижные центральные поручни. Локти опущены и расслаблены. Работают только ноги."
+      },
+      "muscleGroups": [
+        "cardio",
+        "legs"
+      ]
+    },
     "leg_press": {
       "title": "Leg Press",
       "kind": "weights",
@@ -292,6 +310,111 @@
         "chest"
       ]
     },
+    "cable_crunch": {
+      "title": "Abdominal Cable Crunch (Пресс в кроссовере)",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56,
+          63,
+          70
+        ],
+        "defaultWeight": 35,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Сядьте спиной или лицом к блоку, возьмитесь за канат. ПЛОТНО прижмите кисти к шее/плечам. Локти зафиксируйте вдоль туловища. Наклоняйтесь вниз ТОЛЬКО за счет сокращения пресса. Руки и локти остаются абсолютно неподвижными относительно корпуса."
+      },
+      "muscleGroups": [
+        "abs"
+      ]
+    },
+    "decline_bench_crunch": {
+      "title": "Decline Bench Crunch (Наклонная скамья)",
+      "kind": "repetitions",
+      "description": "Скручивания на наклонной скамье. Скрестите руки на груди (поза мумии). Поднимайте туловище за счет пресса. Исключите руки из движения.",
+      "parameters": {
+        "repetitions": "12-15"
+      },
+      "muscleGroups": [
+        "abs"
+      ]
+    },
+    "floor_crunch": {
+      "title": "Floor Crunch (Скручивания на полу)",
+      "kind": "repetitions",
+      "description": "Лягте на коврик, ноги согнуты. Руки скрещены на груди. Плавно отрывайте лопатки от пола, поясница прижата.",
+      "parameters": {
+        "repetitions": "15-20"
+      },
+      "muscleGroups": [
+        "abs"
+      ]
+    },
+    "db_front_raise": {
+      "title": "Dumbbell Front Raise (Подъемы гантелей перед собой)",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 4,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Держите руки прямыми (или с минимальным, но жестко зафиксированным углом в локте). Медленно поднимайте гантели перед собой до уровня плеч. Не делайте рывков."
+      },
+      "muscleGroups": [
+        "front_delts",
+        "shoulders"
+      ]
+    },
+    "db_lateral_raise": {
+      "title": "Dumbbell Lateral Raise (Махи с гантелями в стороны)",
+      "kind": "weights",
+      "parameters": {
+        "weightOptions": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "defaultWeight": 4,
+        "totalSets": 3,
+        "restBetweenSeconds": 45,
+        "restFinalSeconds": 120
+      },
+      "settings": {
+        "setupNote": "Поднимайте прямые руки через стороны до параллели с полом. Локоть не сгибается и не разгибается во время движения. Движение идет от плечевого сустава."
+      },
+      "muscleGroups": [
+        "side_delts",
+        "shoulders"
+      ]
+    },
     "bike": {
       "title": "Exercise Bike",
       "kind": "activity",
@@ -400,6 +523,23 @@
           "Сколько: по 2 подхода 20–30 секунд на каждую сторону.",
           "Подсказки: дави ладонью по бедру сразу над коленом, а не по чашечке. Если не ложится — подложи полотенце под колено.",
           "Где тянет: бок бедра и ягодица поднятой ноги, может слегка тянуть бок корпуса."
+        ]
+      }
+    },
+    "cooldown_torso_twist": {
+      "title": "Скручивания спины лежа",
+      "kind": "guided",
+      "parameters": {
+        "totalSets": 1,
+        "restBetweenSeconds": 0,
+        "restFinalSeconds": 0
+      },
+      "instructions": {
+        "detailSections": [
+          "Лягте на спину, руки раскинуты в стороны (крестом).",
+          "Согните правую ногу в колене и мягко перекиньте ее через левую ногу к полу.",
+          "Голову поверните вправо. Локти расслаблены на полу.",
+          "Держите 30 секунд и поменяйте сторону."
         ]
       }
     },
@@ -2027,6 +2167,135 @@
       ],
       "tags": [
         "android"
+      ]
+    },
+    {
+      "id": "android_elbow_safe",
+      "title": "без локтей (mob)",
+      "description": "Специальная тренировка для зала с полным исключением сгибания, разгибания и изометрического напряжения в локтевых суставах.",
+      "sections": [
+        {
+          "id": "warmup",
+          "title": "Warmup",
+          "exercises": [
+            {
+              "id": "elliptical_no_arms",
+              "exerciseId": "elliptical_no_arms"
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "title": "Main",
+          "exercises": [
+            {
+              "id": "leg_press",
+              "exerciseId": "leg_press",
+              "overrides": {
+                "settings": {
+                  "setupNote": "Перед началом установите длину салазок на позицию 8. Руками за рукояти держитесь мягко, без напряжения в локтях."
+                }
+              }
+            },
+            {
+              "id": "leg_extension",
+              "exerciseId": "leg_extension",
+              "overrides": {
+                "settings": {
+                  "setupNote": "Спинку зафиксируйте в пазе 5, валик для ног в положение XL."
+                }
+              }
+            },
+            {
+              "id": "leg_curl",
+              "exerciseId": "leg_curl",
+              "overrides": {
+                "settings": {
+                  "setupNote": "Установите валик для ног в положение XL."
+                }
+              }
+            },
+            {
+              "id": "leg_abductor",
+              "exerciseId": "leg_abductor"
+            },
+            {
+              "id": "cable_crunch",
+              "exerciseId": "cable_crunch"
+            },
+            {
+              "id": "decline_bench_crunch",
+              "exerciseId": "decline_bench_crunch"
+            },
+            {
+              "id": "floor_crunch",
+              "exerciseId": "floor_crunch"
+            },
+            {
+              "id": "db_front_raise",
+              "exerciseId": "db_front_raise"
+            },
+            {
+              "id": "db_lateral_raise",
+              "exerciseId": "db_lateral_raise"
+            }
+          ]
+        },
+        {
+          "id": "cardio",
+          "title": "Cardio",
+          "exercises": [
+            {
+              "id": "bike",
+              "exerciseId": "bike",
+              "overrides": {
+                "settings": {
+                  "setupNote": "Вес: 83 кг. Возраст: 55. Максимальный пульс: 140. Уровень 18. Руки расслабленно лежат на руле."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "cooldown",
+          "title": "Cooldown",
+          "exercises": [
+            {
+              "id": "cooldown_torso_twist",
+              "exerciseId": "cooldown_torso_twist"
+            },
+            {
+              "id": "cooldown_horizontal_leg",
+              "exerciseId": "cooldown_horizontal_leg",
+              "overrides": {
+                "instructions": {
+                  "detailSections": [
+                    "Поставьте стопу на высокую опору. Колено согнуто.",
+                    "Мягко направляйте колено вниз за счет движения бедра, не давите на него руками.",
+                    "По 2 подхода 20–30 секунд на каждую сторону."
+                  ]
+                }
+              }
+            },
+            {
+              "id": "cooldown_neck",
+              "exerciseId": "cooldown_neck",
+              "overrides": {
+                "instructions": {
+                  "detailSections": [
+                    "Встаньте ровно, опустите плечи.",
+                    "Мягко наклоните голову к правому плечу, не помогая руками.",
+                    "Удерживайте 15-20 секунд, затем повторите влево."
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "mob",
+        "rehab"
       ]
     },
     {
