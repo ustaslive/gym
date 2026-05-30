@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 3 browser client adapted.
+Phase 6 local editor created before Android adaptation.
 
 This document defines the first canonical data model for shared exercise data.
 The model is intended for both the Android app in `andriod/` and the browser app in `docs/gym.html`.
@@ -529,10 +529,17 @@ Implemented behavior:
 
 ### Phase 6: Build the editor
 
-- Add a local web server.
-- Add a browser-based session and catalog editor.
-- Validate before saving.
-- Save with backups or snapshots.
+Completed by `tools/exercise_editor/`.
+
+Implemented behavior:
+
+- local Python HTTP server using only the standard library
+- browser-based session editor
+- browser-based catalog editor
+- raw JSON editor for advanced changes
+- server-side validation before save
+- atomic write flow
+- backup snapshots in `docs/data/backups/`
 
 ### Phase 7: Harden the workflow
 

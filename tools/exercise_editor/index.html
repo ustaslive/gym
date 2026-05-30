@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercise Data Editor</title>
+  <style>
+    :root {
+      --bg: #f5f7f3;
+      --ink: #1f2a24;
+      --muted: #647067;
+      --line: #d9dfd8;
+      --panel: #ffffff;
+      --accent: #2d7d5f;
+      --accent-2: #cc6b31;
+      --danger: #b3261e;
+      --shadow: 0 10px 24px rgba(31, 42, 36, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eef3e8 0%, var(--bg) 38%, #f7f7f1 100%);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    button.primary:disabled {
+      background: var(--panel);
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    button.danger {
+      color: var(--danger);
+    }
+
+    button.icon {
+      min-width: 36px;
+      padding: 8px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 10px;
+    }
+
+    textarea {
+      min-height: 48px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    textarea.tall {
+      min-height: 120px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: rgba(245, 247, 243, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(300px, 1fr) minmax(320px, 440px);
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .panel-body {
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .list {
+      display: grid;
+      gap: 6px;
+      max-height: calc(100vh - 178px);
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .list-item {
+      text-align: left;
+      display: grid;
+      gap: 3px;
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .list-item.active {
+      border-color: rgba(45, 125, 95, 0.35);
+      background: rgba(45, 125, 95, 0.08);
+    }
+
+    .list-item small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 12px 12px 0;
+    }
+
+    .tabs button.active {
+      border-color: var(--accent);
+      background: rgba(45, 125, 95, 0.1);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .section-card,
+    .exercise-row,
+    .field-group {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .section-card.active {
+      border-color: var(--accent);
+    }
+
+    .section-title,
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.ok {
+      color: var(--accent);
+    }
+
+    .raw-view {
+      min-height: calc(100vh - 220px);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .list {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Exercise Data Editor</h1>
+        <span id="bundle-title">Loading bundle</span>
+      </div>
+      <div class="actions">
+        <button id="reload-button">Reload</button>
+        <button id="validate-button">Validate</button>
+        <button id="save-button" class="primary">Save</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Sessions</h2>
+          <button id="add-session-button" class="icon" title="Add session">+</button>
+        </div>
+        <div id="session-list" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="tabs">
+          <button id="session-tab" class="active">Session</button>
+          <button id="catalog-tab">Catalog</button>
+          <button id="raw-tab">Raw JSON</button>
+        </div>
+        <div id="session-panel" class="panel-body"></div>
+        <div id="catalog-panel" class="panel-body hidden"></div>
+        <div id="raw-panel" class="panel-body hidden">
+          <textarea id="raw-json" class="raw-view" spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Catalog Item</h2>
+          <button id="add-catalog-button" class="icon" title="Add catalog item">+</button>
+        </div>
+        <div id="catalog-list" class="list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      bundle: null,
+      selectedSessionId: null,
+      selectedCatalogId: null,
+      activeTab: 'session',
+      catalogSearch: '',
+      dirty: false
+    };
+
+    const kindOptions = ['weights', 'activity', 'guided', 'repetitions', 'timer', 'intervals', 'sequence'];
+    const kindHelp = {
+      weights: 'Strength exercise with selectable weight and sets.',
+      activity: 'Machine or cardio activity measured by minutes and optional level.',
+      guided: 'Instruction-only exercise. The app shows text and lets the user mark it done.',
+      repetitions: 'Simple browser exercise counted by reps, for example 10 or 10+10.',
+      timer: 'Single countdown timer in seconds.',
+      intervals: 'Repeated work/rest timer with rounds.',
+      sequence: 'Ordered timed steps, each with its own label and duration.'
+    };
+    const $ = selector => document.querySelector(selector);
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function setStatus(message, type = '') {
+      let status = $('#status-line');
+      if (!status) {
+        status = document.createElement('div');
+        status.id = 'status-line';
+        status.className = 'status';
+        $('.topbar').appendChild(status);
+      }
+      status.className = `status ${type}`;
+      status.textContent = message;
+    }
+
+    function markDirty() {
+      state.dirty = true;
+      updateSaveButton();
+      setStatus('Unsaved changes');
+    }
+
+    function updateSaveButton() {
+      const button = $('#save-button');
+      if (button) {
+        button.disabled = !state.dirty;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function formatJson(value) {
+      return JSON.stringify(value || {}, null, 2);
+    }
+
+    function formatList(value) {
+      return Array.isArray(value) ? value.join(', ') : '';
+    }
+
+    function parseInteger(value, fallback = 0) {
+      const trimmed = String(value).trim();
+      if (!trimmed) {
+        return fallback;
+      }
+      const parsed = Number.parseInt(trimmed, 10);
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Expected an integer, got "${value}"`);
+      }
+      return parsed;
+    }
+
+    function parseIntegerList(value) {
+      return String(value)
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean)
+        .map(part => parseInteger(part));
+    }
+
+    function parseTextLines(value) {
+      return String(value)
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
+    }
+
+    function autoRows(value, minRows = 2, maxRows = 10) {
+      const lines = String(value || '').split('\n').length;
+      return Math.max(minRows, Math.min(maxRows, lines + 1));
+    }
+
+    function parseJsonField(value, fallback, label) {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return fallback;
+      }
+      try {
+        return JSON.parse(trimmed);
+      } catch (error) {
+        throw new Error(`${label}: ${error.message}`);
+      }
+    }
+
+    function catalogIds() {
+      return Object.keys(state.bundle.exerciseCatalog).sort();
+    }
+
+    function filteredCatalogIds() {
+      const query = state.catalogSearch.trim().toLowerCase();
+      if (!query) {
+        return catalogIds();
+      }
+      return catalogIds().filter(id => {
+        const item = state.bundle.exerciseCatalog[id];
+        return [
+          id,
+          item.title,
+          item.kind,
+          item.description
+        ].some(value => String(value || '').toLowerCase().includes(query));
+      });
+    }
+
+    function catalogOptionLabel(id) {
+      const item = state.bundle.exerciseCatalog[id];
+      if (!item) {
+        return id;
+      }
+      return `${item.title} — ${id} · ${item.kind}`;
+    }
+
+    function selectedSession() {
+      return state.bundle.sessions.find(session => session.id === state.selectedSessionId) || state.bundle.sessions[0];
+    }
+
+    function selectedCatalogItem() {
+      return state.bundle.exerciseCatalog[state.selectedCatalogId] || null;
+    }
+
+    function defaultParameters(kind) {
+      if (kind === 'weights') {
+        return { weightOptions: [0], defaultWeight: 0, totalSets: 3, restBetweenSeconds: 45, restFinalSeconds: 120 };
+      }
+      if (kind === 'activity') {
+        return { durationMinutes: 5, totalSets: 1, restFinalSeconds: 120 };
+      }
+      if (kind === 'timer') {
+        return { durationSeconds: 30 };
+      }
+      if (kind === 'repetitions') {
+        return { repetitions: 10 };
+      }
+      if (kind === 'intervals') {
+        return { workSeconds: 20, restSeconds: 10, rounds: 3 };
+      }
+      if (kind === 'sequence') {
+        return { steps: [{ label: 'Step', durationSeconds: 10 }] };
+      }
+      return { totalSets: 1, restBetweenSeconds: 0, restFinalSeconds: 0 };
+    }
+
+    function validateLocalBundle(bundle) {
+      if (!bundle || typeof bundle !== 'object') {
+        throw new Error('Bundle must be an object');
+      }
+      if (bundle.schemaVersion !== 1) {
+        throw new Error('schemaVersion must be 1');
+      }
+      if (!bundle.metadata || !bundle.metadata.id || !bundle.metadata.title) {
+        throw new Error('metadata.id and metadata.title are required');
+      }
+      if (!bundle.exerciseCatalog || typeof bundle.exerciseCatalog !== 'object') {
+        throw new Error('exerciseCatalog is required');
+      }
+      if (!Array.isArray(bundle.sessions)) {
+        throw new Error('sessions must be an array');
+      }
+      const ids = new Set(Object.keys(bundle.exerciseCatalog));
+      for (const session of bundle.sessions) {
+        if (!session.id || !session.title || !Array.isArray(session.sections)) {
+          throw new Error(`Invalid session: ${session.id || '(missing id)'}`);
+        }
+        const entryIds = new Set();
+        for (const section of session.sections) {
+          if (!section.id || !section.title || !Array.isArray(section.exercises)) {
+            throw new Error(`Invalid section in ${session.id}`);
+          }
+          for (const entry of section.exercises) {
+            if (!entry.id || !entry.exerciseId) {
+              throw new Error(`Invalid exercise entry in ${session.id}/${section.id}`);
+            }
+            if (entryIds.has(entry.id)) {
+              throw new Error(`Duplicate exercise entry id in ${session.id}: ${entry.id}`);
+            }
+            entryIds.add(entry.id);
+            if (!ids.has(entry.exerciseId)) {
+              throw new Error(`Missing catalog item referenced by ${entry.id}: ${entry.exerciseId}`);
+            }
+          }
+        }
+      }
+    }
+
+    async function loadBundle() {
+      const response = await fetch('/api/bundle');
+      state.bundle = await response.json();
+      state.selectedSessionId = state.bundle.sessions.length ? state.bundle.sessions[0].id : null;
+      state.selectedCatalogId = catalogIds()[0] || null;
+      state.dirty = false;
+      render();
+      updateSaveButton();
+      setStatus('Bundle loaded', 'ok');
+    }
+
+    async function saveBundle() {
+      try {
+        const bundle = state.activeTab === 'raw' ? JSON.parse($('#raw-json').value) : state.bundle;
+        validateLocalBundle(bundle);
+        const response = await fetch('/api/bundle', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bundle)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || 'Save failed');
+        }
+        state.bundle = bundle;
+        state.dirty = false;
+        render();
+        updateSaveButton();
+        setStatus(`Saved. Backup: ${result.backup}`, 'ok');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      }
+    }
+
+    function render() {
+      if (!state.bundle) {
+        return;
+      }
+      updateSaveButton();
+      $('#bundle-title').textContent = `${state.bundle.metadata.title} · revision ${state.bundle.metadata.revision}`;
+      renderSessions();
+      renderCatalogList();
+      renderTabs();
+      if (state.activeTab === 'session') {
+        renderSessionEditor();
+      } else if (state.activeTab === 'catalog') {
+        renderCatalogEditor();
+      } else {
+        $('#raw-json').value = JSON.stringify(state.bundle, null, 2);
+        $('#raw-json').addEventListener('input', markDirty);
+      }
+    }
+
+    function renderTabs() {
+      for (const tab of ['session', 'catalog', 'raw']) {
+        $(`#${tab}-tab`).classList.toggle('active', state.activeTab === tab);
+        $(`#${tab}-panel`).classList.toggle('hidden', state.activeTab !== tab);
+      }
+    }
+
+    function renderSessions() {
+      $('#session-list').innerHTML = state.bundle.sessions.map(session => `
+        <button class="list-item ${session.id === state.selectedSessionId ? 'active' : ''}" data-session-id="${escapeHtml(session.id)}">
+          <strong>${escapeHtml(session.title)}</strong>
+          <small>${escapeHtml(session.id)} · ${session.sections.length} sections</small>
+        </button>
+      `).join('');
+      document.querySelectorAll('[data-session-id]').forEach(button => {
+        button.addEventListener('click', () => {
+          state.selectedSessionId = button.dataset.sessionId;
+          state.activeTab = 'session';
+          render();
+        });
+      });
+    }
+
+    function renderCatalogList() {
+      const ids = filteredCatalogIds();
+      $('#catalog-list').innerHTML = `
+        <label>Search catalog
+          <input id="catalog-search" value="${escapeHtml(state.catalogSearch)}" placeholder="Title, description, id, kind">
+        </label>
+        <div class="hint">${ids.length} of ${catalogIds().length} items</div>
+        <div id="catalog-search-results">
+          ${renderCatalogSearchResults(ids)}
+        </div>
+      `;
+      $('#catalog-search').addEventListener('input', event => {
+        state.catalogSearch = event.target.value;
+        renderCatalogSearchResultsIntoDom();
+      });
+      wireCatalogResultClicks();
+    }
+
+    function renderCatalogSearchResults(ids) {
+      return ids.map(id => {
+        const item = state.bundle.exerciseCatalog[id];
+        return `
+          <button class="list-item ${id === state.selectedCatalogId ? 'active' : ''}" data-catalog-id="${escapeHtml(id)}">
+            <strong>${escapeHtml(item.title)}</strong>
+            <small>${escapeHtml(id)} · ${escapeHtml(item.kind)}</small>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderCatalogSearchResultsIntoDom() {
+      const ids = filteredCatalogIds();
+      const hint = $('#catalog-list .hint');
+      if (hint) {
+        hint.textContent = `${ids.length} of ${catalogIds().length} items`;
+      }
+      $('#catalog-search-results').innerHTML = renderCatalogSearchResults(ids);
+      wireCatalogResultClicks();
+    }
+
+    function wireCatalogResultClicks() {
+      document.querySelectorAll('[data-catalog-id]').forEach(button => {
+        button.addEventListener('click', () => {
+          state.selectedCatalogId = button.dataset.catalogId;
+          state.activeTab = 'catalog';
+          render();
+        });
+      });
+    }
+
+    function renderSessionEditor() {
+      const session = selectedSession();
+      if (!session) {
+        $('#session-panel').innerHTML = '<p>No sessions yet.</p>';
+        return;
+      }
+      $('#session-panel').innerHTML = `
+        <div class="grid-2">
+          <label>Session ID<input id="session-id" value="${escapeHtml(session.id)}"></label>
+          <label>Title<input id="session-title" value="${escapeHtml(session.title)}"></label>
+        </div>
+        <label>Description<textarea id="session-description">${escapeHtml(session.description || '')}</textarea></label>
+        <div class="row">
+          <button id="add-section-button">Add section</button>
+          <button id="delete-session-button" class="danger">Delete session</button>
+        </div>
+        <div id="section-list"></div>
+      `;
+      $('#session-id').addEventListener('change', event => renameSession(session, event.target.value.trim()));
+      $('#session-title').addEventListener('input', event => { session.title = event.target.value; markDirty(); renderSessions(); });
+      $('#session-description').addEventListener('input', event => { session.description = event.target.value; markDirty(); });
+      $('#add-section-button').addEventListener('click', () => addSection(session));
+      $('#delete-session-button').addEventListener('click', () => deleteSession(session));
+      renderSectionList(session);
+    }
+
+    function renderSectionList(session) {
+      $('#section-list').innerHTML = session.sections.map((section, sectionIndex) => `
+        <article class="section-card">
+          <div class="section-title">
+            <strong>${escapeHtml(section.title)}</strong>
+            <span class="row">
+              <button class="icon" data-section-up="${sectionIndex}" title="Move section up">↑</button>
+              <button class="icon" data-section-down="${sectionIndex}" title="Move section down">↓</button>
+              <button class="icon danger" data-section-delete="${sectionIndex}" title="Delete section">×</button>
+            </span>
+          </div>
+          <div class="grid-2">
+            <label>Section ID<input data-section-id="${sectionIndex}" value="${escapeHtml(section.id)}"></label>
+            <label>Title<input data-section-title="${sectionIndex}" value="${escapeHtml(section.title)}"></label>
+          </div>
+          <label>Description<textarea data-section-description="${sectionIndex}">${escapeHtml(section.description || '')}</textarea></label>
+          <div class="row">
+            <select data-add-exercise-select="${sectionIndex}">
+              ${catalogIds().map(id => `<option value="${escapeHtml(id)}">${escapeHtml(catalogOptionLabel(id))}</option>`).join('')}
+            </select>
+            <button data-add-exercise="${sectionIndex}">Add exercise</button>
+          </div>
+          <div>
+            ${section.exercises.map((entry, entryIndex) => renderExerciseEntry(entry, sectionIndex, entryIndex)).join('')}
+          </div>
+        </article>
+      `).join('');
+      wireSectionControls(session);
+    }
+
+    function renderExerciseEntry(entry, sectionIndex, entryIndex) {
+      const item = state.bundle.exerciseCatalog[entry.exerciseId];
+      return `
+        <div class="exercise-row">
+          <div class="exercise-title">
+            <strong>${escapeHtml((item && item.title) || entry.exerciseId)}</strong>
+            <span class="row">
+              <button class="icon" data-entry-up="${sectionIndex}:${entryIndex}" title="Move exercise up">↑</button>
+              <button class="icon" data-entry-down="${sectionIndex}:${entryIndex}" title="Move exercise down">↓</button>
+              <button class="icon danger" data-entry-delete="${sectionIndex}:${entryIndex}" title="Delete exercise">×</button>
+            </span>
+          </div>
+          <div class="grid-2">
+            <label>Entry ID<input data-entry-id="${sectionIndex}:${entryIndex}" value="${escapeHtml(entry.id)}"></label>
+            <label>Exercise<select data-entry-exercise="${sectionIndex}:${entryIndex}">
+              ${catalogIds().map(id => `<option value="${escapeHtml(id)}" ${id === entry.exerciseId ? 'selected' : ''}>${escapeHtml(catalogOptionLabel(id))}</option>`).join('')}
+            </select></label>
+          </div>
+          <label>Overrides JSON<textarea data-entry-overrides="${sectionIndex}:${entryIndex}">${escapeHtml(formatJson(entry.overrides || {}))}</textarea></label>
+        </div>
+      `;
+    }
+
+    function wireSectionControls(session) {
+      document.querySelectorAll('[data-section-id]').forEach(input => input.addEventListener('change', event => {
+        session.sections[Number(input.dataset.sectionId)].id = event.target.value.trim();
+        markDirty();
+        render();
+      }));
+      document.querySelectorAll('[data-section-title]').forEach(input => input.addEventListener('input', event => {
+        session.sections[Number(input.dataset.sectionTitle)].title = event.target.value;
+        markDirty();
+        renderSessions();
+      }));
+      document.querySelectorAll('[data-section-description]').forEach(input => input.addEventListener('input', event => {
+        session.sections[Number(input.dataset.sectionDescription)].description = event.target.value;
+        markDirty();
+      }));
+      document.querySelectorAll('[data-add-exercise]').forEach(button => button.addEventListener('click', () => {
+        const index = Number(button.dataset.addExercise);
+        const select = document.querySelector(`[data-add-exercise-select="${index}"]`);
+        addExerciseEntry(session.sections[index], select.value);
+      }));
+      document.querySelectorAll('[data-section-delete]').forEach(button => button.addEventListener('click', () => {
+        session.sections.splice(Number(button.dataset.sectionDelete), 1);
+        markDirty();
+        render();
+      }));
+      document.querySelectorAll('[data-section-up]').forEach(button => button.addEventListener('click', () => moveItem(session.sections, Number(button.dataset.sectionUp), -1)));
+      document.querySelectorAll('[data-section-down]').forEach(button => button.addEventListener('click', () => moveItem(session.sections, Number(button.dataset.sectionDown), 1)));
+      document.querySelectorAll('[data-entry-id]').forEach(input => input.addEventListener('change', event => {
+        const [sectionIndex, entryIndex] = input.dataset.entryId.split(':').map(Number);
+        session.sections[sectionIndex].exercises[entryIndex].id = event.target.value.trim();
+        markDirty();
+      }));
+      document.querySelectorAll('[data-entry-exercise]').forEach(select => select.addEventListener('change', event => {
+        const [sectionIndex, entryIndex] = select.dataset.entryExercise.split(':').map(Number);
+        session.sections[sectionIndex].exercises[entryIndex].exerciseId = event.target.value;
+        markDirty();
+        render();
+      }));
+      document.querySelectorAll('[data-entry-overrides]').forEach(textarea => textarea.addEventListener('change', event => {
+        try {
+          const [sectionIndex, entryIndex] = textarea.dataset.entryOverrides.split(':').map(Number);
+          const parsed = parseJsonField(event.target.value, {}, 'Overrides JSON');
+          if (Object.keys(parsed).length) {
+            session.sections[sectionIndex].exercises[entryIndex].overrides = parsed;
+          } else {
+            delete session.sections[sectionIndex].exercises[entryIndex].overrides;
+          }
+          markDirty();
+          setStatus('Overrides updated');
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }));
+      document.querySelectorAll('[data-entry-delete]').forEach(button => button.addEventListener('click', () => {
+        const [sectionIndex, entryIndex] = button.dataset.entryDelete.split(':').map(Number);
+        session.sections[sectionIndex].exercises.splice(entryIndex, 1);
+        markDirty();
+        render();
+      }));
+      document.querySelectorAll('[data-entry-up]').forEach(button => button.addEventListener('click', () => {
+        const [sectionIndex, entryIndex] = button.dataset.entryUp.split(':').map(Number);
+        moveItem(session.sections[sectionIndex].exercises, entryIndex, -1);
+      }));
+      document.querySelectorAll('[data-entry-down]').forEach(button => button.addEventListener('click', () => {
+        const [sectionIndex, entryIndex] = button.dataset.entryDown.split(':').map(Number);
+        moveItem(session.sections[sectionIndex].exercises, entryIndex, 1);
+      }));
+    }
+
+    function renderCatalogEditor() {
+      const id = state.selectedCatalogId;
+      const item = selectedCatalogItem();
+      if (!item) {
+        $('#catalog-panel').innerHTML = '<p>No catalog items yet.</p>';
+        return;
+      }
+      $('#catalog-panel').innerHTML = `
+        <div class="grid-2">
+          <label>Catalog ID<input id="catalog-id" value="${escapeHtml(id)}"></label>
+          <label>Kind<select id="catalog-kind">
+            ${kindOptions.map(kind => `<option value="${kind}" ${kind === item.kind ? 'selected' : ''}>${kind}</option>`).join('')}
+          </select></label>
+        </div>
+        <div class="hint">${escapeHtml(kindHelp[item.kind] || '')}</div>
+        <label>Title<input id="catalog-title" value="${escapeHtml(item.title)}"></label>
+        <label>Description<textarea id="catalog-description" rows="${autoRows(item.description, 2, 6)}">${escapeHtml(item.description || '')}</textarea></label>
+        ${renderParametersEditor(item)}
+        ${renderSettingsEditor(item)}
+        ${renderInstructionsEditor(item)}
+        <div class="row">
+          <button id="delete-catalog-button" class="danger">Delete catalog item</button>
+        </div>
+      `;
+      $('#catalog-id').addEventListener('change', event => renameCatalogItem(id, event.target.value.trim()));
+      $('#catalog-kind').addEventListener('change', event => {
+        item.kind = event.target.value;
+        item.parameters = defaultParameters(item.kind);
+        markDirty();
+        render();
+      });
+      $('#catalog-title').addEventListener('input', event => { item.title = event.target.value; markDirty(); renderCatalogList(); });
+      $('#catalog-description').addEventListener('input', event => { item.description = event.target.value; markDirty(); });
+      wireParametersEditor(item);
+      wireSettingsEditor(item);
+      wireInstructionsEditor(item);
+      $('#delete-catalog-button').addEventListener('click', () => deleteCatalogItem(id));
+    }
+
+    function renderParametersEditor(item) {
+      const params = item.parameters || defaultParameters(item.kind);
+      if (item.kind === 'weights') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Weights use machine weight options, default weight, sets, and rest timers.</div>
+            <label>Weight options<input id="param-weight-options" value="${escapeHtml(formatList(params.weightOptions))}" placeholder="23, 30, 37"></label>
+            <div class="grid-3">
+              <label>Default weight<input id="param-default-weight" type="number" value="${escapeHtml(params.defaultWeight || 0)}"></label>
+              <label>Total sets<input id="param-total-sets" type="number" value="${escapeHtml(params.totalSets || 3)}"></label>
+              <label>Rest between sets, sec<input id="param-rest-between" type="number" value="${escapeHtml(params.restBetweenSeconds || 0)}"></label>
+            </div>
+            <div class="grid-2">
+              <label>Final rest, sec<input id="param-rest-final" type="number" value="${escapeHtml(params.restFinalSeconds || 0)}"></label>
+              <label>Weight label<input id="param-weight-label" value="${escapeHtml(params.weightLabel || '')}" placeholder="2x30kg"></label>
+            </div>
+            <label>Weight option label template<input id="param-weight-template" value="${escapeHtml(params.weightOptionLabelTemplate || '')}" placeholder="2x%dkg"></label>
+          </section>
+        `;
+      }
+      if (item.kind === 'activity') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Activity is a cardio or machine block measured by minutes and optional level.</div>
+            <div class="grid-3">
+              <label>Mode<input id="param-mode" value="${escapeHtml(params.mode || '')}" placeholder="bike"></label>
+              <label>Duration, min<input id="param-duration-minutes" type="number" value="${escapeHtml(params.durationMinutes || 5)}"></label>
+              <label>Level<input id="param-level" type="number" value="${escapeHtml(params.level || 0)}"></label>
+            </div>
+            <div class="grid-2">
+              <label>Total sets<input id="param-total-sets" type="number" value="${escapeHtml(params.totalSets || 1)}"></label>
+              <label>Final rest, sec<input id="param-rest-final" type="number" value="${escapeHtml(params.restFinalSeconds || 0)}"></label>
+            </div>
+          </section>
+        `;
+      }
+      if (item.kind === 'guided') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Guided is an instruction card. It can optionally have reps, duration, sets, and rest.</div>
+            <div class="grid-3">
+              <label>Total sets<input id="param-total-sets" type="number" value="${escapeHtml(params.totalSets || 1)}"></label>
+              <label>Duration, sec<input id="param-duration-seconds" type="number" value="${escapeHtml(params.durationSeconds || '')}"></label>
+              <label>Repetitions<input id="param-repetitions" value="${escapeHtml(params.repetitions || '')}" placeholder="10 or 10+10"></label>
+            </div>
+            <div class="grid-2">
+              <label>Rest between sets, sec<input id="param-rest-between" type="number" value="${escapeHtml(params.restBetweenSeconds || 0)}"></label>
+              <label>Final rest, sec<input id="param-rest-final" type="number" value="${escapeHtml(params.restFinalSeconds || 0)}"></label>
+            </div>
+          </section>
+        `;
+      }
+      if (item.kind === 'repetitions') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Repetitions is for simple counted browser exercises.</div>
+            <label>Repetitions<input id="param-repetitions" value="${escapeHtml(params.repetitions || '')}" placeholder="10 or 10+10"></label>
+          </section>
+        `;
+      }
+      if (item.kind === 'timer') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Timer is one countdown in seconds.</div>
+            <label>Duration, sec<input id="param-duration-seconds" type="number" value="${escapeHtml(params.durationSeconds || 30)}"></label>
+          </section>
+        `;
+      }
+      if (item.kind === 'intervals') {
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Intervals repeat work and rest phases for a fixed number of rounds.</div>
+            <div class="grid-3">
+              <label>Work, sec<input id="param-work-seconds" type="number" value="${escapeHtml(params.workSeconds || 20)}"></label>
+              <label>Rest, sec<input id="param-rest-seconds" type="number" value="${escapeHtml(params.restSeconds || 10)}"></label>
+              <label>Rounds<input id="param-rounds" type="number" value="${escapeHtml(params.rounds || 3)}"></label>
+            </div>
+          </section>
+        `;
+      }
+      if (item.kind === 'sequence') {
+        const steps = (params.steps || []).map(step => `${step.label} | ${step.durationSeconds}`).join('\n');
+        return `
+          <section class="field-group">
+            <strong>Parameters</strong>
+            <div class="hint">Sequence is timed steps. Enter one step per line as: label | seconds.</div>
+            <label>Steps<textarea id="param-steps" rows="${autoRows(steps, 3, 10)}" placeholder="Forward rotation | 45">${escapeHtml(steps)}</textarea></label>
+          </section>
+        `;
+      }
+      return '';
+    }
+
+    function renderSettingsEditor(item) {
+      const settings = item.settings || {};
+      return `
+        <section class="field-group">
+          <strong>Settings</strong>
+          <div class="hint">Setup note is shown before exercise execution. Use it for seat height, machine positions, and similar setup.</div>
+          <label>Setup note<textarea id="settings-setup-note" rows="${autoRows(settings.setupNote, 2, 8)}">${escapeHtml(settings.setupNote || '')}</textarea></label>
+        </section>
+      `;
+    }
+
+    function renderInstructionsEditor(item) {
+      const instructions = item.instructions || {};
+      const details = (instructions.detailSections || []).join('\n');
+      const tips = (instructions.tips || []).join('\n');
+      const mistakes = (instructions.commonMistakes || []).join('\n');
+      return `
+        <section class="field-group">
+          <strong>Instructions</strong>
+          <div class="hint">Each line becomes one instruction item. Guided exercises usually use detail sections.</div>
+          <label>Detail sections<textarea id="instructions-detail-sections" rows="${autoRows(details, 3, 10)}">${escapeHtml(details)}</textarea></label>
+          <div class="grid-2">
+            <label>Tips<textarea id="instructions-tips" rows="${autoRows(tips, 2, 6)}">${escapeHtml(tips)}</textarea></label>
+            <label>Common mistakes<textarea id="instructions-common-mistakes" rows="${autoRows(mistakes, 2, 6)}">${escapeHtml(mistakes)}</textarea></label>
+          </div>
+        </section>
+      `;
+    }
+
+    function wireParametersEditor(item) {
+      const update = () => {
+        try {
+          item.parameters = readParametersFromForm(item.kind);
+          markDirty();
+          setStatus('Parameters updated');
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      };
+      document.querySelectorAll('[id^="param-"]').forEach(input => {
+        input.addEventListener('change', update);
+      });
+    }
+
+    function readParametersFromForm(kind) {
+      if (kind === 'weights') {
+        const params = {
+          weightOptions: parseIntegerList($('#param-weight-options').value),
+          defaultWeight: parseInteger($('#param-default-weight').value),
+          totalSets: parseInteger($('#param-total-sets').value, 1),
+          restBetweenSeconds: parseInteger($('#param-rest-between').value, 0),
+          restFinalSeconds: parseInteger($('#param-rest-final').value, 0)
+        };
+        if ($('#param-weight-label').value.trim()) {
+          params.weightLabel = $('#param-weight-label').value.trim();
+        }
+        if ($('#param-weight-template').value.trim()) {
+          params.weightOptionLabelTemplate = $('#param-weight-template').value.trim();
+        }
+        return params;
+      }
+      if (kind === 'activity') {
+        const params = {
+          durationMinutes: parseInteger($('#param-duration-minutes').value, 1),
+          totalSets: parseInteger($('#param-total-sets').value, 1),
+          restFinalSeconds: parseInteger($('#param-rest-final').value, 0)
+        };
+        if ($('#param-mode').value.trim()) {
+          params.mode = $('#param-mode').value.trim();
+        }
+        if ($('#param-level').value.trim()) {
+          params.level = parseInteger($('#param-level').value, 0);
+        }
+        return params;
+      }
+      if (kind === 'guided') {
+        const params = {
+          totalSets: parseInteger($('#param-total-sets').value, 1),
+          restBetweenSeconds: parseInteger($('#param-rest-between').value, 0),
+          restFinalSeconds: parseInteger($('#param-rest-final').value, 0)
+        };
+        if ($('#param-duration-seconds').value.trim()) {
+          params.durationSeconds = parseInteger($('#param-duration-seconds').value, 1);
+        }
+        if ($('#param-repetitions').value.trim()) {
+          params.repetitions = readRepetitions($('#param-repetitions').value);
+        }
+        return params;
+      }
+      if (kind === 'repetitions') {
+        return { repetitions: readRepetitions($('#param-repetitions').value) };
+      }
+      if (kind === 'timer') {
+        return { durationSeconds: parseInteger($('#param-duration-seconds').value, 1) };
+      }
+      if (kind === 'intervals') {
+        return {
+          workSeconds: parseInteger($('#param-work-seconds').value, 1),
+          restSeconds: parseInteger($('#param-rest-seconds').value, 0),
+          rounds: parseInteger($('#param-rounds').value, 1)
+        };
+      }
+      if (kind === 'sequence') {
+        return { steps: readSequenceSteps($('#param-steps').value) };
+      }
+      return {};
+    }
+
+    function readRepetitions(value) {
+      const trimmed = value.trim();
+      const numeric = Number.parseInt(trimmed, 10);
+      return String(numeric) === trimmed ? numeric : trimmed;
+    }
+
+    function readSequenceSteps(value) {
+      const lines = parseTextLines(value);
+      return lines.map(line => {
+        const parts = line.split('|').map(part => part.trim());
+        if (parts.length !== 2) {
+          throw new Error(`Sequence step must be "label | seconds": ${line}`);
+        }
+        return { label: parts[0], durationSeconds: parseInteger(parts[1], 1) };
+      });
+    }
+
+    function wireSettingsEditor(item) {
+      $('#settings-setup-note').addEventListener('input', event => {
+        const value = event.target.value;
+        if (value.trim()) {
+          item.settings = { ...(item.settings || {}), setupNote: value };
+        } else if (item.settings) {
+          delete item.settings.setupNote;
+          if (!Object.keys(item.settings).length) {
+            delete item.settings;
+          }
+        }
+        markDirty();
+      });
+    }
+
+    function wireInstructionsEditor(item) {
+      const update = () => {
+        const detailSections = parseTextLines($('#instructions-detail-sections').value);
+        const tips = parseTextLines($('#instructions-tips').value);
+        const commonMistakes = parseTextLines($('#instructions-common-mistakes').value);
+        const instructions = {};
+        if (detailSections.length) {
+          instructions.detailSections = detailSections;
+        }
+        if (tips.length) {
+          instructions.tips = tips;
+        }
+        if (commonMistakes.length) {
+          instructions.commonMistakes = commonMistakes;
+        }
+        if (Object.keys(instructions).length) {
+          item.instructions = instructions;
+        } else {
+          delete item.instructions;
+        }
+        markDirty();
+      };
+      $('#instructions-detail-sections').addEventListener('input', update);
+      $('#instructions-tips').addEventListener('input', update);
+      $('#instructions-common-mistakes').addEventListener('input', update);
+    }
+
+    function updateJsonProperty(target, property, value, fallback, label) {
+      try {
+        const parsed = parseJsonField(value, fallback, label);
+        if (Object.keys(parsed).length) {
+          target[property] = parsed;
+        } else {
+          delete target[property];
+        }
+        markDirty();
+        setStatus(`${label} updated`);
+      } catch (error) {
+        setStatus(error.message, 'error');
+      }
+    }
+
+    function addSession() {
+      const id = uniqueId('new_session', state.bundle.sessions.map(session => session.id));
+      state.bundle.sessions.push({ id, title: 'New Session', sections: [{ id: 'main', title: 'Main', exercises: [] }] });
+      state.selectedSessionId = id;
+      state.activeTab = 'session';
+      markDirty();
+      render();
+    }
+
+    function renameSession(session, nextId) {
+      if (!nextId || nextId === session.id) {
+        return;
+      }
+      session.id = nextId;
+      state.selectedSessionId = nextId;
+      markDirty();
+      render();
+    }
+
+    function deleteSession(session) {
+      state.bundle.sessions = state.bundle.sessions.filter(item => item !== session);
+      state.selectedSessionId = state.bundle.sessions.length ? state.bundle.sessions[0].id : null;
+      markDirty();
+      render();
+    }
+
+    function addSection(session) {
+      const id = uniqueId('new_section', session.sections.map(section => section.id));
+      session.sections.push({ id, title: 'New Section', exercises: [] });
+      markDirty();
+      render();
+    }
+
+    function addExerciseEntry(section, exerciseId) {
+      const existingIds = selectedSession().sections.flatMap(item => item.exercises.map(entry => entry.id));
+      const id = uniqueId(exerciseId, existingIds);
+      section.exercises.push({ id, exerciseId });
+      markDirty();
+      render();
+    }
+
+    function addCatalogItem() {
+      const id = uniqueId('new_exercise', catalogIds());
+      state.bundle.exerciseCatalog[id] = {
+        title: 'New Exercise',
+        kind: 'guided',
+        parameters: defaultParameters('guided'),
+        instructions: { detailSections: [] }
+      };
+      state.selectedCatalogId = id;
+      state.activeTab = 'catalog';
+      markDirty();
+      render();
+    }
+
+    function renameCatalogItem(oldId, nextId) {
+      if (!nextId || oldId === nextId) {
+        return;
+      }
+      state.bundle.exerciseCatalog[nextId] = state.bundle.exerciseCatalog[oldId];
+      delete state.bundle.exerciseCatalog[oldId];
+      for (const session of state.bundle.sessions) {
+        for (const section of session.sections) {
+          for (const entry of section.exercises) {
+            if (entry.exerciseId === oldId) {
+              entry.exerciseId = nextId;
+            }
+          }
+        }
+      }
+      state.selectedCatalogId = nextId;
+      markDirty();
+      render();
+    }
+
+    function deleteCatalogItem(id) {
+      const used = state.bundle.sessions.some(session =>
+        session.sections.some(section =>
+          section.exercises.some(entry => entry.exerciseId === id)
+        )
+      );
+      if (used) {
+        setStatus('Cannot delete a catalog item that is used in a session', 'error');
+        return;
+      }
+      delete state.bundle.exerciseCatalog[id];
+      state.selectedCatalogId = catalogIds()[0] || null;
+      markDirty();
+      render();
+    }
+
+    function moveItem(items, index, direction) {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= items.length) {
+        return;
+      }
+      const [item] = items.splice(index, 1);
+      items.splice(nextIndex, 0, item);
+      markDirty();
+      render();
+    }
+
+    function uniqueId(base, existing) {
+      const clean = base.toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+/, '') || 'item';
+      const used = new Set(existing);
+      let candidate = clean;
+      let counter = 2;
+      while (used.has(candidate)) {
+        candidate = `${clean}_${counter}`;
+        counter += 1;
+      }
+      return candidate;
+    }
+
+    $('#session-tab').addEventListener('click', () => { state.activeTab = 'session'; render(); });
+    $('#catalog-tab').addEventListener('click', () => { state.activeTab = 'catalog'; render(); });
+    $('#raw-tab').addEventListener('click', () => { state.activeTab = 'raw'; render(); });
+    $('#reload-button').addEventListener('click', loadBundle);
+    $('#validate-button').addEventListener('click', () => {
+      try {
+        const bundle = state.activeTab === 'raw' ? JSON.parse($('#raw-json').value) : state.bundle;
+        validateLocalBundle(bundle);
+        setStatus('Validation passed', 'ok');
+      } catch (error) {
+        setStatus(error.message, 'error');
+      }
+    });
+    $('#save-button').addEventListener('click', saveBundle);
+    $('#add-session-button').addEventListener('click', addSession);
+    $('#add-catalog-button').addEventListener('click', addCatalogItem);
+
+    window.addEventListener('beforeunload', event => {
+      if (!state.dirty) {
+        return;
+      }
+      event.preventDefault();
+      event.returnValue = '';
+    });
+
+    loadBundle().catch(error => setStatus(error.message, 'error'));
+  </script>
+</body>
+</html>
