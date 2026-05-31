@@ -8,6 +8,7 @@ import android.content.Intent
 import android.text.Html
 import android.widget.Toast
 import com.example.gymprogress.ui.VoiceInputButton
+import com.example.gymprogress.ui.VoiceInputTextUpdate
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -101,6 +102,116 @@ import java.util.Date
 import java.util.Locale
 
 private const val SHARE_SUBJECT_DATE_PATTERN = "yyyy-MM-dd"
+
+private data class VoiceInsertionRange(
+    val segmentId: Long,
+    val start: Int,
+    val end: Int
+)
+
+private data class AppliedVoiceInputUpdate(
+    val value: TextFieldValue,
+    val activeRange: VoiceInsertionRange?
+)
+
+private fun applyVoiceInputUpdate(
+    current: TextFieldValue,
+    activeRange: VoiceInsertionRange?,
+    update: VoiceInputTextUpdate
+): AppliedVoiceInputUpdate {
+    val spokenText = update.text.trim()
+    val matchingRange = activeRange?.takeIf { range ->
+        range.segmentId == update.segmentId &&
+            range.start in 0..current.text.length &&
+            range.end in range.start..current.text.length
+    }
+    val previousVoiceRange = activeRange?.takeIf { range ->
+        range.segmentId != update.segmentId &&
+            range.start in 0..current.text.length &&
+            range.end in range.start..current.text.length
+    }
+
+    if (spokenText.isEmpty()) {
+        val nextValue = matchingRange?.let { range ->
+            current.copy(selection = TextRange(range.end))
+        } ?: current
+        return AppliedVoiceInputUpdate(
+            value = nextValue,
+            activeRange = if (update.isFinal && matchingRange != null) null else activeRange
+        )
+    }
+
+    val replacement = if (
+        matchingRange != null &&
+        shouldReplaceVoiceRange(
+            current = current,
+            range = matchingRange,
+            spokenText = spokenText,
+            isFinal = update.isFinal
+        )
+    ) {
+        val before = current.text.substring(0, matchingRange.start)
+        val after = current.text.substring(matchingRange.end)
+        val newEnd = matchingRange.start + spokenText.length
+        AppliedVoiceInputUpdate(
+            value = TextFieldValue(
+                text = before + spokenText + after,
+                selection = TextRange(newEnd)
+            ),
+            activeRange = if (update.isFinal) {
+                null
+            } else {
+                matchingRange.copy(end = newEnd)
+            }
+        )
+    } else {
+        val appendAfterRange = matchingRange ?: previousVoiceRange
+        val selectionStart = appendAfterRange?.end
+            ?: minOf(current.selection.start, current.selection.end).coerceIn(0, current.text.length)
+        val selectionEnd = appendAfterRange?.end
+            ?: maxOf(current.selection.start, current.selection.end).coerceIn(0, current.text.length)
+        val before = current.text.substring(0, selectionStart)
+        val after = current.text.substring(selectionEnd)
+        val prefix = if (before.isNotEmpty() && !before.last().isWhitespace()) " " else ""
+        val suffix = if (after.isNotEmpty() && !after.first().isWhitespace()) " " else ""
+        val insertion = prefix + spokenText + suffix
+        val spokenStart = selectionStart + prefix.length
+        val spokenEnd = spokenStart + spokenText.length
+        AppliedVoiceInputUpdate(
+            value = TextFieldValue(
+                text = before + insertion + after,
+                selection = TextRange(spokenEnd)
+            ),
+            activeRange = if (update.isFinal) {
+                null
+            } else {
+                VoiceInsertionRange(
+                    segmentId = update.segmentId,
+                    start = spokenStart,
+                    end = spokenEnd
+                )
+            }
+        )
+    }
+
+    return replacement
+}
+
+private fun shouldReplaceVoiceRange(
+    current: TextFieldValue,
+    range: VoiceInsertionRange,
+    spokenText: String,
+    isFinal: Boolean
+): Boolean {
+    val existingText = current.text
+        .substring(range.start, range.end)
+        .trim()
+    if (existingText.isEmpty()) {
+        return true
+    }
+    return spokenText.startsWith(existingText, ignoreCase = true) ||
+        (isFinal && existingText.startsWith(spokenText, ignoreCase = true))
+}
 
 @Composable
 fun GymApp(viewModel: GymViewModel = viewModel()) {
@@ -1405,7 +1516,7 @@ private fun NoteEditorDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    var draftNote by remember(exercise.id, exercise.personalNote) {
+    val draftNoteState = remember(exercise.id, exercise.personalNote) {
         mutableStateOf(
             TextFieldValue(
                 text = exercise.personalNote.orEmpty(),
@@ -1413,6 +1524,11 @@ private fun NoteEditorDialog(
             )
         )
     }
+    var draftNote by draftNoteState
+    val voiceInsertionRangeState = remember(exercise.id, exercise.personalNote) {
+        mutableStateOf<VoiceInsertionRange?>(null)
+    }
+    var voiceInsertionRange by voiceInsertionRangeState
     val focusRequester = remember { FocusRequester() }
     val editorMaxHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.72f).coerceAtLeast(280.dp)
 
@@ -1436,6 +1552,7 @@ private fun NoteEditorDialog(
                             .clip(RoundedCornerShape(6.dp))
                             .clickable {
                                 draftNote = TextFieldValue(text = "", selection = TextRange.Zero)
+                                voiceInsertionRange = null
                                 focusRequester.requestFocus()
                             },
                         contentAlignment = Alignment.Center
@@ -1450,29 +1567,21 @@ private fun NoteEditorDialog(
                     TextButton(
                         onClick = {
                             draftNote = draftNote.copy(selection = TextRange(draftNote.text.length))
+                            voiceInsertionRange = null
                             focusRequester.requestFocus()
                         }
                     ) {
                         Text(text = stringResource(R.string.note_dialog_cursor_end))
                     }
                     VoiceInputButton(
-                        onTextRecognised = { spoken ->
-                            val cursorPos = draftNote.selection.start
-                            val before = draftNote.text.substring(0, cursorPos)
-                            val after = draftNote.text.substring(cursorPos)
-                            val needSpaceBefore = before.isNotEmpty() &&
-                                !before.last().isWhitespace()
-                            val needSpaceAfter = after.isNotEmpty() &&
-                                !after.first().isWhitespace()
-                            val prefix = if (needSpaceBefore) " " else ""
-                            val suffix = if (needSpaceAfter) " " else ""
-                            val insertion = prefix + spoken + suffix
-                            val newText = before + insertion + after
-                            val newCursor = cursorPos + insertion.length
-                            draftNote = TextFieldValue(
-                                text = newText,
-                                selection = TextRange(newCursor)
+                        onTextUpdated = { update ->
+                            val applied = applyVoiceInputUpdate(
+                                current = draftNoteState.value,
+                                activeRange = voiceInsertionRangeState.value,
+                                update = update
                             )
+                            draftNoteState.value = applied.value
+                            voiceInsertionRangeState.value = applied.activeRange
                         }
                     )
                 }
@@ -1488,7 +1597,10 @@ private fun NoteEditorDialog(
             Column(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     value = draftNote,
-                    onValueChange = { draftNote = it },
+                    onValueChange = {
+                        draftNote = it
+                        voiceInsertionRange = null
+                    },
                     placeholder = {
                         Text(
                             text = stringResource(R.string.note_dialog_placeholder),
@@ -1516,7 +1628,7 @@ private fun GeneralNoteDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    var draftNote by remember(note) {
+    val draftNoteState = remember(note) {
         mutableStateOf(
             TextFieldValue(
                 text = note,
@@ -1524,6 +1636,11 @@ private fun GeneralNoteDialog(
             )
         )
     }
+    var draftNote by draftNoteState
+    val voiceInsertionRangeState = remember(note) {
+        mutableStateOf<VoiceInsertionRange?>(null)
+    }
+    var voiceInsertionRange by voiceInsertionRangeState
     val focusRequester = remember { FocusRequester() }
     val editorMaxHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.72f).coerceAtLeast(280.dp)
 
@@ -1547,6 +1664,7 @@ private fun GeneralNoteDialog(
                             .clip(RoundedCornerShape(6.dp))
                             .clickable {
                                 draftNote = TextFieldValue(text = "", selection = TextRange.Zero)
+                                voiceInsertionRange = null
                                 focusRequester.requestFocus()
                             },
                         contentAlignment = Alignment.Center
@@ -1561,29 +1679,21 @@ private fun GeneralNoteDialog(
                     TextButton(
                         onClick = {
                             draftNote = draftNote.copy(selection = TextRange(draftNote.text.length))
+                            voiceInsertionRange = null
                             focusRequester.requestFocus()
                         }
                     ) {
                         Text(text = stringResource(R.string.note_dialog_cursor_end))
                     }
                     VoiceInputButton(
-                        onTextRecognised = { spoken ->
-                            val cursorPos = draftNote.selection.start
-                            val before = draftNote.text.substring(0, cursorPos)
-                            val after = draftNote.text.substring(cursorPos)
-                            val needSpaceBefore = before.isNotEmpty() &&
-                                !before.last().isWhitespace()
-                            val needSpaceAfter = after.isNotEmpty() &&
-                                !after.first().isWhitespace()
-                            val prefix = if (needSpaceBefore) " " else ""
-                            val suffix = if (needSpaceAfter) " " else ""
-                            val insertion = prefix + spoken + suffix
-                            val newText = before + insertion + after
-                            val newCursor = cursorPos + insertion.length
-                            draftNote = TextFieldValue(
-                                text = newText,
-                                selection = TextRange(newCursor)
+                        onTextUpdated = { update ->
+                            val applied = applyVoiceInputUpdate(
+                                current = draftNoteState.value,
+                                activeRange = voiceInsertionRangeState.value,
+                                update = update
                             )
+                            draftNoteState.value = applied.value
+                            voiceInsertionRangeState.value = applied.activeRange
                         }
                     )
                 }
@@ -1599,7 +1709,10 @@ private fun GeneralNoteDialog(
             Column(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     value = draftNote,
-                    onValueChange = { draftNote = it },
+                    onValueChange = {
+                        draftNote = it
+                        voiceInsertionRange = null
+                    },
                     placeholder = {
                         Text(
                             text = stringResource(R.string.note_dialog_placeholder),

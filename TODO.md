@@ -100,7 +100,6 @@ https://gemini.google.com/gem/b3581e7d4ad4/3d39a00dd82ab803
 
 
 ## [ ] Immediate goals
-[x] добавить меню сброс всех заметок
 [ ] ввод заметок голосом.
         - интеграция с телеграм агентом.
         - например в заметке чтобы кнопка послать запрос dude (бот)
@@ -109,7 +108,6 @@ https://gemini.google.com/gem/b3581e7d4ad4/3d39a00dd82ab803
         - файлы сессий, где просто списки/ссылки на упражнения
 
 ### [ ] Android app for lemon gym exercises
-[ ] see design/andriod.app.md
 [ ] иконка моего приложения может быть согнутая мускулистая рука и бицепс чтобы был лимоном
 [ ] железное дополнение - на перчатку, с кучей кнопок для управления приложением прямо с ладони.
         возможно включая даже спотифай. 
@@ -124,11 +122,6 @@ https://gemini.google.com/gem/b3581e7d4ad4/3d39a00dd82ab803
 [ ] for active exercire the counter circle must be much bigger. circle almost all hight diameter. for easy touch experience
 [/] if missing add pair command
 [/] let make remember last port and IP address and offer as defaults - can change
-
-[ ] Hands day
-        [ ] develop set of exercises
-        [ ] add alternative DAY 
-        [ ] create alternative day for hands
 
 [ ] купить реальные часы которые соединяются с андроидом. 
         первисный анализ что это может быть
