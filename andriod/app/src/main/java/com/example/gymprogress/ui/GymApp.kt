@@ -779,6 +779,14 @@ private fun ExerciseCard(
         isActiveAndIncomplete -> activeGlowColor
         else -> MaterialTheme.colorScheme.onSurface
     }
+    val weightChipTextColor = if (
+        isWeightSelectable &&
+        exercise.selectedWeight != exercise.defaultWeight
+    ) {
+        RecommendedExerciseYellow
+    } else {
+        chipTextColor
+    }
     val chipBorderColor = when {
         isActiveAndIncomplete -> activeGlowColor.copy(alpha = 0.65f)
         else -> outlineColor
@@ -868,7 +876,7 @@ private fun ExerciseCard(
                         WeightChip(
                             value = weightText.orEmpty(),
                             onClick = if (isWeightSelectable) onWeightClick else null,
-                            textColor = chipTextColor,
+                            textColor = weightChipTextColor,
                             backgroundColor = chipBackgroundColor,
                             borderColor = chipBorderColor
                         )
