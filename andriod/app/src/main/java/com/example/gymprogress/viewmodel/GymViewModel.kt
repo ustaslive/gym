@@ -375,7 +375,5 @@ class GymViewModel internal constructor(
             ExerciseGroup.CARDIO,
             ExerciseGroup.COOLDOWN
         )
-        internal fun builtInExercises(): List<ExerciseUiState> =
-            com.example.gymprogress.builtInExercises()
     }
 }

@@ -87,13 +87,11 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymprogress.ui.theme.ActiveGlowBlue
-import com.example.gymprogress.ui.theme.GymProgressTheme
 import com.example.gymprogress.ui.theme.HighlightGreen
 import com.example.gymprogress.ui.theme.PrimaryGreen
 import com.example.gymprogress.ui.theme.RecommendedExerciseYellow
@@ -1621,42 +1619,6 @@ private fun GeneralNoteDialog(
             }
         }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun GymScreenPreview() {
-    GymProgressTheme {
-        GymScreen(
-            exercises = GymViewModel.builtInExercises(),
-            newlyUnlockedAnchorId = null,
-            onNewGroupAnchorConsumed = {},
-            onExerciseSelected = {},
-            onProgressTapped = { _ -> },
-            onWeightSelected = { _, _ -> },
-            onResetDay = {},
-            sessionOptions = listOf(
-                WorkoutSessionOption(
-                    id = LegacyWorkoutSessionIds.GENERAL,
-                    title = "General"
-                )
-            ),
-            selectedSessionId = LegacyWorkoutSessionIds.GENERAL,
-            onSessionSelected = { _ -> },
-            onPersonalNoteSaved = { _, _ -> },
-            generalNote = null,
-            onGeneralNoteSaved = { _ -> },
-            statusText = null,
-            onStatusTapped = {},
-            onFullReset = {},
-            onShareNotes = { null },
-            onClearNotes = {},
-            isExerciseBundleDownloadInProgress = false,
-            exerciseBundleDownloadMessage = null,
-            onDownloadExercises = {},
-            onExerciseBundleDownloadMessageShown = { _ -> }
-        )
-    }
 }
 
 private fun buildShareNotesSubject(context: Context): String {
