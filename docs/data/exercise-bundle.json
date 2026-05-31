@@ -6,7 +6,25 @@
     "title": "Lemon Exercise Data",
     "description": "Shared exercise catalog and sessions extracted from the Android app and browser JSON plans.",
     "revision": 1,
-    "locale": "en"
+    "locale": "en",
+    "extensions": {
+      "muscleGroups": [
+        "abs",
+        "back",
+        "biceps",
+        "calves",
+        "chest",
+        "forearms",
+        "glutes",
+        "hamstrings",
+        "hands",
+        "hip_abductors",
+        "quadriceps",
+        "rear_delts",
+        "shoulders",
+        "triceps"
+      ]
+    }
   },
   "exerciseCatalog": {
     "elliptical": {
@@ -21,11 +39,7 @@
       },
       "settings": {
         "setupNote": "Вес: 85 кг (190 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 10."
-      },
-      "muscleGroups": [
-        "cardio",
-        "legs"
-      ]
+      }
     },
     "elliptical_no_arms": {
       "title": "Elliptical",
@@ -39,11 +53,7 @@
       },
       "settings": {
         "setupNote": "Держитесь за неподвижные центральные поручни. Локти опущены и расслаблены. Работают только ноги."
-      },
-      "muscleGroups": [
-        "cardio",
-        "legs"
-      ]
+      }
     },
     "leg_press": {
       "title": "Leg Press",
@@ -74,8 +84,7 @@
       },
       "muscleGroups": [
         "quadriceps",
-        "glutes",
-        "hamstrings"
+        "glutes"
       ]
     },
     "leg_extension": {
@@ -166,8 +175,7 @@
         "setupNote": "Установите начальную ширину в положение 1."
       },
       "muscleGroups": [
-        "hip_abductors",
-        "glutes"
+        "hip_abductors"
       ]
     },
     "shoulder_press": {
@@ -198,8 +206,7 @@
         "setupNote": "Отрегулируйте высоту сиденья на уровень 8."
       },
       "muscleGroups": [
-        "shoulders",
-        "triceps"
+        "shoulders"
       ]
     },
     "lat_pulldown": {
@@ -224,9 +231,7 @@
         "setupNote": "Перед тягой установите высоту сиденья на уровень 5."
       },
       "muscleGroups": [
-        "back",
-        "lats",
-        "biceps"
+        "back"
       ]
     },
     "chest_press": {
@@ -257,9 +262,7 @@
         "setupNote": "Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно."
       },
       "muscleGroups": [
-        "chest",
-        "triceps",
-        "front_delts"
+        "chest"
       ]
     },
     "row": {
@@ -276,8 +279,7 @@
         "weightLabel": "2x30кг"
       },
       "muscleGroups": [
-        "back",
-        "biceps"
+        "back"
       ]
     },
     "pec_deck": {
@@ -384,7 +386,6 @@
         "setupNote": "Подъемы гантелей перед собой\n\nДержите руки прямыми (или с минимальным, но жестко зафиксированным углом в локте). Медленно поднимайте гантели перед собой до уровня плеч. Не делайте рывков."
       },
       "muscleGroups": [
-        "front_delts",
         "shoulders"
       ]
     },
@@ -412,7 +413,6 @@
         "setupNote": "Махи с гантелями в стороны\n\nПоднимайте прямые руки через стороны до параллели с полом. Локоть не сгибается и не разгибается во время движения. Движение идет от плечевого сустава."
       },
       "muscleGroups": [
-        "side_delts",
         "shoulders"
       ]
     },
@@ -428,11 +428,7 @@
       },
       "settings": {
         "setupNote": "Вес: 85 кг (190 lb). Возраст: 55. Максимальный пульс: 140. Установите уровень 18. Высота сиденья: 20."
-      },
-      "muscleGroups": [
-        "cardio",
-        "legs"
-      ]
+      }
     },
     "cooldown_chest_pillar": {
       "title": "Передняя дельта",
@@ -735,9 +731,7 @@
         "setupNote": "Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно."
       },
       "muscleGroups": [
-        "chest",
-        "triceps",
-        "front_delts"
+        "chest"
       ]
     },
     "hands_pec_deck": {
@@ -794,9 +788,7 @@
         "setupNote": "Техника:\nУстанови спинку скамьи под углом 30–45° к горизонтали. Сядь, затем ляг на спинку и плотно прижми к ней спину. Ноги стоят на полу устойчиво.\n\nДержи гантели над верхней частью груди. Локти слегка разведены в стороны примерно на 30–60° от корпуса, предплечья направлены почти вертикально. Запястья держи прямыми.\n\nОпускай гантели по сторонам верхней части груди под контролем. Затем выжимай их вверх по той же траектории. В верхней точке гантели находятся над плечами, локти почти выпрямлены без жёсткой блокировки. Держи гантели стабильно и не позволяй им расходиться в стороны."
       },
       "muscleGroups": [
-        "upper_chest",
-        "triceps",
-        "front_delts"
+        "chest"
       ]
     },
     "hands_seated_row": {
@@ -813,8 +805,7 @@
         "weightLabel": "2x30кг"
       },
       "muscleGroups": [
-        "back",
-        "biceps"
+        "back"
       ]
     },
     "hands_reverse_pec_deck": {
@@ -845,8 +836,8 @@
         "setupNote": "Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.\n\nУпирайся в рукояти ребрами кистей, где мизинец.\n\nРазводи рукояти назад за счет задней дельты и мышц спины, сводя лопатки. Плавно возвращай в исходное положение."
       },
       "muscleGroups": [
-        "rear_delts",
-        "upper_back"
+        "back",
+        "rear_delts"
       ]
     },
     "hands_biceps_machine": {
@@ -999,12 +990,7 @@
       },
       "settings": {
         "setupNote": "Гребной тренажер без включения ног. Это упражнение дает монотонную кардио-нагрузку в целевой зоне пульса без движения в коленных суставах.\n\nНагрузка: сопротивление 3-4. Время: 10-15 минут или до достижения нужного объема кардио. Целевая зона пульса: 130-140 bpm.\n\nПодготовка: сядь на сиденье тренажера и зафиксируй стопы в ремешках. Выпрями ноги так, чтобы коленям было комфортно. Можно оставить их слегка согнутыми, если полное выпрямление провоцирует заклинивание. Зафиксируй ноги: на протяжении всего упражнения сиденье не должно ездить по рельсе.\n\nВыполнение:\n1. Слегка наклони корпус вперед от бедра, держи спину прямой, а руки вытянутыми к маховику.\n2. Начни тягу: сначала немного отклони корпус назад до угла примерно 100-110 градусов.\n3. Затем мощно, но плавно потяни рукоять к низу груди или к животу, сводя лопатки вместе.\n4. Вернись в исходное положение в обратном порядке: сначала выпрями руки, затем снова наклони корпус вперед.\n\nОшибки: не сгибай и не разгибай колени, не округляй поясницу при наклоне вперед и не отклоняй спину слишком далеко назад в конце тяги."
-      },
-      "muscleGroups": [
-        "cardio",
-        "back",
-        "biceps"
-      ]
+      }
     },
     "hands_cooldown_chest_stretch": {
       "title": "Растяжка груди",
@@ -1241,6 +1227,9 @@
       "tags": [
         "browser",
         "gym"
+      ],
+      "muscleGroups": [
+        "hip_abductors"
       ]
     },
     "browser_gym_013": {
@@ -1253,6 +1242,10 @@
       "tags": [
         "browser",
         "gym"
+      ],
+      "muscleGroups": [
+        "quadriceps",
+        "glutes"
       ]
     },
     "browser_gym_014": {
@@ -1265,6 +1258,10 @@
       "tags": [
         "browser",
         "gym"
+      ],
+      "muscleGroups": [
+        "quadriceps",
+        "glutes"
       ]
     },
     "browser_gym_015": {
@@ -1277,6 +1274,9 @@
       "tags": [
         "browser",
         "gym"
+      ],
+      "muscleGroups": [
+        "calves"
       ]
     },
     "browser_gym_016": {
@@ -1301,6 +1301,9 @@
       "tags": [
         "browser",
         "gym"
+      ],
+      "muscleGroups": [
+        "quadriceps"
       ]
     },
     "browser_gym_018": {
@@ -1387,6 +1390,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "forearms"
       ]
     },
     "browser_palm_006": {
@@ -1399,6 +1405,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_007": {
@@ -1411,6 +1420,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_008": {
@@ -1423,6 +1435,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_009": {
@@ -1435,6 +1450,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_010": {
@@ -1447,6 +1465,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_011": {
@@ -1459,6 +1480,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_012": {
@@ -1492,6 +1516,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_014": {
@@ -1504,6 +1531,10 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "forearms",
+        "hands"
       ]
     },
     "browser_palm_015": {
@@ -1516,6 +1547,10 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "forearms",
+        "hands"
       ]
     },
     "browser_palm_016": {
@@ -1528,6 +1563,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "forearms"
       ]
     },
     "browser_palm_017": {
@@ -1540,6 +1578,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_palm_018": {
@@ -1552,6 +1593,9 @@
       "tags": [
         "browser",
         "palm"
+      ],
+      "muscleGroups": [
+        "hands"
       ]
     },
     "browser_nerv_001": {
@@ -1588,6 +1632,9 @@
       "tags": [
         "browser",
         "nerv"
+      ],
+      "muscleGroups": [
+        "hip_abductors"
       ]
     },
     "browser_nerv_004": {
@@ -1749,6 +1796,9 @@
       "tags": [
         "browser",
         "nerv"
+      ],
+      "muscleGroups": [
+        "abs"
       ]
     },
     "browser_nerv_016": {
@@ -1761,6 +1811,10 @@
       "tags": [
         "browser",
         "nerv"
+      ],
+      "muscleGroups": [
+        "back",
+        "forearms"
       ]
     },
     "browser_examples_gym_001": {
@@ -1787,6 +1841,9 @@
       "tags": [
         "browser",
         "examples_gym"
+      ],
+      "muscleGroups": [
+        "abs"
       ]
     },
     "browser_examples_gym_003": {
@@ -1799,6 +1856,10 @@
       "tags": [
         "browser",
         "examples_gym"
+      ],
+      "muscleGroups": [
+        "chest",
+        "triceps"
       ]
     },
     "browser_examples_gym_004": {
@@ -1811,6 +1872,10 @@
       "tags": [
         "browser",
         "examples_gym"
+      ],
+      "muscleGroups": [
+        "quadriceps",
+        "glutes"
       ]
     },
     "browser_examples_gym_005": {
@@ -1995,137 +2060,43 @@
           "exercises": [
             {
               "id": "hands_chest_press",
-              "exerciseId": "hands_chest_press",
-              "recommendedNextExerciseIds": [
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_chest_press"
             },
             {
               "id": "hands_pec_deck",
-              "exerciseId": "hands_pec_deck",
-              "recommendedNextExerciseIds": [
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_pec_deck"
             },
             {
               "id": "hands_incline_db_press",
-              "exerciseId": "hands_incline_db_press",
-              "recommendedNextExerciseIds": [
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_incline_db_press"
             },
             {
               "id": "hands_seated_row",
-              "exerciseId": "hands_seated_row",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_seated_row"
             },
             {
               "id": "hands_reverse_pec_deck",
-              "exerciseId": "hands_reverse_pec_deck",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_reverse_pec_deck"
             },
             {
               "id": "hands_biceps_machine",
-              "exerciseId": "hands_biceps_machine",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_biceps_machine"
             },
             {
               "id": "hands_seated_hammer_curl",
-              "exerciseId": "hands_seated_hammer_curl",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_seated_hammer_curl"
             },
             {
               "id": "hands_incline_db_biceps",
-              "exerciseId": "hands_incline_db_biceps",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_triceps_machine",
-                "hands_dumbbell_french_press"
-              ]
+              "exerciseId": "hands_incline_db_biceps"
             },
             {
               "id": "hands_triceps_machine",
-              "exerciseId": "hands_triceps_machine",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps"
-              ]
+              "exerciseId": "hands_triceps_machine"
             },
             {
               "id": "hands_dumbbell_french_press",
-              "exerciseId": "hands_dumbbell_french_press",
-              "recommendedNextExerciseIds": [
-                "hands_chest_press",
-                "hands_pec_deck",
-                "hands_incline_db_press",
-                "hands_seated_row",
-                "hands_reverse_pec_deck",
-                "hands_biceps_machine",
-                "hands_seated_hammer_curl",
-                "hands_incline_db_biceps"
-              ]
+              "exerciseId": "hands_dumbbell_french_press"
             }
           ]
         },

@@ -410,9 +410,8 @@ Additional semantic validation is still required by the editor and clients:
 - unique section IDs within a session
 - unique exercise entry IDs within a session
 - valid `exerciseId` references into `exerciseCatalog`
-- valid `recommendedNextExerciseIds` references within the same session
 - `defaultWeight` is present in `weightOptions`
-- recommended next-exercise logic may use `muscleGroups` from catalog exercises and optional `recommendedNextExerciseIds` from session entries
+- recommended next-exercise logic uses `muscleGroups` from catalog exercises
 
 These checks are intentionally listed outside JSON Schema because they require cross-object validation.
 

@@ -144,8 +144,6 @@ def validate_bundle(bundle: Any) -> list[str]:
 
         section_ids: set[str] = set()
         session_entry_ids: set[str] = set()
-        session_exercise_ids: set[str] = set()
-        pending_recommendations: list[tuple[str, str]] = []
 
         for section_index, section in enumerate(sections):
             section_obj = require_object(section, f"sessions[{session_index}].sections[{section_index}]")
@@ -166,14 +164,6 @@ def validate_bundle(bundle: Any) -> list[str]:
                 exercise_id = require_id(entry_obj.get("exerciseId"), f"{entry_path}.exerciseId")
                 if exercise_id not in catalog:
                     raise ValidationError(f"{entry_path}.exerciseId references missing catalog item: {exercise_id}")
-                session_exercise_ids.add(exercise_id)
-                for target in entry_obj.get("recommendedNextExerciseIds", []):
-                    require_id(target, f"{entry_path}.recommendedNextExerciseIds[]")
-                    pending_recommendations.append((entry_id, target))
-
-        for source_id, target in pending_recommendations:
-            if target not in session_exercise_ids and target not in session_entry_ids:
-                raise ValidationError(f"{session_id}.{source_id} recommends missing exercise: {target}")
 
     return warnings
 

@@ -100,8 +100,7 @@ class SharedExerciseBundleParserTest {
                       "exercises": [
                         {
                           "id": "main_press",
-                          "exerciseId": "press",
-                          "recommendedNextExerciseIds": ["cooldown_stretch"]
+                          "exerciseId": "press"
                         }
                       ]
                     },
@@ -146,7 +145,6 @@ class SharedExerciseBundleParserTest {
         assertEquals(20, press.defaultWeight)
         assertEquals(20, press.selectedWeight)
         assertEquals(3, press.totalSets)
-        assertEquals(listOf("cooldown_stretch"), press.recommendedNextExerciseIds)
         assertEquals(listOf("chest"), press.muscleGroups)
 
         val stretch = exercises[2]

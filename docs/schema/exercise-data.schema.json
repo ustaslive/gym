@@ -694,12 +694,6 @@
         "exerciseId": {
           "$ref": "#/$defs/id"
         },
-        "recommendedNextExerciseIds": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/id"
-          }
-        },
         "overrides": {
           "$ref": "#/$defs/sessionExerciseOverrides"
         },

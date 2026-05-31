@@ -258,15 +258,17 @@ internal class WorkoutExerciseStateReducer(
         exercises: List<ExerciseUiState>,
         completedExercise: ExerciseUiState
     ): List<ExerciseUiState> {
-        val recommendedIds = completedExercise.recommendedNextExerciseIds.toSet()
-        if (recommendedIds.isEmpty()) {
+        if (!completedExercise.canDriveRecommendedNext()) {
             return exercises
         }
+        val completedMuscleGroups = completedExercise.muscleGroups.toSet()
         return exercises.map { exercise ->
             val shouldBeRecommended = exercise.isUnlocked &&
-                exercise.type != ExerciseType.PLACEHOLDER &&
+                exercise.canBeRecommendedNext() &&
                 !exercise.isCompleted() &&
-                exercise.id in recommendedIds
+                exercise.id != completedExercise.id &&
+                exercise.muscleGroups.isNotEmpty() &&
+                exercise.muscleGroups.none { group -> group in completedMuscleGroups }
             if (exercise.isRecommendedNext == shouldBeRecommended) {
                 exercise
             } else {
@@ -274,6 +276,17 @@ internal class WorkoutExerciseStateReducer(
             }
         }
     }
+
+    private fun ExerciseUiState.canDriveRecommendedNext(): Boolean =
+        group == ExerciseGroup.MAIN &&
+            type != ExerciseType.ACTIVITY &&
+            type != ExerciseType.PLACEHOLDER &&
+            muscleGroups.isNotEmpty()
+
+    private fun ExerciseUiState.canBeRecommendedNext(): Boolean =
+        group == ExerciseGroup.MAIN &&
+            type != ExerciseType.ACTIVITY &&
+            type != ExerciseType.PLACEHOLDER
 
     private data class GroupUnlockResult(
         val exercises: List<ExerciseUiState>,

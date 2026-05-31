@@ -92,48 +92,6 @@ internal class WorkoutTemplateRepository(
 
 }
 
-private val handsChestNextExerciseIds = listOf(
-    "hands_seated_row",
-    "hands_reverse_pec_deck",
-    "hands_biceps_machine",
-    "hands_seated_hammer_curl",
-    "hands_incline_db_biceps",
-    "hands_triceps_machine",
-    "hands_dumbbell_french_press"
-)
-
-private val handsBackNextExerciseIds = listOf(
-    "hands_chest_press",
-    "hands_pec_deck",
-    "hands_incline_db_press",
-    "hands_biceps_machine",
-    "hands_seated_hammer_curl",
-    "hands_incline_db_biceps",
-    "hands_triceps_machine",
-    "hands_dumbbell_french_press"
-)
-
-private val handsBicepsNextExerciseIds = listOf(
-    "hands_chest_press",
-    "hands_pec_deck",
-    "hands_incline_db_press",
-    "hands_seated_row",
-    "hands_reverse_pec_deck",
-    "hands_triceps_machine",
-    "hands_dumbbell_french_press"
-)
-
-private val handsTricepsNextExerciseIds = listOf(
-    "hands_chest_press",
-    "hands_pec_deck",
-    "hands_incline_db_press",
-    "hands_seated_row",
-    "hands_reverse_pec_deck",
-    "hands_biceps_machine",
-    "hands_seated_hammer_curl",
-    "hands_incline_db_biceps"
-)
-
 private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
     handsDayGuidedExercise(
         id = "hands_warmup_shoulder_circles",
@@ -204,7 +162,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
         defaultWeight = 21,
         restBetweenSeconds = 70,
-        recommendedNextExerciseIds = handsChestNextExerciseIds,
         settingsNote = """
             Отрегулируйте высоту сиденья на уровень 4 и убедитесь, что руки выстроены ровно.
         """.trimIndent()
@@ -215,7 +172,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
         defaultWeight = 28,
         restBetweenSeconds = 45,
-        recommendedNextExerciseIds = handsChestNextExerciseIds,
         settingsNote = PEC_DECK_SETTINGS_NOTE
     ),
     handsDayWeightExercise(
@@ -224,7 +180,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
         defaultWeight = 7,
         restBetweenSeconds = 70,
-        recommendedNextExerciseIds = handsChestNextExerciseIds,
         settingsNote = """
             Техника:
             Установи спинку скамьи под углом 30–45° к горизонтали. Сядь, затем ляг на спинку и плотно прижми к ней спину. Ноги стоят на полу устойчиво.
@@ -247,8 +202,7 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         restFinalSeconds = 120,
         totalSets = 3,
         completedSets = 0,
-        hasSettings = false,
-        recommendedNextExerciseIds = handsBackNextExerciseIds
+        hasSettings = false
     ),
     handsDayWeightExercise(
         id = "hands_reverse_pec_deck",
@@ -256,7 +210,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91),
         defaultWeight = 35,
         restBetweenSeconds = 45,
-        recommendedNextExerciseIds = handsBackNextExerciseIds,
         settingsNote = """
             Сядь в тренажер лицом к спинке. Грудь плотно прижата, ноги расслаблены.
 
@@ -272,7 +225,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         defaultWeight = 10,
         restBetweenSeconds = 45,
         weightOptionLabelTemplate = "%d",
-        recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """
             Сядь, упрись грудью и локтями в подушку тренажера. Сгибай руки плавно, не забрасывая вес всем телом.
         """.trimIndent()
@@ -283,7 +235,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
         defaultWeight = 8,
         restBetweenSeconds = 60,
-        recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """
             Подготовка: установи спинку скамьи вертикально, примерно на 90 градусов. Сядь и прижми спину.
             Выполнение: держи гантели нейтральным хватом, ладони смотрят друг на друга. Сгибай руки к плечам. Упражнение развивает предплечья и мышцу под бицепсом.
@@ -295,7 +246,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
         defaultWeight = 7,
         restBetweenSeconds = 45,
-        recommendedNextExerciseIds = handsBicepsNextExerciseIds,
         settingsNote = """
             Подготовка: установи скамью под углом 45-60 градусов к горизонтали. Сядь и откинься на спинку. Руки с гантелями свободно свисают вниз. Плечо каждой руки всё время направлено вертикально вниз и не уходит вперед.
             Выполнение: сгибай руки именно в локтях, поднимая гантели вверх. Ладони направлены вперед и вверх, то есть используй обычный хват на бицепс. Не разворачивай плечи и не подавай локти вперед. В верхней точке бицепс напряжен, затем плавно опускай гантели вниз до полного контролируемого растяжения.
@@ -308,7 +258,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         defaultWeight = 25,
         restBetweenSeconds = 60,
         weightOptionLabelTemplate = "2x%dкг",
-        recommendedNextExerciseIds = handsTricepsNextExerciseIds,
         settingsNote = """
             Отрегулируй сиденье так, чтобы в верхней позиции локти были немного позади корпуса, а плечи оставались опущенными. Возьмись за рукояти и зафиксируй ноги под валиком, спина прямая. В стартовой точке локти согнуты примерно под 90°, предплечья почти вертикальны.
 
@@ -321,7 +270,6 @@ private fun handsDayTemplates(): List<ExerciseUiState> = listOf(
         weightOptions = listOf(3, 4, 5, 6, 7, 8, 9, 10),
         defaultWeight = 6,
         restBetweenSeconds = 60,
-        recommendedNextExerciseIds = handsTricepsNextExerciseIds,
         settingsNote = """
             Сядь на скамью без поднятой спинки, держи спину ровной. Возьми одну гантель двумя руками, обхвати ладонями верхний блин и подними её над головой.
 
@@ -428,7 +376,6 @@ private fun handsDayWeightExercise(
     defaultWeight: Int,
     restBetweenSeconds: Int = 45,
     weightOptionLabelTemplate: String? = null,
-    recommendedNextExerciseIds: List<String> = emptyList(),
     settingsNote: String
 ): ExerciseUiState = ExerciseUiState(
     id = id,
@@ -444,8 +391,7 @@ private fun handsDayWeightExercise(
     totalSets = 3,
     completedSets = 0,
     hasSettings = true,
-    settingsNote = settingsNote,
-    recommendedNextExerciseIds = recommendedNextExerciseIds
+    settingsNote = settingsNote
 )
 
 private fun handsDayGuidedExercise(

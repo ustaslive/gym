@@ -115,8 +115,7 @@ private fun parseExercise(
         hasSettings = !setupNote.isNullOrBlank(),
         settingsNote = setupNote,
         detailSections = detailSections,
-        muscleGroups = definition.optJSONArray("muscleGroups").toStringList(),
-        recommendedNextExerciseIds = entry.optJSONArray("recommendedNextExerciseIds").toStringList()
+        muscleGroups = definition.optJSONArray("muscleGroups").toStringList()
     )
 }
 

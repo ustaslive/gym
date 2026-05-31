@@ -89,7 +89,7 @@ class WorkoutExerciseStateReducerTest {
     }
 
     @Test
-    fun advanceProgressCompletingExerciseReplacesRecommendationsWithRemainingMatches() {
+    fun advanceProgressCompletingExerciseRecommendsRemainingStrengthExercisesWithDifferentMuscleGroups() {
         val exercises = listOf(
             sampleExercise(
                 id = "source",
@@ -97,26 +97,44 @@ class WorkoutExerciseStateReducerTest {
                 completedSets = 0,
                 isUnlocked = true,
                 isActive = true,
-                recommendedNextExerciseIds = listOf("next", "missing", "done")
+                muscleGroups = listOf("chest")
             ),
             sampleExercise(
                 id = "old_recommended",
                 totalSets = 3,
                 completedSets = 0,
                 isUnlocked = true,
+                muscleGroups = listOf("chest"),
                 isRecommendedNext = true
             ),
             sampleExercise(
-                id = "next",
+                id = "different_group",
                 totalSets = 3,
                 completedSets = 0,
-                isUnlocked = true
+                isUnlocked = true,
+                muscleGroups = listOf("back")
+            ),
+            sampleExercise(
+                id = "same_group",
+                totalSets = 3,
+                completedSets = 0,
+                isUnlocked = true,
+                muscleGroups = listOf("chest", "triceps")
+            ),
+            sampleExercise(
+                id = "cardio",
+                type = ExerciseType.ACTIVITY,
+                totalSets = 1,
+                completedSets = 0,
+                isUnlocked = true,
+                muscleGroups = listOf("legs")
             ),
             sampleExercise(
                 id = "done",
                 totalSets = 1,
                 completedSets = 1,
-                isUnlocked = true
+                isUnlocked = true,
+                muscleGroups = listOf("legs")
             )
         )
 
@@ -129,7 +147,9 @@ class WorkoutExerciseStateReducerTest {
 
         assertTrue(result.exercises.first { exercise -> exercise.id == "source" }.isCompleted())
         assertFalse(result.exercises.first { exercise -> exercise.id == "old_recommended" }.isRecommendedNext)
-        assertTrue(result.exercises.first { exercise -> exercise.id == "next" }.isRecommendedNext)
+        assertTrue(result.exercises.first { exercise -> exercise.id == "different_group" }.isRecommendedNext)
+        assertFalse(result.exercises.first { exercise -> exercise.id == "same_group" }.isRecommendedNext)
+        assertFalse(result.exercises.first { exercise -> exercise.id == "cardio" }.isRecommendedNext)
         assertFalse(result.exercises.first { exercise -> exercise.id == "done" }.isRecommendedNext)
     }
 
@@ -142,13 +162,14 @@ class WorkoutExerciseStateReducerTest {
                 completedSets = 1,
                 isUnlocked = true,
                 isActive = true,
-                recommendedNextExerciseIds = listOf("next")
+                muscleGroups = listOf("chest")
             ),
             sampleExercise(
                 id = "next",
                 totalSets = 3,
                 completedSets = 0,
                 isUnlocked = true,
+                muscleGroups = listOf("back"),
                 isRecommendedNext = true
             )
         )
@@ -167,17 +188,18 @@ class WorkoutExerciseStateReducerTest {
     private fun sampleExercise(
         id: String,
         group: ExerciseGroup = ExerciseGroup.MAIN,
+        type: ExerciseType = ExerciseType.WEIGHTS,
         totalSets: Int,
         completedSets: Int,
         restFinalSeconds: Int = 120,
         isUnlocked: Boolean,
         isActive: Boolean = false,
-        recommendedNextExerciseIds: List<String> = emptyList(),
+        muscleGroups: List<String> = emptyList(),
         isRecommendedNext: Boolean = false
     ): ExerciseUiState = ExerciseUiState(
         id = id,
         name = id.uppercase(),
-        type = ExerciseType.WEIGHTS,
+        type = type,
         group = group,
         weightOptions = listOf(10),
         selectedWeight = 10,
@@ -189,7 +211,7 @@ class WorkoutExerciseStateReducerTest {
         hasSettings = false,
         isActive = isActive,
         isUnlocked = isUnlocked,
-        recommendedNextExerciseIds = recommendedNextExerciseIds,
+        muscleGroups = muscleGroups,
         isRecommendedNext = isRecommendedNext
     )
 }

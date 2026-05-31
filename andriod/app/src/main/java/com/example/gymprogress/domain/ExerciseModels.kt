@@ -69,7 +69,6 @@ data class ExerciseUiState(
     val isUnlocked: Boolean = true,
     val supportingText: String? = null,
     val muscleGroups: List<String> = emptyList(),
-    val recommendedNextExerciseIds: List<String> = emptyList(),
     val isRecommendedNext: Boolean = false
 )
 
