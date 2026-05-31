@@ -28,7 +28,7 @@
       ]
     },
     "elliptical_no_arms": {
-      "title": "Elliptical (Без рук)",
+      "title": "Elliptical",
       "kind": "activity",
       "parameters": {
         "mode": "elliptical",
