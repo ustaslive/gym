@@ -1,5 +1,6 @@
 {
   "livePreview.serverRoot": "docs",
   "livePreview.defaultPreviewPath": "/gym.html",
-  "livePreview.openPreviewTarget": "External Browser"
+  "livePreview.openPreviewTarget": "External Browser",
+  "workbench.colorTheme": "GitHub Dark Colorblind (Beta)"
 }

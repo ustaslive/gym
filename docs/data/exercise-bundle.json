@@ -50,6 +50,7 @@
       "kind": "weights",
       "parameters": {
         "weightOptions": [
+          16,
           23,
           30,
           37,
@@ -374,7 +375,7 @@
           9,
           10
         ],
-        "defaultWeight": 4,
+        "defaultWeight": 3,
         "totalSets": 3,
         "restBetweenSeconds": 45,
         "restFinalSeconds": 120
@@ -402,7 +403,7 @@
           9,
           10
         ],
-        "defaultWeight": 4,
+        "defaultWeight": 3,
         "totalSets": 3,
         "restBetweenSeconds": 45,
         "restFinalSeconds": 120
