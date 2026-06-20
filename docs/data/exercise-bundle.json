@@ -2384,23 +2384,48 @@
           "exercises": [
             {
               "id": "leg_press",
-              "exerciseId": "leg_press"
+              "exerciseId": "leg_press",
+              "overrides": {
+                "parameters": {
+                  "defaultWeight": 23
+                }
+              }
             },
             {
               "id": "leg_extension",
-              "exerciseId": "leg_extension"
+              "exerciseId": "leg_extension",
+              "overrides": {
+                "parameters": {
+                  "defaultWeight": 7
+                }
+              }
             },
             {
               "id": "leg_curl",
-              "exerciseId": "leg_curl"
+              "exerciseId": "leg_curl",
+              "overrides": {
+                "parameters": {
+                  "defaultWeight": 7
+                }
+              }
             },
             {
               "id": "leg_abductor",
-              "exerciseId": "leg_abductor"
+              "exerciseId": "leg_abductor",
+              "overrides": {
+                "parameters": {
+                  "defaultWeight": 49
+                }
+              }
             },
             {
               "id": "cable_crunch",
-              "exerciseId": "cable_crunch"
+              "exerciseId": "cable_crunch",
+              "overrides": {
+                "parameters": {
+                  "defaultWeight": 42
+                }
+              }
             },
             {
               "id": "decline_bench_crunch",
