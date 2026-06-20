@@ -6,25 +6,7 @@
     "title": "Lemon Exercise Data",
     "description": "Shared exercise catalog and sessions extracted from the Android app and browser JSON plans.",
     "revision": 1,
-    "locale": "en",
-    "extensions": {
-      "muscleGroups": [
-        "abs",
-        "back",
-        "biceps",
-        "calves",
-        "chest",
-        "forearms",
-        "glutes",
-        "hamstrings",
-        "hands",
-        "hip_abductors",
-        "quadriceps",
-        "rear_delts",
-        "shoulders",
-        "triceps"
-      ]
-    }
+    "locale": "en"
   },
   "exerciseCatalog": {
     "elliptical": {
@@ -343,24 +325,32 @@
     "decline_bench_crunch": {
       "title": "Decline Bench Crunch",
       "kind": "repetitions",
-      "description": "Скручивания на наклонной скамье. Скрестите руки на груди (поза мумии). Поднимайте туловище за счет пресса. Исключите руки из движения.",
       "parameters": {
         "repetitions": "12-15"
       },
       "muscleGroups": [
         "abs"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Скручивания на наклонной скамье. Скрестите руки на груди (поза мумии). Поднимайте туловище за счет пресса. Исключите руки из движения."
+        ]
+      }
     },
     "floor_crunch": {
       "title": "Floor Crunch",
       "kind": "repetitions",
-      "description": "Скручивания на полу\n\nЛягте на коврик, ноги согнуты. Руки скрещены на груди. Плавно отрывайте лопатки от пола, поясница прижата.",
       "parameters": {
         "repetitions": "15-20"
       },
       "muscleGroups": [
         "abs"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Скручивания на полу\n\nЛягте на коврик, ноги согнуты. Руки скрещены на груди. Плавно отрывайте лопатки от пола, поясница прижата."
+        ]
+      }
     },
     "db_front_raise": {
       "title": "Dumbbell Front Raise",
@@ -1077,19 +1067,22 @@
     "browser_gym_001": {
       "title": "Marching in place, 1 min",
       "kind": "timer",
-      "description": "- Start: stand straight, arms at sides.  \n   - Movement: march in place with small steps.  \n   - Breathing: natural.",
       "parameters": {
         "durationSeconds": 60
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: stand straight, arms at sides.  \n   - Movement: march in place with small steps.  \n   - Breathing: natural."
+        ]
+      }
     },
     "browser_gym_002": {
       "title": "Shoulder circles",
       "kind": "sequence",
-      "description": "- Start: stand straight, arms at sides.\n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm).",
       "parameters": {
         "steps": [
           {
@@ -1105,24 +1098,32 @@
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: stand straight, arms at sides.\n- Common mistakes: don't raise shoulders to ears (amplitude 2-3 cm)."
+        ]
+      }
     },
     "browser_gym_003": {
       "title": "Head circles",
       "kind": "repetitions",
-      "description": "- Start: stand straight, arms at sides\n- Movement: tilt head forward, chin to chest → full circle in ≈ 10 s.\n- Repeat 5 circles clockwise, then 5 counterclockwise.",
       "parameters": {
         "repetitions": "5+5"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: stand straight, arms at sides\n- Movement: tilt head forward, chin to chest → full circle in ≈ 10 s.\n- Repeat 5 circles clockwise, then 5 counterclockwise."
+        ]
+      }
     },
     "browser_gym_004": {
       "title": "Chest stretch with resistance band behind back",
       "kind": "intervals",
-      "description": "- Start: stand straight, feet hip-width apart. Hold black resistance band behind back with straight arms at hip level, palms facing body.\n- 20-30 s: slowly raise straight arms back and up until slight chest stretch. Hold at end position.\n- 10-15 s: rest.\n- Repeat 2 more times.\n- Common mistakes: don't arch lower back, don't raise shoulders to ears.",
       "parameters": {
         "workSeconds": 20,
         "restSeconds": 10,
@@ -1131,96 +1132,128 @@
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: stand straight, feet hip-width apart. Hold black resistance band behind back with straight arms at hip level, palms facing body.\n- 20-30 s: slowly raise straight arms back and up until slight chest stretch. Hold at end position.\n- 10-15 s: rest.\n- Repeat 2 more times.\n- Common mistakes: don't arch lower back, don't raise shoulders to ears."
+        ]
+      }
     },
     "browser_gym_005": {
       "title": "Prayer position - wrist stretch",
       "kind": "repetitions",
-      "description": "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times.",
       "parameters": {
         "repetitions": 10
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: palms together in front of chest, elbows out.\n- Movement: keeping palms together, lower hands down until stretch + return up.\n- Repeat 10 times."
+        ]
+      }
     },
     "browser_gym_006": {
       "title": "Wrist circles",
       "kind": "repetitions",
-      "description": "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed.",
       "parameters": {
         "repetitions": "10+10"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: elbows at sides, bent 90°.\n- Movement: hands at lower rib level, 10 circles clockwise → 10 circles counterclockwise.\n- Common mistakes: don't rotate entire forearm, keep fingers relaxed."
+        ]
+      }
     },
     "browser_gym_007": {
       "title": "Thumb circles",
       "kind": "repetitions",
-      "description": "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise.",
       "parameters": {
         "repetitions": "10+10"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: elbows at sides, bent 90°.\n- Movement: 10 circles with thumb clockwise → 10 circles counterclockwise."
+        ]
+      }
     },
     "browser_gym_008": {
       "title": "Standing cat-cow",
       "kind": "repetitions",
-      "description": "- Start: knees slightly bent, hands on hips, body leaning forward ≈ 30°.\n- Exhale: round back in an arch.\n- Inhale: arch lower back, chest forward.",
       "parameters": {
         "repetitions": 10
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: knees slightly bent, hands on hips, body leaning forward ≈ 30°.\n- Exhale: round back in an arch.\n- Inhale: arch lower back, chest forward."
+        ]
+      }
     },
     "browser_gym_009": {
       "title": "Torso twists, hands on shoulders",
       "kind": "repetitions",
-      "description": "- Start: feet hip-width apart, hands on shoulders, elbows out.\n- Movement: chest to left → center → right.\n- Repeat 20 times",
       "parameters": {
         "repetitions": 20
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: feet hip-width apart, hands on shoulders, elbows out.\n- Movement: chest to left → center → right.\n- Repeat 20 times"
+        ]
+      }
     },
     "browser_gym_010": {
       "title": "Hip circles standing",
       "kind": "repetitions",
-      "description": "- Start position: stand straight, feet hip-width apart, hands lightly on hips.\n- Movement:\n    - Slowly shift hips forward and slightly right, then back and left — draw full circle with hips.\n    - Do 8 circles clockwise, then 8 counterclockwise.\n- Breathing: steady, no holds.\n- Common mistakes: don't bend knees; keep torso and shoulders still; rotation only from hip area.",
       "parameters": {
         "repetitions": "8+8"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start position: stand straight, feet hip-width apart, hands lightly on hips.\n- Movement:\n    - Slowly shift hips forward and slightly right, then back and left — draw full circle with hips.\n    - Do 8 circles clockwise, then 8 counterclockwise.\n- Breathing: steady, no holds.\n- Common mistakes: don't bend knees; keep torso and shoulders still; rotation only from hip area."
+        ]
+      }
     },
     "browser_gym_011": {
       "title": "Knee circle swings",
       "kind": "repetitions",
-      "description": "- Support with hand on wall, torso straight.\n- Draw circle with knee: up → side → down → other side - 5 times.\n- Clockwise and counterclockwise for each hip.\n- Common mistakes: don't lean torso, keep core engaged.",
       "parameters": {
         "repetitions": "5+5 + 5+5"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Support with hand on wall, torso straight.\n- Draw circle with knee: up → side → down → other side - 5 times.\n- Clockwise and counterclockwise for each hip.\n- Common mistakes: don't lean torso, keep core engaged."
+        ]
+      }
     },
     "browser_gym_012": {
       "title": "Leg abduction with resistance band",
       "kind": "repetitions",
-      "description": "- Start: resistance band above knees, stand slightly bent.\n- Movement: straight leg out to side until band tension, return slowly.\n- 10 reps for each leg.\n- Common mistakes: don't turn foot, movement strictly to side.",
       "parameters": {
         "repetitions": "10+10"
       },
@@ -1230,12 +1263,16 @@
       ],
       "muscleGroups": [
         "hip_abductors"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: resistance band above knees, stand slightly bent.\n- Movement: straight leg out to side until band tension, return slowly.\n- 10 reps for each leg.\n- Common mistakes: don't turn foot, movement strictly to side."
+        ]
+      }
     },
     "browser_gym_013": {
       "title": "Step up on 29cm box",
       "kind": "repetitions",
-      "description": "- Start: facing box, feet parallel.\n- Movement: right foot on box → stand up/straighten → place left foot next to right → step down in reverse order.\n- 8 step-ups each leg\n- Common mistakes: heel of standing leg always on box.",
       "parameters": {
         "repetitions": "8+8"
       },
@@ -1246,12 +1283,16 @@
       "muscleGroups": [
         "quadriceps",
         "glutes"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: facing box, feet parallel.\n- Movement: right foot on box → stand up/straighten → place left foot next to right → step down in reverse order.\n- 8 step-ups each leg\n- Common mistakes: heel of standing leg always on box."
+        ]
+      }
     },
     "browser_gym_014": {
       "title": "Mini squat to box touch",
       "kind": "repetitions",
-      "description": "- Start position: stand straight, feet hip-width apart, toes pointing forward\n- Box behind.\n- Bend knees and hips, buttocks slightly touch box → up.\n- Repeat 8 times.\n- Common mistakes: knees not past toes; weight on heels.",
       "parameters": {
         "repetitions": 8
       },
@@ -1262,12 +1303,16 @@
       "muscleGroups": [
         "quadriceps",
         "glutes"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start position: stand straight, feet hip-width apart, toes pointing forward\n- Box behind.\n- Bend knees and hips, buttocks slightly touch box → up.\n- Repeat 8 times.\n- Common mistakes: knees not past toes; weight on heels."
+        ]
+      }
     },
     "browser_gym_015": {
       "title": "Heel-toe roll + calf raise",
       "kind": "repetitions",
-      "description": "- Rise on toes → lower through heel, slightly lifting toes.  \n- 15 times.\n- Can hold wall for support.",
       "parameters": {
         "repetitions": 15
       },
@@ -1277,24 +1322,32 @@
       ],
       "muscleGroups": [
         "calves"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Rise on toes → lower through heel, slightly lifting toes.  \n- 15 times.\n- Can hold wall for support."
+        ]
+      }
     },
     "browser_gym_016": {
       "title": "SITTING: Ankle circles",
       "kind": "repetitions",
-      "description": "- Start: sit on edge of chair, back straight, hands on hips.\n- Legs extended forward, heels touching floor.\n- Movement: simultaneously rotate both feet at ankles \n- 10 circles inward, 10 circles outward.",
       "parameters": {
         "repetitions": "10+10"
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: sit on edge of chair, back straight, hands on hips.\n- Legs extended forward, heels touching floor.\n- Movement: simultaneously rotate both feet at ankles \n- 10 circles inward, 10 circles outward."
+        ]
+      }
     },
     "browser_gym_017": {
       "title": "SITTING: Knee extension",
       "kind": "repetitions",
-      "description": "- Start: sit on edge of chair, back straight.\n- On inhale, straighten leg to hip level, hold 1 s.\n- On exhale, slowly lower to ~90° angle.\n- 10 times each leg.\n- Common mistakes: don't \"drop\" leg, no jerking.",
       "parameters": {
         "repetitions": "10+10"
       },
@@ -1304,72 +1357,96 @@
       ],
       "muscleGroups": [
         "quadriceps"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Start: sit on edge of chair, back straight.\n- On inhale, straighten leg to hip level, hold 1 s.\n- On exhale, slowly lower to ~90° angle.\n- 10 times each leg.\n- Common mistakes: don't \"drop\" leg, no jerking."
+        ]
+      }
     },
     "browser_gym_018": {
       "title": "SITTING: Calf muscle stretch",
       "kind": "timer",
-      "description": "- Legs extended forward, heels on floor.\n- Pull toes toward you, hold 15 s.",
       "parameters": {
         "durationSeconds": 15
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Legs extended forward, heels on floor.\n- Pull toes toward you, hold 15 s."
+        ]
+      }
     },
     "browser_gym_019": {
       "title": "SITTING: Breathing",
       "kind": "repetitions",
-      "description": "- 3 deep breaths: arms out-up – inhale, down – exhale",
       "parameters": {
         "repetitions": 3
       },
       "tags": [
         "browser",
         "gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- 3 deep breaths: arms out-up – inhale, down – exhale"
+        ]
+      }
     },
     "browser_palm_001": {
       "title": "Wrist shaking (warm-up)",
       "kind": "timer",
-      "description": "- Sit or stand tall, shoulders relaxed.\n- Gently shake wrists as if flicking water off fingers.\n- Movement only at wrists; keep arms relaxed.",
       "parameters": {
         "durationSeconds": 15
       },
       "tags": [
         "browser",
         "palm"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Sit or stand tall, shoulders relaxed.\n- Gently shake wrists as if flicking water off fingers.\n- Movement only at wrists; keep arms relaxed."
+        ]
+      }
     },
     "browser_palm_002": {
       "title": "Wrist circles",
       "kind": "repetitions",
-      "description": "- Elbows at sides, bent 90°. Hands in front at lower rib level.\n- Slowly draw large circles at the wrists.\n- Keep fingers relaxed; do not rotate the forearms.",
       "parameters": {
         "repetitions": "10+10"
       },
       "tags": [
         "browser",
         "palm"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Elbows at sides, bent 90°. Hands in front at lower rib level.\n- Slowly draw large circles at the wrists.\n- Keep fingers relaxed; do not rotate the forearms."
+        ]
+      }
     },
     "browser_palm_003": {
       "title": "Prayer position - wrist stretch",
       "kind": "repetitions",
-      "description": "- Palms together in front of chest, elbows out.\n- Without separating palms, lower hands toward abdomen until a light stretch.\n- Briefly hold in the bottom position (≈3-5 s), then rise back up.",
       "parameters": {
         "repetitions": "8-10"
       },
       "tags": [
         "browser",
         "palm"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Palms together in front of chest, elbows out.\n- Without separating palms, lower hands toward abdomen until a light stretch.\n- Briefly hold in the bottom position (≈3-5 s), then rise back up."
+        ]
+      }
     },
     "browser_palm_004": {
       "title": "Wrist extensor stretch (arm straight)",
       "kind": "intervals",
-      "description": "- Arm straight at shoulder height, elbow extended, palm down.\n- With the other hand, gently pull fingers up toward you to flex the wrist.\n- Feel stretch along the back of forearm/wrist. Alternate hands each round.",
       "parameters": {
         "workSeconds": 15,
         "restSeconds": 10,
@@ -1378,12 +1455,16 @@
       "tags": [
         "browser",
         "palm"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Arm straight at shoulder height, elbow extended, palm down.\n- With the other hand, gently pull fingers up toward you to flex the wrist.\n- Feel stretch along the back of forearm/wrist. Alternate hands each round."
+        ]
+      }
     },
     "browser_palm_005": {
       "title": "Fist flexion/extension (thumb out/in)",
       "kind": "repetitions",
-      "description": "- Arm forward or forearm on table.\n- Close a fist with thumb outside → open → close with thumb inside → open.\n- Moderate effort, smooth control; reduce range if painful.",
       "parameters": {
         "repetitions": "5-10"
       },
@@ -1393,12 +1474,16 @@
       ],
       "muscleGroups": [
         "forearms"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Arm forward or forearm on table.\n- Close a fist with thumb outside → open → close with thumb inside → open.\n- Moderate effort, smooth control; reduce range if painful."
+        ]
+      }
     },
     "browser_palm_006": {
       "title": "Finger spread (interdigital stretch)",
       "kind": "repetitions",
-      "description": "- Hand straight (in air or on table).\n- Actively spread fingers as wide as possible → bring back together.\n- Move only the fingers; keep the rest of the arm relaxed.",
       "parameters": {
         "repetitions": "10-15"
       },
@@ -1408,12 +1493,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Hand straight (in air or on table).\n- Actively spread fingers as wide as possible → bring back together.\n- Move only the fingers; keep the rest of the arm relaxed."
+        ]
+      }
     },
     "browser_palm_007": {
       "title": "Finger lifts on table",
       "kind": "repetitions",
-      "description": "- Palm flat on table, fingers straight; wrist stays down.\n- Lift one finger at a time as high as possible, then lower.\n- After singles, try lifting all fingers together briefly.",
       "parameters": {
         "repetitions": "≈5 each finger"
       },
@@ -1423,12 +1512,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Palm flat on table, fingers straight; wrist stays down.\n- Lift one finger at a time as high as possible, then lower.\n- After singles, try lifting all fingers together briefly."
+        ]
+      }
     },
     "browser_palm_008": {
       "title": "Side-to-side with raised finger",
       "kind": "repetitions",
-      "description": "- From the table position, slightly raise one finger.\n- Move it gently left-right like a small pendulum, then switch finger.\n- Can be done without table support if easier.",
       "parameters": {
         "repetitions": "5-8 each finger"
       },
@@ -1438,12 +1531,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- From the table position, slightly raise one finger.\n- Move it gently left-right like a small pendulum, then switch finger.\n- Can be done without table support if easier."
+        ]
+      }
     },
     "browser_palm_009": {
       "title": "Finger-to-thumb ‘O’ taps",
       "kind": "repetitions",
-      "description": "- Hand in front of you, wrist neutral.\n- Touch thumb to index → middle → ring → little finger, forming an ‘O’ each time.\n- Keep other fingers relaxed/extended as possible.",
       "parameters": {
         "repetitions": "2-3 rounds each hand"
       },
@@ -1453,12 +1550,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Hand in front of you, wrist neutral.\n- Touch thumb to index → middle → ring → little finger, forming an ‘O’ each time.\n- Keep other fingers relaxed/extended as possible."
+        ]
+      }
     },
     "browser_palm_010": {
       "title": "Thumb flexion to palm",
       "kind": "repetitions",
-      "description": "- Palm up. Abduct thumb away from palm.\n- Flex thumb across palm toward base of little finger → return and abduct.\n- Pause 1-2 s in the end range if comfortable.",
       "parameters": {
         "repetitions": "5-8 each hand"
       },
@@ -1468,12 +1569,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Palm up. Abduct thumb away from palm.\n- Flex thumb across palm toward base of little finger → return and abduct.\n- Pause 1-2 s in the end range if comfortable."
+        ]
+      }
     },
     "browser_palm_011": {
       "title": "Thumb abduction with elastic band",
       "kind": "repetitions",
-      "description": "- Place an elastic band around all fingers including thumb near nail folds.\n- Abduct (move away) the thumb against resistance, then return with control.\n- Keep wrist/hand quiet; move only the thumb.",
       "parameters": {
         "repetitions": "10-15 each hand"
       },
@@ -1483,12 +1588,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Place an elastic band around all fingers including thumb near nail folds.\n- Abduct (move away) the thumb against resistance, then return with control.\n- Keep wrist/hand quiet; move only the thumb."
+        ]
+      }
     },
     "browser_palm_012": {
       "title": "Thumb stretch (passive)",
       "kind": "sequence",
-      "description": "- With other hand, gently stretch thumb: abduction/outward → across-palm.\n- Smooth pressure, no pain; feel stretch near thumb base and palm.",
       "parameters": {
         "steps": [
           {
@@ -1504,12 +1613,16 @@
       "tags": [
         "browser",
         "palm"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- With other hand, gently stretch thumb: abduction/outward → across-palm.\n- Smooth pressure, no pain; feel stretch near thumb base and palm."
+        ]
+      }
     },
     "browser_palm_013": {
       "title": "Hook fist (distal/middle phalanges)",
       "kind": "repetitions",
-      "description": "- Hand facing you.\n- Flex only middle and end joints, keeping the big knuckles straight → return.\n- Move slowly with control; no joint pain.",
       "parameters": {
         "repetitions": "10-15"
       },
@@ -1519,12 +1632,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Hand facing you.\n- Flex only middle and end joints, keeping the big knuckles straight → return.\n- Move slowly with control; no joint pain."
+        ]
+      }
     },
     "browser_palm_014": {
       "title": "Soft ball squeeze",
       "kind": "repetitions",
-      "description": "- Hold a soft stress/therapy ball.\n- Squeeze firmly with all fingers and thumb for 1-2 s → release.\n- Do 2-3 sets per day if comfortable.",
       "parameters": {
         "repetitions": "10-15"
       },
@@ -1535,12 +1652,16 @@
       "muscleGroups": [
         "forearms",
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Hold a soft stress/therapy ball.\n- Squeeze firmly with all fingers and thumb for 1-2 s → release.\n- Do 2-3 sets per day if comfortable."
+        ]
+      }
     },
     "browser_palm_015": {
       "title": "Finger extension with rubber band",
       "kind": "repetitions",
-      "description": "- Place a sturdy rubber band around the fingertips of all five fingers.\n- Spread fingers against the band → return slowly.\n- Add a second band if resistance is too light.",
       "parameters": {
         "repetitions": "10-12"
       },
@@ -1551,12 +1672,16 @@
       "muscleGroups": [
         "forearms",
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Place a sturdy rubber band around the fingertips of all five fingers.\n- Spread fingers against the band → return slowly.\n- Add a second band if resistance is too light."
+        ]
+      }
     },
     "browser_palm_016": {
       "title": "Towel wringing (alternating twists)",
       "kind": "repetitions",
-      "description": "- Hold a rolled towel with both hands.\n- Twist hands in opposite directions as if wringing water, then reverse.\n- Moderate effort; relax briefly between full twist cycles.",
       "parameters": {
         "repetitions": 10
       },
@@ -1566,12 +1691,16 @@
       ],
       "muscleGroups": [
         "forearms"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Hold a rolled towel with both hands.\n- Twist hands in opposite directions as if wringing water, then reverse.\n- Moderate effort; relax briefly between full twist cycles."
+        ]
+      }
     },
     "browser_palm_017": {
       "title": "Crumple cloth or paper",
       "kind": "repetitions",
-      "description": "- Place a piece of cloth or paper on a table.\n- Scrunch it into a tight ball using one hand → spread it out and repeat.\n- Focus on full grasp and maximal crumple each time.",
       "parameters": {
         "repetitions": "5-6 each hand"
       },
@@ -1581,12 +1710,16 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Place a piece of cloth or paper on a table.\n- Scrunch it into a tight ball using one hand → spread it out and repeat.\n- Focus on full grasp and maximal crumple each time."
+        ]
+      }
     },
     "browser_palm_018": {
       "title": "Thumb circles",
       "kind": "repetitions",
-      "description": "- Elbows at sides, bent 90°.\n- Draw circles with the thumb: clockwise → counterclockwise.",
       "parameters": {
         "repetitions": "10+10"
       },
@@ -1596,36 +1729,48 @@
       ],
       "muscleGroups": [
         "hands"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "- Elbows at sides, bent 90°.\n- Draw circles with the thumb: clockwise → counterclockwise."
+        ]
+      }
     },
     "browser_nerv_001": {
       "title": "Вращение тазом стоя",
       "kind": "repetitions",
-      "description": "Стоя, стопы на ширине плеч, руки на тазовых костях. Переносите вес по кругу, рисуя тазом максимальный комфортный круг: 8 раз по часовой стрелке и 8 против, удерживая плечи и грудную клетку неподвижными.",
       "parameters": {
         "repetitions": "8+8"
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Стоя, стопы на ширине плеч, руки на тазовых костях. Переносите вес по кругу, рисуя тазом максимальный комфортный круг: 8 раз по часовой стрелке и 8 против, удерживая плечи и грудную клетку неподвижными."
+        ]
+      }
     },
     "browser_nerv_002": {
       "title": "Круги согнутыми коленями",
       "kind": "repetitions",
-      "description": "Опираясь рукой о стену или спинку стула, поднимайте бедро до параллели и рисуйте согнутым коленом круг: 5 раз по часовой стрелке и 5 раз против. Повторите другой ногой, удерживая корпус неподвижным.",
       "parameters": {
         "repetitions": "5+5"
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Опираясь рукой о стену или спинку стула, поднимайте бедро до параллели и рисуйте согнутым коленом круг: 5 раз по часовой стрелке и 5 раз против. Повторите другой ногой, удерживая корпус неподвижным."
+        ]
+      }
     },
     "browser_nerv_003": {
       "title": "Отведение ноги в сторону стоя",
       "kind": "repetitions",
-      "description": "Стоя боком к устойчивой опоре и удерживая корпус вертикальным, без резинки отводите прямую ногу максимально далеко в сторону и медленно возвращайте. Не разворачивайте носок и не наклоняйте корпус.",
       "parameters": {
         "repetitions": "10+10"
       },
@@ -1635,24 +1780,32 @@
       ],
       "muscleGroups": [
         "hip_abductors"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Стоя боком к устойчивой опоре и удерживая корпус вертикальным, без резинки отводите прямую ногу максимально далеко в сторону и медленно возвращайте. Не разворачивайте носок и не наклоняйте корпус."
+        ]
+      }
     },
     "browser_nerv_004": {
       "title": "Баланс на блоке — глаза открыты",
       "kind": "timer",
-      "description": "Стоя на устойчивом блоке, стопы на ширине бедер, тело вертикально. Удерживайте равновесие с открытыми глазами 30 секунд; повторите при необходимости, сохраняя контроль и мягкое колено.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Стоя на устойчивом блоке, стопы на ширине бедер, тело вертикально. Удерживайте равновесие с открытыми глазами 30 секунд; повторите при необходимости, сохраняя контроль и мягкое колено."
+        ]
+      }
     },
     "browser_nerv_005": {
       "title": "На высокой основе: горизонтальная голень и мягкое качание",
       "kind": "sequence",
-      "description": "Правая нога упирается в устойчивую поверхность на уровне середины бедра, колено согнуто. Сначала удерживайте голень горизонтально, затем мягко опускайте колено и выполняйте лёгкие качания. Каждое движение — 20-30 секунд одной ногой, потом повтор другой.",
       "parameters": {
         "steps": [
           {
@@ -1676,120 +1829,160 @@
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Правая нога упирается в устойчивую поверхность на уровне середины бедра, колено согнуто. Сначала удерживайте голень горизонтально, затем мягко опускайте колено и выполняйте лёгкие качания. Каждое движение — 20-30 секунд одной ногой, потом повтор другой."
+        ]
+      }
     },
     "browser_nerv_006": {
       "title": "Лёжа: диагональный тянущий ход",
       "kind": "timer",
-      "description": "Лёжа на спине, тянитесь рукой по диагонали к бедру вытянутой ноги; делайте 5-8 повторов каждой стороны, сохраняя мягкую стабилизацию таза.",
       "parameters": {
         "durationSeconds": 45
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине, тянитесь рукой по диагонали к бедру вытянутой ноги; делайте 5-8 повторов каждой стороны, сохраняя мягкую стабилизацию таза."
+        ]
+      }
     },
     "browser_nerv_007": {
       "title": "Лёжа: качание обеими коленями",
       "kind": "timer",
-      "description": "Согните колени и качайте их из стороны в сторону, удерживая таз ровным и активируя кор. Сделайте 8-12 качаний, возвращаясь в центр между повторениями.",
       "parameters": {
         "durationSeconds": 45
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Согните колени и качайте их из стороны в сторону, удерживая таз ровным и активируя кор. Сделайте 8-12 качаний, возвращаясь в центр между повторениями."
+        ]
+      }
     },
     "browser_nerv_008": {
       "title": "Лёжа: одно колено внутрь",
       "kind": "timer",
-      "description": "Согнутое колено тяните к центру туловища, удерживая бедро на полу и не допуская боли. Сделайте 6-10 повторов каждой ноги, чередуя стороны.",
       "parameters": {
         "durationSeconds": 45
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Согнутое колено тяните к центру туловища, удерживая бедро на полу и не допуская боли. Сделайте 6-10 повторов каждой ноги, чередуя стороны."
+        ]
+      }
     },
     "browser_nerv_009": {
       "title": "Лёжа: растяжка согнутых коленей в стороны",
       "kind": "timer",
-      "description": "Лёжа на спине, ноги согнуты, стопы сомкнуты. Мягко разводите колени в стороны, растягивая внутреннюю поверхность бедер и сохраняя поясницу на полу. 30 секунд, дыхание ровное, легкое напряжение.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине, ноги согнуты, стопы сомкнуты. Мягко разводите колени в стороны, растягивая внутреннюю поверхность бедер и сохраняя поясницу на полу. 30 секунд, дыхание ровное, легкое напряжение."
+        ]
+      }
     },
     "browser_nerv_010": {
       "title": "Бантик",
       "kind": "timer",
-      "description": "Сидя, одна нога (верхняя) полностью кладётся коленом на другую, как при перекрещивании в позе. Просуньте руки под верхней ногой и обхватите кистями нижнюю под коленом, мягко тяните её на себя. Удерживайте 20-30 секунд на каждую сторону, избегая усилий и сохраняя дыхание ровным.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Сидя, одна нога (верхняя) полностью кладётся коленом на другую, как при перекрещивании в позе. Просуньте руки под верхней ногой и обхватите кистями нижнюю под коленом, мягко тяните её на себя. Удерживайте 20-30 секунд на каждую сторону, избегая усилий и сохраняя дыхание ровным."
+        ]
+      }
     },
     "browser_nerv_011": {
       "title": "Лёжа: бабочка к себе",
       "kind": "timer",
-      "description": "Лёжа на спине, одна нога остаётся на полу, другая ставится внешней частью стопы на колено опорной ноги, образуя полый треугольник. Руками за колено ноги «крыла» мягко тяните его к себе, как при бантике, ощущая мягкое тянущее напряжение в бедре. 20-30 секунд на каждую сторону, без давления на чашечку, дыхание ровное.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине, одна нога остаётся на полу, другая ставится внешней частью стопы на колено опорной ноги, образуя полый треугольник. Руками за колено ноги «крыла» мягко тяните его к себе, как при бантике, ощущая мягкое тянущее напряжение в бедре. 20-30 секунд на каждую сторону, без давления на чашечку, дыхание ровное."
+        ]
+      }
     },
     "browser_nerv_012": {
       "title": "Лёжа: бабочка — от себя",
       "kind": "timer",
-      "description": "Лёжа на спине, верхняя нога ставится внешней частью ступни на колено другой, образуя полый треугольник. Под нижнюю часть колена ноги «крыла» подставьте йога-кирпич и отталкивайте ногу от себя, мягко открывая внутреннюю поверхность бедра, не давя на коленную чашечку. 20-30 секунд, 1-2 подхода с ровным дыханием.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине, верхняя нога ставится внешней частью ступни на колено другой, образуя полый треугольник. Под нижнюю часть колена ноги «крыла» подставьте йога-кирпич и отталкивайте ногу от себя, мягко открывая внутреннюю поверхность бедра, не давя на коленную чашечку. 20-30 секунд, 1-2 подхода с ровным дыханием."
+        ]
+      }
     },
     "browser_nerv_013": {
       "title": "Лёжа: носки внутрь-наружу",
       "kind": "timer",
-      "description": "Лёжа на спине, двигайте носки внутрь и наружу в комфортном диапазоне, следя, чтобы бедра оставались на полу. Выполняйте 10-15 повторов с контролем.",
       "parameters": {
         "durationSeconds": 45
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине, двигайте носки внутрь и наружу в комфортном диапазоне, следя, чтобы бедра оставались на полу. Выполняйте 10-15 повторов с контролем."
+        ]
+      }
     },
     "browser_nerv_014": {
       "title": "Лёжа: вращения ступнями",
       "kind": "repetitions",
-      "description": "Лёжа на спине с вытянутыми ногами, стопы слегка приподняты. Выполняйте круговые движения ступнями: по 10 кругов внутрь и наружу каждой ногой, сохраняя расслабленные колени и ровное дыхание.",
       "parameters": {
         "repetitions": "10+10"
       },
       "tags": [
         "browser",
         "nerv"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Лёжа на спине с вытянутыми ногами, стопы слегка приподняты. Выполняйте круговые движения ступнями: по 10 кругов внутрь и наружу каждой ногой, сохраняя расслабленные колени и ровное дыхание."
+        ]
+      }
     },
     "browser_nerv_015": {
       "title": "Планка",
       "kind": "timer",
-      "description": "Примите упор лёжа на предплечьях, тело в одной линии, поясница нейтральная. Удерживайте 30 секунд без провисания, дышите ровно.",
       "parameters": {
         "durationSeconds": 30
       },
@@ -1799,12 +1992,16 @@
       ],
       "muscleGroups": [
         "abs"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Примите упор лёжа на предплечьях, тело в одной линии, поясница нейтральная. Удерживайте 30 секунд без провисания, дышите ровно."
+        ]
+      }
     },
     "browser_nerv_016": {
       "title": "Dead hangs",
       "kind": "timer",
-      "description": "Вис на перекладине с расслабленным хватом, плечи слегка активны. Выполните 3 подхода по 15 секунд, отдых 30-45 секунд между подходами.",
       "parameters": {
         "durationSeconds": 15
       },
@@ -1815,24 +2012,32 @@
       "muscleGroups": [
         "back",
         "forearms"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Вис на перекладине с расслабленным хватом, плечи слегка активны. Выполните 3 подхода по 15 секунд, отдых 30-45 секунд между подходами."
+        ]
+      }
     },
     "browser_examples_gym_001": {
       "title": "Light jogging on the spot",
       "kind": "timer",
-      "description": "Run in place with relaxed arms.",
       "parameters": {
         "durationSeconds": 30
       },
       "tags": [
         "browser",
         "examples_gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Run in place with relaxed arms."
+        ]
+      }
     },
     "browser_examples_gym_002": {
       "title": "Plank with rest",
       "kind": "intervals",
-      "description": "Hold plank then rest briefly.",
       "parameters": {
         "workSeconds": 20,
         "restSeconds": 10,
@@ -1844,12 +2049,16 @@
       ],
       "muscleGroups": [
         "abs"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Hold plank then rest briefly."
+        ]
+      }
     },
     "browser_examples_gym_003": {
       "title": "Push-ups",
       "kind": "repetitions",
-      "description": "Standard push-ups from floor.",
       "parameters": {
         "repetitions": 10
       },
@@ -1860,12 +2069,16 @@
       "muscleGroups": [
         "chest",
         "triceps"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Standard push-ups from floor."
+        ]
+      }
     },
     "browser_examples_gym_004": {
       "title": "Lunges",
       "kind": "repetitions",
-      "description": "Alternate legs.",
       "parameters": {
         "repetitions": "10+10"
       },
@@ -1876,12 +2089,16 @@
       "muscleGroups": [
         "quadriceps",
         "glutes"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Alternate legs."
+        ]
+      }
     },
     "browser_examples_gym_005": {
       "title": "Warmup sequence example",
       "kind": "sequence",
-      "description": "Demonstration of sequence type with two steps",
       "parameters": {
         "steps": [
           {
@@ -1897,7 +2114,12 @@
       "tags": [
         "browser",
         "examples_gym"
-      ]
+      ],
+      "instructions": {
+        "detailSections": [
+          "Demonstration of sequence type with two steps"
+        ]
+      }
     }
   },
   "sessions": [

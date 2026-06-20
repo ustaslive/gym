@@ -86,7 +86,6 @@ private fun parseExercise(
     val instructions = definition.optJSONObject("instructions")
     val setupNote = settings?.optString("setupNote")?.takeIf { it.isNotBlank() }
     val detailSections = buildDetailSections(
-        definition = definition,
         parameters = parameters,
         kind = kind,
         instructions = instructions,
@@ -120,7 +119,6 @@ private fun parseExercise(
 }
 
 private fun buildDetailSections(
-    definition: JSONObject,
     parameters: JSONObject,
     kind: String,
     instructions: JSONObject?,
@@ -128,14 +126,12 @@ private fun buildDetailSections(
     type: ExerciseType
 ): List<String> {
     val detailSections = instructions?.optJSONArray("detailSections").toStringList()
-    val description = definition.optString("description").takeIf { it.isNotBlank() }
     val parameterSummary = browserParameterSummary(kind, parameters)
 
     return buildList {
         if (type == ExerciseType.GUIDED && !setupNote.isNullOrBlank()) {
             add(setupNote)
         }
-        description?.let(::add)
         addAll(detailSections)
         parameterSummary?.let(::add)
     }

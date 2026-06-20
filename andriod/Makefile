@@ -42,7 +42,7 @@ if [ -z "$$serial" ]; then \
 fi
 endef
 
-.PHONY: help check build install uninstall list connect
+.PHONY: help check build install uninstall clean-cache list connect
 
 help:
 	@printf "%s\n" \
@@ -54,6 +54,7 @@ help:
 		"  make build    Build the debug APK with Gradle." \
 		"  make install  Build the debug APK if needed and install it on the selected device." \
 		"  make uninstall Uninstall the app from the selected device." \
+		"  make clean-cache Remove the cached exercise bundle from the selected device." \
 		"" \
 		"Examples:" \
 		"  make help" \
@@ -64,7 +65,8 @@ help:
 		"  make build" \
 		"  ADB_HOST=192.0.2.1 make install" \
 		"  ADB_SERIAL=192.0.2.1:5555 make install" \
-		"  ADB_SERIAL=192.0.2.1:5555 make uninstall"
+		"  ADB_SERIAL=192.0.2.1:5555 make uninstall" \
+		"  ADB_SERIAL=192.0.2.1:5555 make clean-cache"
 
 check:
 	@$(RESOLVE_ADB_SERIAL_SH); \
@@ -104,3 +106,10 @@ uninstall:
 	@$(RESOLVE_ADB_SERIAL_SH); \
 	echo "Uninstalling from $$serial"; \
 	$(ADB) -s "$$serial" uninstall $(APPLICATION_ID)
+
+clean-cache:
+	@$(RESOLVE_ADB_SERIAL_SH); \
+	echo "Removing cached exercise bundle from $$serial"; \
+	$(ADB) -s "$$serial" shell run-as $(APPLICATION_ID) rm -f files/exercise-bundle-cache.json files/exercise-bundle-cache.json.bak; \
+	$(ADB) -s "$$serial" shell am force-stop $(APPLICATION_ID); \
+	echo "Cached exercise bundle removed. The app will load the bundled asset on next start."

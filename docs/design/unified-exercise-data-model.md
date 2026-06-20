@@ -117,7 +117,6 @@ Versioning rules:
 - Any incompatible structural change must increment `schemaVersion`.
 - Clients must reject a bundle with a higher unsupported `schemaVersion`.
 - Clients should reject a bundle with a lower unsupported `schemaVersion`.
-- Optional future client-specific data should live under `extensions` when possible.
 
 The top-level `metadata.revision` field is for content revisions and does not replace `schemaVersion`.
 
@@ -196,7 +195,6 @@ Example:
     "leg_press": {
       "title": "Leg Press",
       "kind": "weights",
-      "description": "Machine leg press.",
       "parameters": {
         "weightOptions": [23, 30, 37, 44, 51],
         "defaultWeight": 51,
@@ -232,8 +230,6 @@ Each kind has explicit parameter rules in `docs/schema/exercise-data.schema.json
   Required display title.
 - `kind`
   Required exercise kind.
-- `description`
-  Optional user-facing description.
 - `parameters`
   Kind-specific structured parameters.
 - `settings`
@@ -248,8 +244,6 @@ Each kind has explicit parameter rules in `docs/schema/exercise-data.schema.json
   Optional list of the main muscle groups loaded by the exercise. Android can use this to recommend or highlight remaining exercises after the last completed exercise.
 - `equipment`
   Optional equipment labels.
-- `extensions`
-  Optional namespaced client-specific data.
 
 ## Sessions
 
@@ -304,8 +298,6 @@ Example:
   Required ordered list of sections.
 - `tags`
   Optional classification tags.
-- `extensions`
-  Optional namespaced client-specific data.
 
 ### Section fields
 
@@ -317,8 +309,6 @@ Example:
   Optional user-facing description.
 - `exercises`
   Required ordered list of concrete exercise entries.
-- `extensions`
-  Optional namespaced client-specific data.
 
 Section IDs are user-defined. The recommended starting vocabulary is:
 
@@ -370,12 +360,10 @@ Example:
 Allowed override areas:
 
 - `title`
-- `description`
 - `parameters`
 - `settings`
 - `instructions`
 - `presentation`
-- `extensions`
 
 ## User State Separation
 

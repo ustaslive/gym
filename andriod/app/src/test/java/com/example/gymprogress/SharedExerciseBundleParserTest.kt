@@ -146,6 +146,7 @@ class SharedExerciseBundleParserTest {
         assertEquals(20, press.selectedWeight)
         assertEquals(3, press.totalSets)
         assertEquals(listOf("chest"), press.muscleGroups)
+        assertEquals(listOf("Keep posture stable."), press.detailSections)
 
         val stretch = exercises[2]
         assertEquals(ExerciseType.GUIDED, stretch.type)

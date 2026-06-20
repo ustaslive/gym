@@ -28,9 +28,6 @@
       "items": {
         "$ref": "#/$defs/session"
       }
-    },
-    "extensions": {
-      "$ref": "#/$defs/extensions"
     }
   },
   "$defs": {
@@ -78,9 +75,6 @@
         "locale": {
           "type": "string",
           "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -107,9 +101,6 @@
         "kind": {
           "$ref": "#/$defs/exerciseKind"
         },
-        "description": {
-          "type": "string"
-        },
         "parameters": {
           "$ref": "#/$defs/parameters"
         },
@@ -130,9 +121,6 @@
         },
         "equipment": {
           "$ref": "#/$defs/stringList"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       },
       "allOf": [
@@ -542,9 +530,6 @@
           "items": {
             "$ref": "#/$defs/settingField"
           }
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -590,15 +575,6 @@
       "properties": {
         "detailSections": {
           "$ref": "#/$defs/stringList"
-        },
-        "tips": {
-          "$ref": "#/$defs/stringList"
-        },
-        "commonMistakes": {
-          "$ref": "#/$defs/stringList"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -612,9 +588,6 @@
         "accentColor": {
           "type": "string",
           "pattern": "^#[0-9A-Fa-f]{6}$"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -645,9 +618,6 @@
         },
         "tags": {
           "$ref": "#/$defs/stringList"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -674,9 +644,6 @@
           "items": {
             "$ref": "#/$defs/sessionExercise"
           }
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -696,9 +663,6 @@
         },
         "overrides": {
           "$ref": "#/$defs/sessionExerciseOverrides"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -708,9 +672,6 @@
       "properties": {
         "title": {
           "$ref": "#/$defs/nonEmptyString"
-        },
-        "description": {
-          "type": "string"
         },
         "parameters": {
           "$ref": "#/$defs/parameterOverrides"
@@ -723,9 +684,6 @@
         },
         "presentation": {
           "$ref": "#/$defs/presentation"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
         }
       }
     },
@@ -734,10 +692,6 @@
       "items": {
         "$ref": "#/$defs/nonEmptyString"
       }
-    },
-    "extensions": {
-      "type": "object",
-      "additionalProperties": true
     }
   }
 }

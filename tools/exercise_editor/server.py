@@ -127,6 +127,8 @@ def validate_bundle(bundle: Any) -> list[str]:
         kind = exercise_obj.get("kind")
         if kind not in KINDS:
             raise ValidationError(f"exerciseCatalog.{exercise_id}.kind is not supported")
+        if "description" in exercise_obj:
+            raise ValidationError(f"exerciseCatalog.{exercise_id}.description is no longer supported")
         if kind != "guided" or "parameters" in exercise_obj:
             validate_parameters(kind, exercise_obj.get("parameters", {}), f"exerciseCatalog.{exercise_id}.parameters")
         if kind == "guided" and "instructions" not in exercise_obj:
@@ -164,6 +166,9 @@ def validate_bundle(bundle: Any) -> list[str]:
                 exercise_id = require_id(entry_obj.get("exerciseId"), f"{entry_path}.exerciseId")
                 if exercise_id not in catalog:
                     raise ValidationError(f"{entry_path}.exerciseId references missing catalog item: {exercise_id}")
+                overrides = entry_obj.get("overrides")
+                if isinstance(overrides, dict) and "description" in overrides:
+                    raise ValidationError(f"{entry_path}.overrides.description is no longer supported")
 
     return warnings
 

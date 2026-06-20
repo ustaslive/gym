@@ -270,6 +270,58 @@
       gap: 8px;
     }
 
+    .override-editor {
+      display: grid;
+      gap: 10px;
+    }
+
+    .override-summary {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .override-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+    }
+
+    .override-field {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8faf7;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .override-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .override-toggle input,
+    .override-field input[type="checkbox"] {
+      width: auto;
+    }
+
+    .override-field textarea {
+      min-height: 70px;
+    }
+
+    .advanced-overrides {
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fbfcfa;
+    }
+
     .status {
       min-height: 22px;
       color: var(--muted);
@@ -410,10 +462,6 @@
       }[char]));
     }
 
-    function formatJson(value) {
-      return JSON.stringify(value || {}, null, 2);
-    }
-
     function formatList(value) {
       return Array.isArray(value) ? value.join(', ') : '';
     }
@@ -457,18 +505,6 @@
       return Math.max(minRows, Math.min(maxRows, lines + 1));
     }
 
-    function parseJsonField(value, fallback, label) {
-      const trimmed = value.trim();
-      if (!trimmed) {
-        return fallback;
-      }
-      try {
-        return JSON.parse(trimmed);
-      } catch (error) {
-        throw new Error(`${label}: ${error.message}`);
-      }
-    }
-
     function catalogIds() {
       return Object.keys(state.bundle.exerciseCatalog).sort();
     }
@@ -483,8 +519,7 @@
         return [
           id,
           item.title,
-          item.kind,
-          item.description
+          item.kind
         ].some(value => String(value || '').toLowerCase().includes(query));
       });
     }
@@ -569,9 +604,28 @@
       }
     }
 
+    function normalizeBundle(bundle) {
+      Object.values(bundle.exerciseCatalog || {}).forEach(item => {
+        delete item.description;
+      });
+      (bundle.sessions || []).forEach(session => {
+        (session.sections || []).forEach(section => {
+          (section.exercises || []).forEach(entry => {
+            if (entry.overrides) {
+              delete entry.overrides.description;
+              if (!Object.keys(entry.overrides).length) {
+                delete entry.overrides;
+              }
+            }
+          });
+        });
+      });
+      return bundle;
+    }
+
     async function loadBundle() {
       const response = await fetch('/api/bundle');
-      state.bundle = await response.json();
+      state.bundle = normalizeBundle(await response.json());
       state.selectedSessionId = state.bundle.sessions.length ? state.bundle.sessions[0].id : null;
       state.selectedCatalogId = catalogIds()[0] || null;
       state.dirty = false;
@@ -582,7 +636,7 @@
 
     async function saveBundle() {
       try {
-        const bundle = state.activeTab === 'raw' ? JSON.parse($('#raw-json').value) : state.bundle;
+        const bundle = normalizeBundle(state.activeTab === 'raw' ? JSON.parse($('#raw-json').value) : state.bundle);
         validateLocalBundle(bundle);
         const response = await fetch('/api/bundle', {
           method: 'PUT',
@@ -649,7 +703,7 @@
       const ids = filteredCatalogIds();
       $('#catalog-list').innerHTML = `
         <label>Search catalog
-          <input id="catalog-search" value="${escapeHtml(state.catalogSearch)}" placeholder="Title, description, id, kind">
+          <input id="catalog-search" value="${escapeHtml(state.catalogSearch)}" placeholder="Title, id, kind">
         </label>
         <div class="hint">${ids.length} of ${catalogIds().length} items</div>
         <div id="catalog-search-results">
@@ -769,9 +823,422 @@
               ${catalogIds().map(id => `<option value="${escapeHtml(id)}" ${id === entry.exerciseId ? 'selected' : ''}>${escapeHtml(catalogOptionLabel(id))}</option>`).join('')}
             </select></label>
           </div>
-          <label>Overrides JSON<textarea data-entry-overrides="${sectionIndex}:${entryIndex}">${escapeHtml(formatJson(entry.overrides || {}))}</textarea></label>
+          ${renderOverridesEditor(entry, sectionIndex, entryIndex)}
         </div>
       `;
+    }
+
+    function renderOverridesEditor(entry, sectionIndex, entryIndex) {
+      const item = state.bundle.exerciseCatalog[entry.exerciseId];
+      if (!item) {
+        return `
+          <section class="override-editor">
+            <div class="override-summary">
+              <strong>Overrides</strong>
+              <span class="hint">Select an existing catalog exercise to edit overrides.</span>
+            </div>
+          </section>
+        `;
+      }
+
+      const specs = overrideFieldSpecs(item, entry);
+      const activeCount = specs.filter(spec => hasPathValue(entry.overrides || {}, spec.path)).length;
+      const preservedPaths = preservedOverridePaths(entry, specs);
+      const groups = [...new Set(specs.map(spec => spec.group))];
+
+      return `
+        <section class="override-editor">
+          <div class="override-summary">
+            <strong>Overrides</strong>
+            <span class="hint">${activeCount ? `${activeCount} field${activeCount === 1 ? '' : 's'} enabled` : 'No local overrides'}</span>
+          </div>
+          ${groups.map(group => `
+            <section class="field-group">
+              <strong>${escapeHtml(group)}</strong>
+              <div class="override-grid">
+                ${specs.filter(spec => spec.group === group).map(spec => {
+                  const key = `${sectionIndex}:${entryIndex}:${spec.path}`;
+                  return renderOverrideField(entry, spec, key);
+                }).join('')}
+              </div>
+            </section>
+          `).join('')}
+          ${preservedPaths.length ? `
+            <div class="advanced-overrides">
+              <strong>Advanced overrides preserved</strong>
+              <div class="hint">${escapeHtml(preservedPaths.join(', '))}</div>
+            </div>
+          ` : ''}
+        </section>
+      `;
+    }
+
+    function overrideFieldSpecs(item, entry) {
+      return [
+        { group: 'Basic', path: 'title', label: 'Title', type: 'text', baseValue: item.title || '' },
+        ...parameterOverrideSpecs(item, entry),
+        {
+          group: 'Settings',
+          path: 'settings.setupNote',
+          label: 'Setup note',
+          type: 'textarea',
+          baseValue: (item.settings && item.settings.setupNote) || ''
+        },
+        {
+          group: 'Instructions',
+          path: 'instructions.detailSections',
+          label: 'Detail sections',
+          type: 'textLines',
+          baseValue: (item.instructions && item.instructions.detailSections) || []
+        }
+      ];
+    }
+
+    function parameterOverrideSpecs(item, entry) {
+      const params = item.parameters || {};
+      const overrideParams = (entry.overrides && entry.overrides.parameters) || {};
+      const effectiveParams = { ...params, ...overrideParams };
+      if (item.kind === 'weights') {
+        const weightOptions = Array.isArray(effectiveParams.weightOptions)
+          ? effectiveParams.weightOptions
+          : params.weightOptions || [];
+        return [
+          {
+            group: 'Parameters',
+            path: 'parameters.weightOptions',
+            label: 'Weight options',
+            type: 'integerList',
+            baseValue: params.weightOptions || []
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.defaultWeight',
+            label: 'Default weight',
+            type: 'integerChoice',
+            baseValue: params.defaultWeight || 0,
+            choices: weightOptions
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.totalSets',
+            label: 'Total sets',
+            type: 'integer',
+            baseValue: params.totalSets || 1
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.restBetweenSeconds',
+            label: 'Rest between sets, sec',
+            type: 'integer',
+            baseValue: params.restBetweenSeconds || 0
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.restFinalSeconds',
+            label: 'Final rest, sec',
+            type: 'integer',
+            baseValue: params.restFinalSeconds || 0
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.weightLabel',
+            label: 'Weight label',
+            type: 'text',
+            baseValue: params.weightLabel || ''
+          },
+          {
+            group: 'Parameters',
+            path: 'parameters.weightOptionLabelTemplate',
+            label: 'Weight option label template',
+            type: 'text',
+            baseValue: params.weightOptionLabelTemplate || ''
+          }
+        ];
+      }
+      if (item.kind === 'activity') {
+        return [
+          { group: 'Parameters', path: 'parameters.mode', label: 'Mode', type: 'text', baseValue: params.mode || '' },
+          { group: 'Parameters', path: 'parameters.durationMinutes', label: 'Duration, min', type: 'integer', baseValue: params.durationMinutes || 1 },
+          { group: 'Parameters', path: 'parameters.level', label: 'Level', type: 'integer', baseValue: params.level || 0 },
+          { group: 'Parameters', path: 'parameters.totalSets', label: 'Total sets', type: 'integer', baseValue: params.totalSets || 1 },
+          { group: 'Parameters', path: 'parameters.restFinalSeconds', label: 'Final rest, sec', type: 'integer', baseValue: params.restFinalSeconds || 0 }
+        ];
+      }
+      if (item.kind === 'guided') {
+        return [
+          { group: 'Parameters', path: 'parameters.durationSeconds', label: 'Duration, sec', type: 'integer', baseValue: params.durationSeconds || '' },
+          { group: 'Parameters', path: 'parameters.repetitions', label: 'Repetitions', type: 'repetitions', baseValue: params.repetitions || '' },
+          { group: 'Parameters', path: 'parameters.totalSets', label: 'Total sets', type: 'integer', baseValue: params.totalSets || 1 },
+          { group: 'Parameters', path: 'parameters.restBetweenSeconds', label: 'Rest between sets, sec', type: 'integer', baseValue: params.restBetweenSeconds || 0 },
+          { group: 'Parameters', path: 'parameters.restFinalSeconds', label: 'Final rest, sec', type: 'integer', baseValue: params.restFinalSeconds || 0 }
+        ];
+      }
+      if (item.kind === 'repetitions') {
+        return [
+          { group: 'Parameters', path: 'parameters.repetitions', label: 'Repetitions', type: 'repetitions', baseValue: params.repetitions || '' }
+        ];
+      }
+      if (item.kind === 'timer') {
+        return [
+          { group: 'Parameters', path: 'parameters.durationSeconds', label: 'Duration, sec', type: 'integer', baseValue: params.durationSeconds || 1 }
+        ];
+      }
+      if (item.kind === 'intervals') {
+        return [
+          { group: 'Parameters', path: 'parameters.workSeconds', label: 'Work, sec', type: 'integer', baseValue: params.workSeconds || 1 },
+          { group: 'Parameters', path: 'parameters.restSeconds', label: 'Rest, sec', type: 'integer', baseValue: params.restSeconds || 0 },
+          { group: 'Parameters', path: 'parameters.rounds', label: 'Rounds', type: 'integer', baseValue: params.rounds || 1 }
+        ];
+      }
+      if (item.kind === 'sequence') {
+        return [
+          { group: 'Parameters', path: 'parameters.steps', label: 'Steps', type: 'sequenceSteps', baseValue: params.steps || [] }
+        ];
+      }
+      return [];
+    }
+
+    function renderOverrideField(entry, spec, key) {
+      const enabled = hasPathValue(entry.overrides || {}, spec.path);
+      const value = enabled ? getPathValue(entry.overrides, spec.path) : '';
+      const disabled = enabled ? '' : 'disabled';
+      return `
+        <div class="override-field">
+          <label class="override-toggle">
+            <input type="checkbox" data-override-toggle="${escapeHtml(key)}" ${enabled ? 'checked' : ''}>
+            <span>${escapeHtml(spec.label)}</span>
+          </label>
+          ${renderOverrideInput(spec, key, value, disabled)}
+        </div>
+      `;
+    }
+
+    function renderOverrideInput(spec, key, value, disabled) {
+      const valueText = formatOverrideInputValue(value, spec);
+      const disabledAttr = disabled ? 'disabled' : '';
+      const dataAttr = `data-override-value="${escapeHtml(key)}"`;
+      if (spec.type === 'textarea' || spec.type === 'textLines' || spec.type === 'sequenceSteps') {
+        const placeholder = spec.type === 'sequenceSteps' ? 'Label | seconds' : '';
+        return `<textarea ${dataAttr} ${disabledAttr} rows="${autoRows(valueText, 2, 8)}" placeholder="${placeholder}">${escapeHtml(valueText)}</textarea>`;
+      }
+      if (!disabled && spec.type === 'integerChoice' && Array.isArray(spec.choices) && spec.choices.length) {
+        const options = uniqueValues([...spec.choices, value])
+          .filter(option => option !== '' && option != null)
+          .map(option => `<option value="${escapeHtml(option)}" ${String(option) === String(valueText) ? 'selected' : ''}>${escapeHtml(option)}</option>`)
+          .join('');
+        return `<select ${dataAttr} ${disabledAttr}>${options}</select>`;
+      }
+      if (spec.type === 'integer') {
+        return `<input ${dataAttr} ${disabledAttr} type="number" value="${escapeHtml(valueText)}">`;
+      }
+      return `<input ${dataAttr} ${disabledAttr} value="${escapeHtml(valueText)}">`;
+    }
+
+    function formatOverrideInputValue(value, spec) {
+      if (spec.type === 'integerList') {
+        return formatList(value);
+      }
+      if (spec.type === 'textLines') {
+        return Array.isArray(value) ? value.join('\n') : '';
+      }
+      if (spec.type === 'sequenceSteps') {
+        return Array.isArray(value) ? value.map(step => `${step.label} | ${step.durationSeconds}`).join('\n') : '';
+      }
+      return value == null ? '' : String(value);
+    }
+
+    function wireOverrideEditor(session) {
+      document.querySelectorAll('[data-override-toggle]').forEach(checkbox => {
+        checkbox.addEventListener('change', event => {
+          const target = event.target;
+          const { sectionIndex, entryIndex, path } = parseOverrideKey(target.dataset.overrideToggle);
+          const entry = session.sections[sectionIndex].exercises[entryIndex];
+          const control = document.querySelector(`[data-override-value="${target.dataset.overrideToggle}"]`);
+          try {
+            if (target.checked) {
+              control.disabled = false;
+              const spec = findOverrideSpec(entry, path);
+              setOverridePath(entry, path, clone(spec.baseValue));
+            } else {
+              deleteOverridePath(entry, path);
+            }
+            markDirty();
+            setStatus('Overrides updated');
+            render();
+          } catch (error) {
+            target.checked = hasPathValue(entry.overrides || {}, path);
+            setStatus(error.message, 'error');
+          }
+        });
+      });
+      document.querySelectorAll('[data-override-value]').forEach(control => {
+        control.addEventListener('change', event => {
+          const { sectionIndex, entryIndex, path } = parseOverrideKey(event.target.dataset.overrideValue);
+          const entry = session.sections[sectionIndex].exercises[entryIndex];
+          if (!hasPathValue(entry.overrides || {}, path)) {
+            return;
+          }
+          try {
+            const spec = findOverrideSpec(entry, path);
+            setOverridePath(entry, path, readOverrideControlValue(event.target, spec));
+            markDirty();
+            setStatus('Overrides updated');
+            if (path === 'parameters.weightOptions') {
+              render();
+            }
+          } catch (error) {
+            setStatus(error.message, 'error');
+          }
+        });
+      });
+    }
+
+    function findOverrideSpec(entry, path) {
+      const item = state.bundle.exerciseCatalog[entry.exerciseId];
+      const spec = item && overrideFieldSpecs(item, entry).find(candidate => candidate.path === path);
+      if (!spec) {
+        throw new Error(`Unsupported override field: ${path}`);
+      }
+      return spec;
+    }
+
+    function readOverrideControlValue(control, spec) {
+      if (spec.type === 'integer' || spec.type === 'integerChoice') {
+        return parseInteger(control.value, 0);
+      }
+      if (spec.type === 'integerList') {
+        const values = parseIntegerList(control.value);
+        if (!values.length) {
+          throw new Error(`${spec.label} must not be empty`);
+        }
+        return values;
+      }
+      if (spec.type === 'textLines') {
+        return parseTextLines(control.value);
+      }
+      if (spec.type === 'sequenceSteps') {
+        return readSequenceSteps(control.value);
+      }
+      if (spec.type === 'repetitions') {
+        return readRepetitions(control.value);
+      }
+      return control.value;
+    }
+
+    function parseOverrideKey(key) {
+      const parts = key.split(':');
+      return {
+        sectionIndex: Number(parts[0]),
+        entryIndex: Number(parts[1]),
+        path: parts.slice(2).join(':')
+      };
+    }
+
+    function setOverridePath(entry, path, value) {
+      if (!entry.overrides) {
+        entry.overrides = {};
+      }
+      setPathValue(entry.overrides, path, value);
+    }
+
+    function deleteOverridePath(entry, path) {
+      if (!entry.overrides) {
+        return;
+      }
+      deletePathValue(entry.overrides, path);
+      if (!Object.keys(entry.overrides).length) {
+        delete entry.overrides;
+      }
+    }
+
+    function hasPathValue(source, path) {
+      const parts = path.split('.');
+      let current = source;
+      for (const part of parts) {
+        if (!current || typeof current !== 'object' || !Object.prototype.hasOwnProperty.call(current, part)) {
+          return false;
+        }
+        current = current[part];
+      }
+      return true;
+    }
+
+    function getPathValue(source, path) {
+      const parts = path.split('.');
+      let current = source;
+      for (const part of parts) {
+        if (!current || typeof current !== 'object') {
+          return undefined;
+        }
+        current = current[part];
+      }
+      return current;
+    }
+
+    function setPathValue(source, path, value) {
+      const parts = path.split('.');
+      let current = source;
+      for (const part of parts.slice(0, -1)) {
+        if (!current[part] || typeof current[part] !== 'object' || Array.isArray(current[part])) {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+      current[parts[parts.length - 1]] = value;
+    }
+
+    function deletePathValue(source, path) {
+      const parts = path.split('.');
+      const parents = [];
+      let current = source;
+      for (const part of parts.slice(0, -1)) {
+        if (!current || typeof current !== 'object') {
+          return;
+        }
+        parents.push({ owner: current, key: part });
+        current = current[part];
+      }
+      if (!current || typeof current !== 'object') {
+        return;
+      }
+      delete current[parts[parts.length - 1]];
+      for (let index = parents.length - 1; index >= 0; index -= 1) {
+        const child = parents[index].owner[parents[index].key];
+        if (isPlainObject(child) && !Object.keys(child).length) {
+          delete parents[index].owner[parents[index].key];
+        }
+      }
+    }
+
+    function preservedOverridePaths(entry, specs) {
+      const overrides = entry.overrides || {};
+      const visiblePaths = new Set(specs.map(spec => spec.path));
+      return flattenOverridePaths(overrides)
+        .filter(path => !visiblePaths.has(path))
+        .sort();
+    }
+
+    function flattenOverridePaths(value, prefix = '') {
+      if (!isPlainObject(value)) {
+        return prefix ? [prefix] : [];
+      }
+      return Object.keys(value).flatMap(key => flattenOverridePaths(value[key], prefix ? `${prefix}.${key}` : key));
+    }
+
+    function isPlainObject(value) {
+      return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    function uniqueValues(values) {
+      const seen = new Set();
+      return values.filter(value => {
+        const key = String(value);
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
     }
 
     function wireSectionControls(session) {
@@ -812,21 +1279,7 @@
         markDirty();
         render();
       }));
-      document.querySelectorAll('[data-entry-overrides]').forEach(textarea => textarea.addEventListener('change', event => {
-        try {
-          const [sectionIndex, entryIndex] = textarea.dataset.entryOverrides.split(':').map(Number);
-          const parsed = parseJsonField(event.target.value, {}, 'Overrides JSON');
-          if (Object.keys(parsed).length) {
-            session.sections[sectionIndex].exercises[entryIndex].overrides = parsed;
-          } else {
-            delete session.sections[sectionIndex].exercises[entryIndex].overrides;
-          }
-          markDirty();
-          setStatus('Overrides updated');
-        } catch (error) {
-          setStatus(error.message, 'error');
-        }
-      }));
+      wireOverrideEditor(session);
       document.querySelectorAll('[data-entry-delete]').forEach(button => button.addEventListener('click', () => {
         const [sectionIndex, entryIndex] = button.dataset.entryDelete.split(':').map(Number);
         session.sections[sectionIndex].exercises.splice(entryIndex, 1);
@@ -859,7 +1312,6 @@
         </div>
         <div class="hint">${escapeHtml(kindHelp[item.kind] || '')}</div>
         <label>Title<input id="catalog-title" value="${escapeHtml(item.title)}"></label>
-        <label>Description<textarea id="catalog-description" rows="${autoRows(item.description, 2, 6)}">${escapeHtml(item.description || '')}</textarea></label>
         <label>Main muscle groups
           <input id="catalog-muscle-groups" value="${escapeHtml(formatList(item.muscleGroups))}" placeholder="chest, triceps, front_delts">
           <span class="hint">Comma-separated keywords used by clients to suggest exercises after the last completed one.</span>
@@ -879,7 +1331,6 @@
         render();
       });
       $('#catalog-title').addEventListener('input', event => { item.title = event.target.value; markDirty(); renderCatalogList(); });
-      $('#catalog-description').addEventListener('input', event => { item.description = event.target.value; markDirty(); });
       $('#catalog-muscle-groups').addEventListener('change', event => {
         const groups = parseTextList(event.target.value);
         if (groups.length) {
@@ -1009,17 +1460,11 @@
     function renderInstructionsEditor(item) {
       const instructions = item.instructions || {};
       const details = (instructions.detailSections || []).join('\n');
-      const tips = (instructions.tips || []).join('\n');
-      const mistakes = (instructions.commonMistakes || []).join('\n');
       return `
         <section class="field-group">
           <strong>Instructions</strong>
           <div class="hint">Each line becomes one instruction item. Guided exercises usually use detail sections.</div>
           <label>Detail sections<textarea id="instructions-detail-sections" rows="${autoRows(details, 3, 10)}">${escapeHtml(details)}</textarea></label>
-          <div class="grid-2">
-            <label>Tips<textarea id="instructions-tips" rows="${autoRows(tips, 2, 6)}">${escapeHtml(tips)}</textarea></label>
-            <label>Common mistakes<textarea id="instructions-common-mistakes" rows="${autoRows(mistakes, 2, 6)}">${escapeHtml(mistakes)}</textarea></label>
-          </div>
         </section>
       `;
     }
@@ -1138,17 +1583,9 @@
     function wireInstructionsEditor(item) {
       const update = () => {
         const detailSections = parseTextLines($('#instructions-detail-sections').value);
-        const tips = parseTextLines($('#instructions-tips').value);
-        const commonMistakes = parseTextLines($('#instructions-common-mistakes').value);
         const instructions = {};
         if (detailSections.length) {
           instructions.detailSections = detailSections;
-        }
-        if (tips.length) {
-          instructions.tips = tips;
-        }
-        if (commonMistakes.length) {
-          instructions.commonMistakes = commonMistakes;
         }
         if (Object.keys(instructions).length) {
           item.instructions = instructions;
@@ -1158,23 +1595,6 @@
         markDirty();
       };
       $('#instructions-detail-sections').addEventListener('input', update);
-      $('#instructions-tips').addEventListener('input', update);
-      $('#instructions-common-mistakes').addEventListener('input', update);
-    }
-
-    function updateJsonProperty(target, property, value, fallback, label) {
-      try {
-        const parsed = parseJsonField(value, fallback, label);
-        if (Object.keys(parsed).length) {
-          target[property] = parsed;
-        } else {
-          delete target[property];
-        }
-        markDirty();
-        setStatus(`${label} updated`);
-      } catch (error) {
-        setStatus(error.message, 'error');
-      }
     }
 
     function addSession() {

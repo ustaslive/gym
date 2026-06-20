@@ -96,7 +96,7 @@
             flex: 1;
         }
 
-        .exercise-description {
+        .exercise-details {
             color: #666;
             margin-bottom: 15px;
             line-height: 1.4;
@@ -515,13 +515,13 @@
             const detailSections = instructions.detailSections || [];
             const settingsNote = settings.setupNote ? `Setup:\n${settings.setupNote}` : '';
             const detailsText = detailSections.length ? detailSections.join('\n') : '';
-            const descriptionParts = [definition.description, settingsNote, detailsText].filter(Boolean);
+            const detailParts = [detailsText, settingsNote].filter(Boolean);
             const exercise = {
                 id: entry.id,
                 exerciseId: entry.exerciseId,
                 title: definition.title,
                 type: definition.kind,
-                description: descriptionParts.join('\n\n'),
+                details: detailParts.join('\n\n'),
                 sectionId: section.id,
                 sectionTitle: section.title
             };
@@ -801,7 +801,7 @@
                             <div class="exercise-title">${escapeHtml(exercise.title)}</div>
                             <div class="exercise-type">${typeLabel}</div>
                         </div>
-                        <div class="exercise-description">${escapeHtml(exercise.description)}</div>
+                        ${exercise.details ? `<div class="exercise-details">${escapeHtml(exercise.details)}</div>` : ''}
                         ${controls}
                     </div>
                 `;
