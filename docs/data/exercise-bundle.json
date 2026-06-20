@@ -2185,10 +2185,6 @@
               "exerciseId": "decline_bench_crunch"
             },
             {
-              "id": "floor_crunch",
-              "exerciseId": "floor_crunch"
-            },
-            {
               "id": "db_front_raise",
               "exerciseId": "db_front_raise"
             },
@@ -2212,23 +2208,6 @@
           "id": "cooldown",
           "title": "Cooldown",
           "exercises": [
-            {
-              "id": "cooldown_torso_twist",
-              "exerciseId": "cooldown_torso_twist"
-            },
-            {
-              "id": "cooldown_horizontal_leg",
-              "exerciseId": "cooldown_horizontal_leg",
-              "overrides": {
-                "instructions": {
-                  "detailSections": [
-                    "Поставьте стопу на высокую опору. Колено согнуто.",
-                    "Мягко направляйте колено вниз за счет движения бедра, не давите на него руками.",
-                    "По 2 подхода 20–30 секунд на каждую сторону."
-                  ]
-                }
-              }
-            },
             {
               "id": "cooldown_neck",
               "exerciseId": "cooldown_neck",
